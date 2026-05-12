@@ -80,10 +80,14 @@ if uploaded_files:
                     
                     for frame in range(img.n_frames):
                         img.seek(frame)
-                        frame_dur = img.info.get('duration', 100)
-                        # Mimic ad-server/browser behavior: bump abnormally fast frames to 100ms
-                        if frame_dur <= 20: 
+                        # Pillow sometimes returns 0 if the duration isn't set, fallback to 100
+                        frame_dur = img.info.get('duration', 100) 
+                        
+                        # THE FIX: Only penalize frames 10ms or less. 
+                        # 20ms (50 FPS) is a perfectly valid speed for smooth display ads!
+                        if frame_dur <= 10: 
                             frame_dur = 100
+                            
                         cycle_duration_ms += frame_dur
                     
                     cycle_sec = cycle_duration_ms / 1000.0
