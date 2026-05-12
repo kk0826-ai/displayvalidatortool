@@ -1,18 +1,22 @@
-import os
-from flask import Flask, render_template, request
-from werkzeug.utils import secure_filename
+import streamlit as st
 from PIL import Image
 
-app = Flask(__name__)
+st.title("Display Creative Validator")
+st.write("Upload an asset to verify file type, max size (150 KB), dimensions, and animation length (Max 30s).")
 
-# Setup a temporary folder to save uploads before processing
-UPLOAD_FOLDER = 'uploads'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-# Set a hard limit of 5MB for uploads to protect your server
-app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 
+# Layout for expected dimensions
+col1, col2 = st.columns(2)
+with col1:
+    expected_width = st.number_input("Expected Width (px):", min_value=1, value=728)
+with col2:
+    expected_height = st.number_input("Expected Height (px):", min_value=1, value=90)
 
-def check_creative_compliance(filepath, expected_width, expected_height):
+# File uploader
+uploaded_file = st.file_uploader("Upload Asset (JPG, PNG, GIF)", type=["jpg", "jpeg", "png", "gif"])
+
+if uploaded_file is not None:
+    st.subheader(f"Report for: {uploaded_file.name}")
+    
     results = {
         "Status": "✅ Pass",
         "File Type": "Unknown",
@@ -22,15 +26,15 @@ def check_creative_compliance(filepath, expected_width, expected_height):
         "Errors": []
     }
 
-    size_bytes = os.path.getsize(filepath)
-    size_kb = size_bytes / 1024
+    # 1. Check Size
+    size_kb = uploaded_file.size / 1024
     results["Size (KB)"] = f"{size_kb:.2f}"
-    
     if size_kb > 150:
         results["Errors"].append(f"Size is {size_kb:.2f} KB (Max allowed is 150 KB).")
 
+    # 2. Check Image Metadata
     try:
-        with Image.open(filepath) as img:
+        with Image.open(uploaded_file) as img:
             file_format = img.format.upper()
             allowed_formats = ['JPEG', 'PNG', 'GIF'] 
             results["File Type"] = file_format
@@ -44,6 +48,7 @@ def check_creative_compliance(filepath, expected_width, expected_height):
             if actual_width != expected_width or actual_height != expected_height:
                 results["Errors"].append(f"Invalid dimensions: {actual_width}x{actual_height}. Expected {expected_width}x{expected_height}.")
 
+            # 3. Check Animation
             if file_format == 'GIF' and getattr(img, "is_animated", False):
                 duration_ms = 0
                 loop_count = img.info.get("loop", 1) 
@@ -66,29 +71,18 @@ def check_creative_compliance(filepath, expected_width, expected_height):
     if len(results["Errors"]) > 0:
         results["Status"] = "❌ Fail"
 
-    return results
+    # Display Results
+    if results["Status"] == "✅ Pass":
+        st.success(f"**Status:** {results['Status']}")
+    else:
+        st.error(f"**Status:** {results['Status']}")
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    report = None
-    filename = None
+    st.write(f"**File Type:** {results['File Type']}")
+    st.write(f"**Size:** {results['Size (KB)']} KB")
+    st.write(f"**Dimensions:** {results['Dimensions']}")
+    st.write(f"**Animation Length:** {results['Animation Length (s)']} seconds")
 
-    if request.method == 'POST':
-        # Grab the file and dimensions from the form
-        file = request.files.get('creative')
-        expected_width = int(request.form.get('width', 0))
-        expected_height = int(request.form.get('height', 0))
-
-        if file and file.filename != '':
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            
-            # Save, Analyze, and Delete
-            file.save(filepath)
-            report = check_creative_compliance(filepath, expected_width, expected_height)
-            os.remove(filepath) 
-
-    return render_template('index.html', report=report, filename=filename)
-
-if __name__ == '__main__':
-    app.run(debug=True)
+    if results["Errors"]:
+        st.warning("**Issues to fix:**")
+        for error in results["Errors"]:
+            st.write(f"- {error}")
