@@ -71,40 +71,40 @@ if uploaded_files:
 
                 dimensions = f"{img.size[0]}x{img.size[1]}"
 
-                # --- UPGRADED GIF LOGIC ---
+                # --- PURE RAW GIF LOGIC ---
                 if file_type == 'GIF' and getattr(img, "is_animated", False):
                     cycle_duration_ms = 0
                     
-                    # -1 usually means no loop specified (plays once). 0 means infinite.
+                    # -1 means no loop (plays once). 0 means infinite. Positive number means exact loops.
                     loop_count = img.info.get("loop", -1) 
                     
                     for frame in range(img.n_frames):
                         img.seek(frame)
-                        # Pillow sometimes returns 0 if the duration isn't set, fallback to 100
-                        frame_dur = img.info.get('duration', 100) 
-                        
-                        # THE FIX: Only penalize frames 10ms or less. 
-                        # 20ms (50 FPS) is a perfectly valid speed for smooth display ads!
-                        if frame_dur <= 10: 
-                            frame_dur = 100
-                            
-                        cycle_duration_ms += frame_dur
+                        # Sum the exact raw duration. Do not apply any browser fallbacks.
+                        cycle_duration_ms += img.info.get('duration', 0)
                     
                     cycle_sec = cycle_duration_ms / 1000.0
                     
                     if loop_count == 0:
-                        animation = f"Infinite Loop ({cycle_sec:.1f}s cycle)"
+                        animation = f"∞ Infinite ({cycle_sec:.1f}s cycle)"
                         errors.append("Infinite loop")
                         status = "Fail"
                         fail_flags["anim"] = True
-                    else:
-                        # If loop_count is 2, it repeats 2 times (plays 3 times total)
-                        total_plays = (loop_count + 1) if loop_count > 0 else 1
+                    elif loop_count > 0:
+                        # If loop_count is 2, it loops twice after the 1st play (3 plays total)
+                        total_plays = loop_count + 1
                         total_sec = cycle_sec * total_plays
-                        animation = f"{total_sec:.1f}s"
+                        animation = f"{total_sec:.1f}s ({cycle_sec:.1f}s × {total_plays})"
                         
                         if total_sec > 30:
-                            errors.append("Animation > 30s")
+                            errors.append(f"Animation > 30s")
+                            status = "Fail"
+                            fail_flags["anim"] = True
+                    else:
+                        # Plays exactly once
+                        animation = f"{cycle_sec:.1f}s"
+                        if cycle_sec > 30:
+                            errors.append(f"Animation > 30s")
                             status = "Fail"
                             fail_flags["anim"] = True
         except Exception:
