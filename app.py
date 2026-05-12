@@ -91,8 +91,8 @@ if uploaded_files:
                         status = "Fail"
                         fail_flags["anim"] = True
                     elif loop_count > 0:
-                        # If loop_count is 2, it loops twice after the 1st play (3 plays total)
-                        total_plays = loop_count + 1
+                        # NEW LOGIC: Treat loop_count exactly as Total Plays
+                        total_plays = loop_count
                         total_sec = cycle_sec * total_plays
                         animation = f"{total_sec:.1f}s ({cycle_sec:.1f}s × {total_plays})"
                         
