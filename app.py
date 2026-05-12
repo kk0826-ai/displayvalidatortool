@@ -160,7 +160,8 @@ if uploaded_files:
         else:
             status_icon = '<span class="material-icons" style="color: #FF2000;">cancel</span> Fail'
             error_text = ", ".join(errors)
-            row_html = f"<tr><td class='text-left' style='max-width: 200px; word-wrap: break-word;'>{file_name}</td><td colspan='4' class='text-orange'>{error_text}</td><td>{status_icon}</td></tr>"
+            # Removed colspan='4' so it perfectly matches the 3 header columns
+            row_html = f"<tr><td class='text-left' style='max-width: 200px; word-wrap: break-word;'>{file_name}</td><td class='text-orange'>{error_text}</td><td>{status_icon}</td></tr>"
             non_compliant_rows.append(row_html)
 
     st.markdown("<br><br>", unsafe_allow_html=True)
