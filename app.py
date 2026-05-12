@@ -14,7 +14,7 @@ st.markdown("""
             font-family: 'Manrope', sans-serif !important;
         }
         
-        /* Style the Streamlit File Uploader to match your yellow/gold theme */
+        /* Style the Streamlit File Uploader */
         [data-testid="stFileUploadDropzone"] {
             background-color: #FFCA011A !important;
             border: 2px dashed #d1d5db !important;
@@ -25,7 +25,7 @@ st.markdown("""
             background-color: #FFCA0133 !important;
         }
 
-        /* Custom Table Styling to match your tool */
+        /* Custom Table Styling */
         .custom-table-container {
             width: 100%;
             overflow-x: auto;
@@ -61,6 +61,7 @@ st.markdown("""
         /* Text Alignments & Highlighting */
         .text-left { text-align: left; }
         .text-orange { color: #FF2000; font-weight: bold; }
+        .error-subtext { font-size: 12px; color: #FF2000; font-weight: 600; display: block; margin-top: 4px; }
         
         /* Section Headers */
         .section-header {
@@ -145,10 +146,10 @@ if uploaded_files:
                         errors.append(f"Animation > 30s")
                         status = "Fail"
         except Exception:
-            errors.append("Corrupted file")
+            errors.append("Corrupted file / Unreadable")
             status = "Fail"
 
-        # 3. Format Data for the Table (Flattened HTML to prevent Markdown code block rendering)
+        # 3. Format Data for the Table 
         type_class = "text-orange" if file_type not in ['JPEG', 'PNG', 'GIF'] else ""
         size_class = "text-orange" if size_kb > 150 else ""
         anim_class = "text-orange" if (status == "Fail" and ("Infinite" in str(errors) or "Animation >" in str(errors))) else ""
@@ -159,21 +160,31 @@ if uploaded_files:
             compliant_rows.append(row_html)
         else:
             status_icon = '<span class="material-icons" style="color: #FF2000;">cancel</span> Fail'
-            error_text = ", ".join(errors)
-            # Removed colspan='4' so it perfectly matches the 3 header columns
-            row_html = f"<tr><td class='text-left' style='max-width: 200px; word-wrap: break-word;'>{file_name}</td><td class='text-orange'>{error_text}</td><td>{status_icon}</td></tr>"
+            
+            # If the file is completely corrupted, we have no data to show, so we span the row. 
+            if "Corrupted file" in str(errors):
+                 row_html = f"<tr><td class='text-left' style='max-width: 200px; word-wrap: break-word;'>{file_name}</td><td colspan='4' class='text-orange'>Corrupted file or invalid format</td><td>{status_icon}</td></tr>"
+            else:
+                 # Otherwise, show all extracted metrics, highlight the fails, and add the error text under the filename.
+                 error_text = ", ".join(errors)
+                 error_html = f"<span class='error-subtext'>{error_text}</span>"
+                 row_html = f"<tr><td class='text-left' style='max-width: 200px; word-wrap: break-word;'>{file_name}{error_html}</td><td class='{type_class}'>{file_type}</td><td class='{size_class}'>{size_str}</td><td>{dimensions}</td><td class='{anim_class}'>{animation}</td><td>{status_icon}</td></tr>"
+            
             non_compliant_rows.append(row_html)
 
     st.markdown("<br><br>", unsafe_allow_html=True)
 
-    # --- RENDER NON-COMPLIANT TABLE ---
+    # --- RENDER NON-COMPLIANT TABLE (Now has all 6 columns!) ---
     if non_compliant_rows:
         st.markdown(
             '<div class="section-header"><div class="icon-circle-fail"><span class="material-icons" style="margin:0;">warning</span></div><h2>Non-compliant</h2></div>'
             '<p style="font-size: 14px; color: #4b5563; margin-bottom: 16px;">Review the highlighted properties and provide amended files. Display assets must be JPG/PNG/GIF, under 150KB, and animations must stop within 30 seconds.</p>'
             '<div class="custom-table-container"><table class="custom-table"><thead><tr>'
             '<th class="text-left"><span class="material-icons">insert_drive_file</span> File Name</th>'
-            '<th><span class="material-icons">description</span> Details / Errors</th>'
+            '<th><span class="material-icons">image</span> File Type</th>'
+            '<th><span class="material-icons">sd_storage</span> File Size</th>'
+            '<th><span class="material-icons">aspect_ratio</span> Dimensions</th>'
+            '<th><span class="material-icons">timer</span> Animation</th>'
             '<th><span class="material-icons">check_circle</span> Status</th>'
             '</tr></thead><tbody>' + "".join(non_compliant_rows) + '</tbody></table></div>', 
             unsafe_allow_html=True
