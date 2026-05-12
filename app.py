@@ -148,88 +148,47 @@ if uploaded_files:
             errors.append("Corrupted file")
             status = "Fail"
 
-        # 3. Format Data for the Table
-        # Highlight logic matches your audio tool (turn cell orange if it causes a failure)
+        # 3. Format Data for the Table (Flattened HTML to prevent Markdown code block rendering)
         type_class = "text-orange" if file_type not in ['JPEG', 'PNG', 'GIF'] else ""
         size_class = "text-orange" if size_kb > 150 else ""
         anim_class = "text-orange" if (status == "Fail" and ("Infinite" in str(errors) or "Animation >" in str(errors))) else ""
         
         if status == "Pass":
             status_icon = '<span class="material-icons" style="color: #16a34a;">check_circle</span> Pass'
-            row_html = f"""
-                <tr>
-                    <td class="text-left" style="max-width: 200px; word-wrap: break-word;">{file_name}</td>
-                    <td class="{type_class}">{file_type}</td>
-                    <td class="{size_class}">{size_str}</td>
-                    <td>{dimensions}</td>
-                    <td class="{anim_class}">{animation}</td>
-                    <td>{status_icon}</td>
-                </tr>
-            """
+            row_html = f"<tr><td class='text-left' style='max-width: 200px; word-wrap: break-word;'>{file_name}</td><td class='{type_class}'>{file_type}</td><td class='{size_class}'>{size_str}</td><td>{dimensions}</td><td class='{anim_class}'>{animation}</td><td>{status_icon}</td></tr>"
             compliant_rows.append(row_html)
         else:
             status_icon = '<span class="material-icons" style="color: #FF2000;">cancel</span> Fail'
             error_text = ", ".join(errors)
-            # For fails, we show the error reason spanning the middle columns (like your audio tool does)
-            row_html = f"""
-                <tr>
-                    <td class="text-left" style="max-width: 200px; word-wrap: break-word;">{file_name}</td>
-                    <td colspan="4" class="text-orange">{error_text}</td>
-                    <td>{status_icon}</td>
-                </tr>
-            """
+            row_html = f"<tr><td class='text-left' style='max-width: 200px; word-wrap: break-word;'>{file_name}</td><td colspan='4' class='text-orange'>{error_text}</td><td>{status_icon}</td></tr>"
             non_compliant_rows.append(row_html)
 
     st.markdown("<br><br>", unsafe_allow_html=True)
 
     # --- RENDER NON-COMPLIANT TABLE ---
     if non_compliant_rows:
-        st.markdown("""
-            <div class="section-header">
-                <div class="icon-circle-fail"><span class="material-icons" style="margin:0;">warning</span></div>
-                <h2>Non-compliant</h2>
-            </div>
-            <p style="font-size: 14px; color: #4b5563; margin-bottom: 16px;">
-                Review the highlighted properties and provide amended files. Display assets must be JPG/PNG/GIF, under 150KB, and animations must stop within 30 seconds.
-            </p>
-            <div class="custom-table-container">
-                <table class="custom-table">
-                    <thead>
-                        <tr>
-                            <th class="text-left"><span class="material-icons">insert_drive_file</span> File Name</th>
-                            <th><span class="material-icons">description</span> Details / Errors</th>
-                            <th><span class="material-icons">check_circle</span> Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {}
-                    </tbody>
-                </table>
-            </div>
-        """.format("".join(non_compliant_rows)), unsafe_allow_html=True)
+        st.markdown(
+            '<div class="section-header"><div class="icon-circle-fail"><span class="material-icons" style="margin:0;">warning</span></div><h2>Non-compliant</h2></div>'
+            '<p style="font-size: 14px; color: #4b5563; margin-bottom: 16px;">Review the highlighted properties and provide amended files. Display assets must be JPG/PNG/GIF, under 150KB, and animations must stop within 30 seconds.</p>'
+            '<div class="custom-table-container"><table class="custom-table"><thead><tr>'
+            '<th class="text-left"><span class="material-icons">insert_drive_file</span> File Name</th>'
+            '<th><span class="material-icons">description</span> Details / Errors</th>'
+            '<th><span class="material-icons">check_circle</span> Status</th>'
+            '</tr></thead><tbody>' + "".join(non_compliant_rows) + '</tbody></table></div>', 
+            unsafe_allow_html=True
+        )
 
     # --- RENDER COMPLIANT TABLE ---
     if compliant_rows:
-        st.markdown("""
-            <div class="section-header">
-                <div class="icon-circle-pass"><span class="material-icons" style="margin:0;">check</span></div>
-                <h2>Compliant</h2>
-            </div>
-            <div class="custom-table-container">
-                <table class="custom-table">
-                    <thead>
-                        <tr>
-                            <th class="text-left"><span class="material-icons">insert_drive_file</span> File Name</th>
-                            <th><span class="material-icons">image</span> File Type</th>
-                            <th><span class="material-icons">sd_storage</span> File Size</th>
-                            <th><span class="material-icons">aspect_ratio</span> Dimensions</th>
-                            <th><span class="material-icons">timer</span> Animation</th>
-                            <th><span class="material-icons">check_circle</span> Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {}
-                    </tbody>
-                </table>
-            </div>
-        """.format("".join(compliant_rows)), unsafe_allow_html=True)
+        st.markdown(
+            '<div class="section-header"><div class="icon-circle-pass"><span class="material-icons" style="margin:0;">check</span></div><h2>Compliant</h2></div>'
+            '<div class="custom-table-container"><table class="custom-table"><thead><tr>'
+            '<th class="text-left"><span class="material-icons">insert_drive_file</span> File Name</th>'
+            '<th><span class="material-icons">image</span> File Type</th>'
+            '<th><span class="material-icons">sd_storage</span> File Size</th>'
+            '<th><span class="material-icons">aspect_ratio</span> Dimensions</th>'
+            '<th><span class="material-icons">timer</span> Animation</th>'
+            '<th><span class="material-icons">check_circle</span> Status</th>'
+            '</tr></thead><tbody>' + "".join(compliant_rows) + '</tbody></table></div>', 
+            unsafe_allow_html=True
+        )
