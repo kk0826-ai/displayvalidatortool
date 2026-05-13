@@ -28,7 +28,7 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-# 3. Precise CSS to hide ONLY the 200MB text
+# 3. CSS Updates
 st.markdown("""
     <style>
         /* Global Font */
@@ -37,14 +37,24 @@ st.markdown("""
         }
 
         /* --------------------------------------
-           TARGETING ONLY THE 200MB TEXT 
+           UPLOADER TEXT HACKS
            -------------------------------------- */
         
-        /* This strictly targets the 'small' text inside the drag-and-drop zone 
-           WITHOUT hiding the uploaded files or the delete button below it */
-        [data-testid="stFileUploadDropzone"] > div > small,
-        [data-testid="stFileUploadDropzoneInstructions"] > small {
+        /* 1. Target the exact class you found in the inspector */
+        .st-emotion-cache-epvm6 {
             display: none !important;
+        }
+        
+        /* 2. Fallback to ensure any 'small' sub-text in the dropzone is hidden */
+        [data-testid="stFileUploadDropzoneInstructions"] small {
+            display: none !important;
+        }
+
+        /* Clean up the new label we are about to make visible */
+        .stFileUploader label p {
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            color: #111827 !important;
         }
 
         /* --------------------------------------
@@ -103,11 +113,12 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 4. Standard Streamlit Upload Dropzone
+# Implementing your idea: Make the label visible and add the text directly here!
 uploaded_files = st.file_uploader(
-    "Click to browse or drag & drop creatives below", 
+    "Upload Creatives (JPG, PNG, GIF) — Drag & drop below or click 'Browse files'", 
     type=["jpg", "jpeg", "png", "gif"], 
     accept_multiple_files=True,
-    label_visibility="collapsed"
+    label_visibility="visible" # Changed from collapsed to visible
 )
 
 if uploaded_files:
