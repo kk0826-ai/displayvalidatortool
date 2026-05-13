@@ -23,7 +23,7 @@ st.markdown(f"""
         border-radius: 4px;
     ">
         <h1 style="color: #FFFFFF; font-size: 28px; font-weight: 300; font-family: 'Manrope', sans-serif; margin: 0; letter-spacing: 1px;">
-            DISPLAY VALIDATOR TOOL
+            Display Validator Tool
         </h1>
     </div>
 """, unsafe_allow_html=True)
