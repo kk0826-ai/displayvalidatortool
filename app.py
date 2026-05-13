@@ -28,7 +28,7 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-# 3. Precise CSS to hide ONLY the 200MB text
+# 3. Structural CSS Fix
 st.markdown("""
     <style>
         /* Global Font */
@@ -37,14 +37,34 @@ st.markdown("""
         }
 
         /* --------------------------------------
-           TARGETING ONLY THE 200MB TEXT 
+           THE BULLETPROOF UPLOADER FIX
            -------------------------------------- */
         
-        /* This strictly targets the 'small' text inside the drag-and-drop zone 
-           WITHOUT hiding the uploaded files or the delete button below it */
-        [data-testid="stFileUploadDropzone"] > div > small,
-        [data-testid="stFileUploadDropzoneInstructions"] > small {
+        /* 1. Hide the entire text wrapper block inside the dropzone */
+        /* This ignores random class names and just hides the layout block containing the text */
+        [data-testid="stFileUploadDropzone"] > div > div {
             display: none !important;
+        }
+        
+        /* Fallback for older Streamlit versions */
+        [data-testid="stFileUploadDropzoneInstructions"] {
+            display: none !important;
+        }
+
+        /* 2. Center the remaining 'Browse files' button neatly in the dashed box */
+        [data-testid="stFileUploadDropzone"] > div {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            padding: 2rem 0 !important;
+        }
+
+        /* 3. Style our custom label to be clear and readable */
+        .stFileUploader label p {
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            color: #111827 !important;
+            margin-bottom: 0.5rem !important;
         }
 
         /* --------------------------------------
@@ -104,10 +124,10 @@ st.markdown("""
 
 # 4. Standard Streamlit Upload Dropzone
 uploaded_files = st.file_uploader(
-    "Click to browse or drag & drop creatives below", 
+    "Upload Creatives (JPG, PNG, GIF) — Drag & drop below or click 'Browse files'", 
     type=["jpg", "jpeg", "png", "gif"], 
     accept_multiple_files=True,
-    label_visibility="collapsed"
+    label_visibility="visible" 
 )
 
 if uploaded_files:
