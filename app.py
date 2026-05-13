@@ -1,153 +1,243 @@
 import streamlit as st
-from PIL import Image
+import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Display Creative Inspector", layout="wide")
-
+# 1. Hide Streamlit's default padding and header to give the HTML full control
+st.set_page_config(page_title="Display Validator", layout="wide")
 st.markdown("""
-    <link href="https://fonts.googleapis.com/css?family=Manrope:400,500,600,700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        html, body, [class*="css"] { font-family: 'Manrope', sans-serif !important; }
-        [data-testid="stFileUploadDropzone"] { background-color: #FFCA011A !important; border: 2px dashed #d1d5db !important; border-radius: 8px; padding: 40px !important; }
-        [data-testid="stFileUploadDropzone"]:hover { background-color: #FFCA0133 !important; }
-        
-        /* Table Styles */
-        .custom-table-container { width: 100%; overflow-x: auto; border: 1px solid #e5e7eb; border-radius: 4px; margin-bottom: 2rem; background-color: white; }
-        .custom-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 14px; }
-        .custom-table th { background-color: #2B0030; color: white; padding: 12px 16px; font-weight: 700; text-transform: uppercase; font-size: 12px; letter-spacing: 0.05em; }
-        .custom-table td { padding: 16px; border-top: 1px solid #e5e7eb; color: #4b5563; vertical-align: middle;}
-        .custom-table tbody tr:nth-child(even) { background-color: rgba(43, 0, 48, 0.02); }
-        
-        /* Highlighting Classes */
-        .text-left { text-align: left; }
-        .cell-fail { background-color: #FF20001A; color: #FF2000; font-weight: 700; border-radius: 4px; }
-        .remarks-fail { color: #FF2000; font-size: 13px; font-weight: 600; text-align: left;}
-        
-        /* Headers */
-        .section-header { display: flex; align-items: center; margin-bottom: 1rem; font-size: 14px; font-weight: 600; color: #4b5563; }
-        .icon-circle-fail { background-color: #FF20001A; color: #FF2000; padding: 8px; border-radius: 50%; display: inline-flex; margin-right: 12px; }
-        .icon-circle-pass { background-color: #dcfce7; color: #16a34a; padding: 8px; border-radius: 50%; display: inline-flex; margin-right: 12px; }
-        .material-icons { font-size: 18px !important; vertical-align: middle; margin-right: 6px; }
+        .block-container { padding-top: 0rem; padding-bottom: 0rem; padding-left: 0rem; padding-right: 0rem; }
+        header { visibility: hidden; }
+        #MainMenu { visibility: hidden; }
+        footer { visibility: hidden; }
     </style>
 """, unsafe_allow_html=True)
 
-st.title("Display Creative Inspector")
-st.write("Upload display assets to automatically extract their metadata and validate network compliance (Max 150 KB, Max 30s animation).")
+# 2. Paste our entire HTML/JS code inside this variable
+html_code = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Manrope', sans-serif; }
+        body { background-color: #F8FAFC; color: #111827; padding-bottom: 50px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-uploaded_files = st.file_uploader("Click to upload or drag & drop", type=["jpg", "jpeg", "png", "gif"], accept_multiple_files=True)
+        header {
+            background-image: url('https://i.ibb.co/nMTJF4B9/vj-HZbu8-Imgur.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 75px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.4); 
+        }
 
-if uploaded_files:
-    compliant_rows = []
-    non_compliant_rows = []
+        header h1 {
+            color: #FFFFFF;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
 
-    for file in uploaded_files:
-        file_name = file.name
-        status = "Pass"
-        file_type = "-"
-        size_str = "0"
-        dimensions = "-"
-        animation = "N/A"
-        errors = []
-        
-        # Track which specific cells failed for highlighting
-        fail_flags = {"type": False, "size": False, "anim": False}
+        .upload-section {
+            background-color: #FFFFFF;
+            border: 2px dashed #9CA3AF;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 2rem;
+        }
 
-        # 1. Size Check
-        size_kb = file.size / 1024
-        size_str = f"{size_kb:.2f} KB"
-        if size_kb > 150:
-            errors.append(f"Size > 150 KB")
-            status = "Fail"
-            fail_flags["size"] = True
+        .upload-section:hover, .upload-section.dragover {
+            border-color: #4B5563;
+            background-color: #F9FAFB;
+        }
 
-        # 2. Image Processing
-        try:
-            with Image.open(file) as img:
-                file_type = img.format.upper()
-                if file_type not in ['JPEG', 'PNG', 'GIF']:
-                    errors.append(f"Invalid format")
-                    status = "Fail"
-                    fail_flags["type"] = True
+        .upload-btn {
+            background-color: #FFFFFF;
+            border: 1px solid #D1D5DB;
+            color: #374151;
+            padding: 10px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
 
-                dimensions = f"{img.size[0]}x{img.size[1]}"
+        #file-input { display: none; }
 
-                # --- PURE RAW GIF LOGIC ---
-                if file_type == 'GIF' and getattr(img, "is_animated", False):
-                    cycle_duration_ms = 0
-                    
-                    # -1 means no loop (plays once). 0 means infinite. Positive number means exact loops.
-                    loop_count = img.info.get("loop", -1) 
-                    
-                    for frame in range(img.n_frames):
-                        img.seek(frame)
-                        # Sum the exact raw duration. Do not apply any browser fallbacks.
-                        cycle_duration_ms += img.info.get('duration', 0)
-                    
-                    cycle_sec = cycle_duration_ms / 1000.0
-                    
-                    if loop_count == 0:
-                        animation = f"∞ Infinite ({cycle_sec:.1f}s cycle)"
-                        errors.append("Infinite loop")
-                        status = "Fail"
-                        fail_flags["anim"] = True
-                    elif loop_count > 0:
-                        # NEW LOGIC: Treat loop_count exactly as Total Plays
-                        total_plays = loop_count
-                        total_sec = cycle_sec * total_plays
-                        animation = f"{total_sec:.1f}s ({cycle_sec:.1f}s × {total_plays})"
-                        
-                        if total_sec > 30:
-                            errors.append(f"Animation > 30s")
-                            status = "Fail"
-                            fail_flags["anim"] = True
-                    else:
-                        # Plays exactly once
-                        animation = f"{cycle_sec:.1f}s"
-                        if cycle_sec > 30:
-                            errors.append(f"Animation > 30s")
-                            status = "Fail"
-                            fail_flags["anim"] = True
-        except Exception:
-            errors.append("Corrupted file")
-            status = "Fail"
-            fail_flags["type"] = True
+        .table-title { font-size: 20px; font-weight: 700; color: #111827; margin-top: 32px; margin-bottom: 12px; display: none; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; background-color: #FFFFFF; margin-bottom: 2rem; display: none; }
+        th { background-color: #0F172A; color: #FFFFFF; padding: 12px 16px; font-size: 13px; font-weight: 600; text-align: left; border: 1px solid #334155; }
+        td { padding: 12px 16px; font-size: 14px; color: #111827; text-align: left; border: 1px solid #E5E7EB; vertical-align: top; word-wrap: break-word; }
+        tr:nth-child(even) { background-color: #F9FAFB; }
 
-        # 3. Format Cell Classes based on flags
-        tc = "cell-fail" if fail_flags["type"] else ""
-        sc = "cell-fail" if fail_flags["size"] else ""
-        ac = "cell-fail" if fail_flags["anim"] else ""
-        
-        if status == "Pass":
-            status_icon = '<span class="material-icons" style="color: #16a34a;">check_circle</span> Pass'
-            remarks = '<span style="color: #16a34a;">Compliant</span>'
-            row_html = f"<tr><td class='text-left' style='max-width: 180px; word-wrap: break-word;'>{file_name}</td><td class='{tc}'>{file_type}</td><td class='{sc}'>{size_str}</td><td>{dimensions}</td><td class='{ac}'>{animation}</td><td class='text-left'>{remarks}</td><td>{status_icon}</td></tr>"
-            compliant_rows.append(row_html)
-        else:
-            status_icon = '<span class="material-icons" style="color: #FF2000;">cancel</span> Fail'
-            remarks = f"<div class='remarks-fail'>{'<br>• '.join([''] + errors)}</div>"
-            
-            if "Corrupted file" in str(errors):
-                 row_html = f"<tr><td class='text-left' style='max-width: 180px; word-wrap: break-word;'>{file_name}</td><td colspan='4' class='cell-fail'>Unreadable File</td><td class='text-left'>{remarks}</td><td>{status_icon}</td></tr>"
-            else:
-                 row_html = f"<tr><td class='text-left' style='max-width: 180px; word-wrap: break-word;'>{file_name}</td><td class='{tc}'>{file_type}</td><td class='{sc}'>{size_str}</td><td>{dimensions}</td><td class='{ac}'>{animation}</td><td class='text-left'>{remarks}</td><td>{status_icon}</td></tr>"
-            
-            non_compliant_rows.append(row_html)
+        th:nth-child(1), td:nth-child(1) { width: 25%; }
+        th:nth-child(2), td:nth-child(2) { width: 10%; }
+        th:nth-child(3), td:nth-child(3) { width: 10%; }
+        th:nth-child(4), td:nth-child(4) { width: 15%; }
+        th:nth-child(5), td:nth-child(5) { width: 15%; }
+        th:nth-child(6), td:nth-child(6) { width: 15%; }
+        th:nth-child(7), td:nth-child(7) { width: 10%; }
 
-    st.markdown("<br><br>", unsafe_allow_html=True)
+        .status-pass { color: #16A34A; font-weight: 600; }
+        .status-fail { color: #DC2626; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <header><h1>DISPLAY VALIDATOR TOOL</h1></header>
+    <div class="container">
+        <div class="upload-section" id="dropzone" onclick="document.getElementById('file-input').click();">
+            <button class="upload-btn">Click to browse or drag & drop creatives</button>
+            <input type="file" id="file-input" multiple accept=".jpg,.jpeg,.png,.gif">
+        </div>
 
-    # Reusable Table HTML String
-    table_headers = '<thead><tr><th class="text-left"><span class="material-icons">insert_drive_file</span> File Name</th><th><span class="material-icons">image</span> Type</th><th><span class="material-icons">sd_storage</span> Size</th><th><span class="material-icons">aspect_ratio</span> Dimensions</th><th><span class="material-icons">timer</span> Animation</th><th class="text-left"><span class="material-icons">rule</span> Remarks</th><th><span class="material-icons">check_circle</span> Status</th></tr></thead>'
+        <h2 class="table-title" id="title-fail">Non-compliant</h2>
+        <table id="table-fail">
+            <thead><tr><th>File Name</th><th>Format</th><th>File Size</th><th>Dimensions</th><th>Animation</th><th>Remarks</th><th>Status</th></tr></thead>
+            <tbody id="tbody-fail"></tbody>
+        </table>
 
-    if non_compliant_rows:
-        st.markdown(
-            f'<div class="section-header"><div class="icon-circle-fail"><span class="material-icons" style="margin:0;">warning</span></div><h2>Non-compliant</h2></div>'
-            f'<div class="custom-table-container"><table class="custom-table">{table_headers}<tbody>' + "".join(non_compliant_rows) + '</tbody></table></div>', 
-            unsafe_allow_html=True
-        )
+        <h2 class="table-title" id="title-pass">Compliant</h2>
+        <table id="table-pass">
+            <thead><tr><th>File Name</th><th>Format</th><th>File Size</th><th>Dimensions</th><th>Animation</th><th>Remarks</th><th>Status</th></tr></thead>
+            <tbody id="tbody-pass"></tbody>
+        </table>
+    </div>
 
-    if compliant_rows:
-        st.markdown(
-            f'<div class="section-header"><div class="icon-circle-pass"><span class="material-icons" style="margin:0;">check</span></div><h2>Compliant</h2></div>'
-            f'<div class="custom-table-container"><table class="custom-table">{table_headers}<tbody>' + "".join(compliant_rows) + '</tbody></table></div>', 
-            unsafe_allow_html=True
-        )
+    <script>
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('file-input');
+
+        dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+        dropzone.addEventListener('drop', (e) => { e.preventDefault(); dropzone.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
+        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+        async function extractGIFData(file) {
+            try {
+                const buffer = await file.arrayBuffer();
+                const view = new DataView(buffer);
+                let offset = 0;
+
+                if (view.getUint8(0) !== 0x47) return { isAnimated: false }; 
+                offset += 13; 
+
+                const packed = view.getUint8(10);
+                if (packed & 0x80) offset += 3 * (2 << (packed & 7)); 
+
+                let loopCount = -1, totalMs = 0, frames = 0;
+
+                function skipBlocks(o) {
+                    while (o < view.byteLength) {
+                        let s = view.getUint8(o++);
+                        if (s === 0) break;
+                        o += s;
+                    }
+                    return o;
+                }
+
+                while (offset < view.byteLength) {
+                    const introducer = view.getUint8(offset++);
+                    if (introducer === 0x3B) break; 
+
+                    if (introducer === 0x21) { 
+                        const label = view.getUint8(offset++);
+                        if (label === 0xF9) { 
+                            offset++; 
+                            const delay = view.getUint16(offset + 1, true) * 10;
+                            totalMs += (delay === 0 ? 100 : delay);
+                            frames++;
+                            offset += 5; 
+                        } else if (label === 0xFF) { 
+                            const size = view.getUint8(offset++);
+                            if (size === 11) {
+                                const app = String.fromCharCode(...new Uint8Array(buffer, offset, 11));
+                                offset += 11;
+                                if (app === "NETSCAPE2.0" || app === "ANIMEXTS1.0") {
+                                    offset += 2; loopCount = view.getUint16(offset, true); offset += 3; 
+                                } else { offset = skipBlocks(offset); }
+                            } else { offset += size; offset = skipBlocks(offset); }
+                        } else { offset = skipBlocks(offset); }
+                    } else if (introducer === 0x2C) { 
+                        offset += 8;
+                        const imgPacked = view.getUint8(offset++);
+                        if (imgPacked & 0x80) offset += 3 * (2 << (imgPacked & 7));
+                        offset++; offset = skipBlocks(offset);
+                    } else { break; }
+                }
+                return { isAnimated: frames > 1, loops: loopCount, duration: totalMs / 1000 };
+            } catch (error) { return { isAnimated: false }; }
+        }
+
+        function getImageDimensions(file) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(`${img.width} × ${img.height}`);
+                img.onerror = () => resolve("Error");
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        async function handleFiles(files) {
+            document.getElementById('tbody-pass').innerHTML = "";
+            document.getElementById('tbody-fail').innerHTML = "";
+            let hasPass = false, hasFail = false;
+
+            for (let file of files) {
+                let status = "Pass", errors = [], animation = "-";
+                
+                let sizeKB = file.size / 1024;
+                let sizeStr = sizeKB.toFixed(2) + " KB";
+                if (sizeKB > 150) { errors.push("Size > 150 KB"); status = "Fail"; }
+
+                let ext = file.name.split('.').pop().toUpperCase();
+                if (!['JPG', 'JPEG', 'PNG', 'GIF'].includes(ext)) { errors.push("Invalid format"); status = "Fail"; }
+
+                let dimensions = await getImageDimensions(file);
+
+                if (ext === "GIF") {
+                    let gifData = await extractGIFData(file);
+                    if (gifData.isAnimated) {
+                        let cSec = gifData.duration, loops = gifData.loops;
+                        if (loops === 0) {
+                            animation = `∞ Infinite (${cSec.toFixed(1)}s)`; errors.push("Infinite loop"); status = "Fail";
+                        } else if (loops > 0) {
+                            let tSec = cSec * loops; animation = `${tSec.toFixed(1)}s`;
+                            if (tSec > 30) { errors.push("Animation > 30s"); status = "Fail"; }
+                        } else {
+                            animation = `${cSec.toFixed(1)}s`;
+                            if (cSec > 30) { errors.push("Animation > 30s"); status = "Fail"; }
+                        }
+                    }
+                }
+
+                let statHtml = status === "Pass" ? "<span class='status-pass'>On Track</span>" : "<span class='status-fail'>Action Required</span>";
+                let remHtml = status === "Pass" ? "None" : `<span class='status-fail'>${errors.join(" • ")}</span>`;
+
+                let tr = `<tr><td>${file.name}</td><td>${ext}</td><td>${sizeStr}</td><td>${dimensions}</td><td>${animation}</td><td>${remHtml}</td><td>${statHtml}</td></tr>`;
+
+                if (status === "Pass") { document.getElementById('tbody-pass').innerHTML += tr; hasPass = true; } 
+                else { document.getElementById('tbody-fail').innerHTML += tr; hasFail = true; }
+            }
+
+            document.getElementById('title-pass').style.display = hasPass ? "block" : "none";
+            document.getElementById('table-pass').style.display = hasPass ? "table" : "none";
+            document.getElementById('title-fail').style.display = hasFail ? "block" : "none";
+            document.getElementById('table-fail').style.display = hasFail ? "table" : "none";
+        }
+    </script>
+</body>
+</html>
+"""
+# 3. Render the HTML inside a Streamlit component
+# Setting height=1000 ensures there is plenty of room to see the tables, and scrolling=True allows scrolling if the table gets massive.
+components.html(html_code, height=1200, scrolling=True)
