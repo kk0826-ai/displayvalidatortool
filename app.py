@@ -2,9 +2,9 @@ import streamlit as st
 from PIL import Image
 
 # 1. Page Config
-st.set_page_config(page_title="Display Creative Inspector", page_icon="🎨", layout="wide")
+st.set_page_config(page_title="Display Creative Inspector", layout="wide")
 
-# 2. High-Contrast Dashboard CSS (Matching your screenshot)
+# 2. Custom CSS for Pixel-Perfect UI
 st.markdown("""
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -12,23 +12,53 @@ st.markdown("""
             font-family: 'Inter', sans-serif !important;
         }
 
-        /* Clean App Header */
+        /* Clean AdOps Tracker Header (No Emoji, Clean Line) */
         .app-header {
-            font-size: 28px;
-            font-weight: 500;
+            font-size: 32px;
+            font-weight: 600;
             color: #111827;
-            margin-bottom: 24px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #E5E7EB;
         }
 
-        /* Simple Upload Dropzone */
+        /* --------------------------------------
+           UPLOAD UI (Matching your screenshot)
+           -------------------------------------- */
+        
+        /* 1. The Outer Pale Yellow Box */
+        [data-testid="stFileUploader"] {
+            background-color: #FAF6EB !important; /* Pale yellow */
+            padding: 30px !important;
+        }
+
+        /* 2. The Inner White Dashed Box */
         [data-testid="stFileUploadDropzone"] {
-            border: 2px dashed #D1D5DB !important;
-            background-color: #F9FAFB !important;
-            padding: 40px 20px !important;
+            background-color: #FFFFFF !important;
+            border: 1.5px dashed #A1A1AA !important; /* Clean gray dashed border */
+            border-radius: 0px !important; /* Sharp corners like screenshot */
+            padding: 50px 20px !important;
         }
-        [data-testid="stFileUploadDropzone"] small { display: none; }
+        [data-testid="stFileUploadDropzone"]:hover {
+            border-color: #111827 !important;
+        }
 
-        /* Table Title (Matches "Summary" from your screenshot) */
+        /* 3. Hide the 200MB text completely */
+        [data-testid="stFileUploadDropzone"] small { 
+            display: none !important; 
+        }
+
+        /* Style the text inside the dropzone */
+        [data-testid="stFileUploadDropzone"] span {
+            color: #374151 !important;
+            font-size: 15px !important;
+            font-weight: 400 !important;
+        }
+
+        /* --------------------------------------
+           HIGH-CONTRAST GRID TABLE 
+           -------------------------------------- */
+        
         .table-title {
             font-size: 22px;
             font-weight: 500;
@@ -37,7 +67,6 @@ st.markdown("""
             margin-bottom: 12px;
         }
 
-        /* Dashboard Table Structure */
         .custom-table {
             width: 100%;
             border-collapse: collapse;
@@ -46,29 +75,26 @@ st.markdown("""
             background-color: #FFFFFF;
         }
         
-        /* Dark Header with Vertical Borders */
         .custom-table th {
-            background-color: #0F172A; /* Dark almost-black background */
+            background-color: #0F172A; 
             color: #FFFFFF;
             padding: 14px 16px;
             font-size: 14px;
             font-weight: 500;
-            text-align: left; /* Left aligned like screenshot */
-            border: 1px solid #334155; /* Darker borders between headers */
+            text-align: left; 
+            border: 1px solid #334155; 
         }
 
-        /* Table Cells with Vertical Borders */
         .custom-table td {
             padding: 14px 16px;
             font-size: 14px;
             color: #374151;
-            text-align: left; /* Left aligned like screenshot */
-            border: 1px solid #E5E7EB; /* Light grey grid lines */
+            text-align: left; 
+            border: 1px solid #E5E7EB; 
             vertical-align: top;
             word-wrap: break-word;
         }
 
-        /* Subtle Row Hover */
         .custom-table tbody tr:hover {
             background-color: #F9FAFB;
         }
@@ -96,7 +122,7 @@ st.markdown('<div class="app-header">Display Creative Inspector</div>', unsafe_a
 
 # 4. Upload UI
 uploaded_files = st.file_uploader(
-    "Click to browse or drag & drop creatives below", 
+    "Click to upload or drag & drop", 
     type=["jpg", "jpeg", "png", "gif"], 
     accept_multiple_files=True,
     label_visibility="collapsed"
@@ -175,13 +201,13 @@ if uploaded_files:
             file_type = "ERROR"
             fail_flags["type"] = True
 
-        # 3. Format UI Elements (Grid Style)
+        # 3. Format UI Elements
         sc = "text-error" if fail_flags["size"] else ""
         ac = "text-error" if fail_flags["anim"] else ""
         tc = "text-error" if fail_flags["type"] else ""
         
         if status == "Pass":
-            stat_html = "<span class='status-pass'>On Track</span>" # Matched to screenshot verbiage
+            stat_html = "<span class='status-pass'>On Track</span>" 
             rem_html = "<span class='remarks-text'>None</span>"
             row_html = f"<tr><td>{file_name}</td><td class='{tc}'>{file_type}</td><td class='{sc}'>{size_str}</td><td>{dimensions}</td><td class='{ac}'>{animation}</td><td>{rem_html}</td><td>{stat_html}</td></tr>"
             compliant_rows.append(row_html)
@@ -191,7 +217,7 @@ if uploaded_files:
             row_html = f"<tr><td>{file_name}</td><td class='{tc}'>{file_type}</td><td class='{sc}'>{size_str}</td><td>{dimensions}</td><td class='{ac}'>{animation}</td><td>{rem_html}</td><td>{stat_html}</td></tr>"
             non_compliant_rows.append(row_html)
 
-    # Clean Grid Headers (No icons, matching screenshot)
+    # Clean Grid Headers
     table_headers = """
         <thead>
             <tr>
