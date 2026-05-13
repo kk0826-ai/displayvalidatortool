@@ -22,7 +22,7 @@ st.markdown(f"""
         box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.4);
         border-radius: 4px;
     ">
-        <h1 style="color: #FFFFFF; font-size: 28px; font-weight: 800; font-family: 'Manrope', sans-serif; margin: 0; letter-spacing: 1px;">
+        <h1 style="color: #FFFFFF; font-size: 28px; font-weight: 300; font-family: 'Manrope', sans-serif; margin: 0; letter-spacing: 1px;">
             DISPLAY VALIDATOR TOOL
         </h1>
     </div>
