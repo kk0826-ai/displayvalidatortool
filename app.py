@@ -13,22 +13,22 @@ st.markdown(f"""
         background-image: url('{header_image_url}');
         background-size: cover;
         background-position: center;
-        height: 75px; /* Compact height */
+        height: 75px; 
         display: flex;
         align-items: center;
         justify-content: center;
         margin-top: -1rem;
         margin-bottom: 2rem;
         box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.4);
-        border-radius: 4px;
+        border-radius: 0px; /* Sharp corners on the header */
     ">
-        <h1 style="color: #FFFFFF; font-size: 28px; font-weight: 300; font-family: 'Manrope', sans-serif; margin: 0; letter-spacing: 1px;">
-            Display Validator Tool
+        <h1 style="color: #FFFFFF; font-size: 28px; font-weight: 800; font-family: 'Manrope', sans-serif; margin: 0; letter-spacing: 1px;">
+            DISPLAY VALIDATOR TOOL
         </h1>
     </div>
 """, unsafe_allow_html=True)
 
-# 3. Simple, Clean CSS (Stripped down to exactly what you need)
+# 3. Clean CSS with SHARP Upload UI
 st.markdown("""
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
@@ -38,15 +38,55 @@ st.markdown("""
         }
 
         /* --------------------------------------
-           SIMPLE UPLOAD UI
+           SHARP & CENTERED UPLOAD UI
            -------------------------------------- */
         
-        /* HIDE THE 200MB TEXT - Aggressive targeting */
-        [data-testid="stFileUploadDropzone"] small { 
-            display: none !important; 
+        /* 1. Sharp edges for the main uploader container */
+        [data-testid="stFileUploader"] {
+            border-radius: 0px !important; 
         }
-        [data-testid="stFileUploadDropzone"] div > small { 
-            display: none !important; 
+
+        /* 2. The dropzone box: sharp borders, centered content */
+        [data-testid="stFileUploadDropzone"] {
+            border-radius: 0px !important; /* Extremely sharp 90-degree edges */
+            border: 2px dashed #9CA3AF !important;
+            background-color: #FFFFFF !important;
+            padding: 50px 20px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        [data-testid="stFileUploadDropzone"]:hover {
+            border-color: #4B5563 !important;
+            background-color: #F9FAFB !important;
+        }
+
+        /* 3. Force the inner button wrapper to perfectly center */
+        [data-testid="stFileUploadDropzone"] > div {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            width: 100% !important;
+        }
+
+        /* Force the button itself to stay in the middle */
+        [data-testid="stFileUploadDropzone"] button {
+            margin: 0 auto !important; 
+        }
+
+        /* 4. HYPER-AGGRESSIVE HIDING OF THE "200MB" TEXT */
+        /* This targets all variants of Streamlit's subtext tags */
+        [data-testid="stFileUploadDropzone"] small,
+        [data-testid="stFileUploader"] small,
+        div[data-testid="stFileUploadDropzone"] > div > small {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            font-size: 0px !important;
+            height: 0px !important;
         }
 
         /* --------------------------------------
@@ -70,7 +110,6 @@ st.markdown("""
             background-color: #FFFFFF;
         }
         
-        /* Dark Header Matching "Summary" Screenshot */
         .custom-table th {
             background-color: #0F172A; 
             color: #FFFFFF;
