@@ -1,132 +1,71 @@
 import streamlit as st
+import pandas as pd
 from PIL import Image
 
-st.set_page_config(page_title="Display Creative Inspector", layout="wide")
+# 1. Page Config
+st.set_page_config(page_title="Display Creative Inspector", page_icon="🎨", layout="wide")
 
+# 2. Sleek Custom CSS for Native Streamlit Components
 st.markdown("""
-    <link href="https://fonts.googleapis.com/css?family=Manrope:400,500,600,700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        /* Global Typography */
-        html, body, [class*="css"] { font-family: 'Manrope', sans-serif !important; }
-        
-        /* Premium File Uploader UI */
-        [data-testid="stFileUploadDropzone"] { 
-            background-color: #FFCA011A !important; 
-            border: 2px dashed #CBD5E1 !important; 
-            border-radius: 12px; 
-            padding: 50px 20px !important; 
-            transition: all 0.2s ease-in-out;
-        }
-        [data-testid="stFileUploadDropzone"]:hover { 
-            background-color: #FFCA0133 !important; 
-            border-color: #94A3B8 !important;
+        /* Modern App-Style Header */
+        .main-header {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #1E293B;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #E2E8F0;
+            margin-bottom: 1.5rem;
         }
         
-        /* Clean Table Container with Shadow */
-        .custom-table-container { 
-            width: 100%; 
-            border: 1px solid #E2E8F0; 
-            border-radius: 8px; 
-            margin-bottom: 2.5rem; 
-            background-color: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            overflow: hidden; /* Keeps the rounded corners sharp */
+        /* Fix Streamlit's default padding at the top */
+        .block-container {
+            padding-top: 2.5rem;
         }
-        
-        /* Rigid Table Layout */
-        .custom-table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            table-layout: fixed; /* STRICT COLUMN SIZING */
-            text-align: center; 
-            font-size: 14px; 
-        }
-        
-        /* Column Width Definitions */
-        .col-name { width: 26%; text-align: left; }
-        .col-type { width: 10%; }
-        .col-size { width: 12%; }
-        .col-dim  { width: 14%; }
-        .col-anim { width: 14%; }
-        .col-rem  { width: 14%; text-align: left; }
-        .col-stat { width: 10%; }
-
-        /* Headers */
-        .custom-table th { 
-            background-color: #2B0030; 
-            color: white; 
-            padding: 16px 12px; 
-            font-weight: 600; 
-            text-transform: uppercase; 
-            font-size: 12px; 
-            letter-spacing: 0.05em; 
-            border-bottom: 2px solid #1a001d;
-        }
-        
-        /* Rows and Cells */
-        .custom-table td { 
-            padding: 16px 12px; 
-            border-bottom: 1px solid #F1F5F9; 
-            color: #334155; 
-            vertical-align: middle;
-            word-wrap: break-word; /* Prevents long file names from breaking the table */
-        }
-        .custom-table tbody tr:nth-child(even) { background-color: #F8FAFC; }
-        .custom-table tbody tr:hover { background-color: #F1F5F9; } /* Hover effect for rows */
-        
-        /* Highlighting and Status Badges */
-        .cell-fail { background-color: #FEF2F2 !important; color: #DC2626 !important; font-weight: 700; }
-        .remarks-fail { color: #DC2626; font-size: 13px; font-weight: 600; text-align: left; line-height: 1.4;}
-        
-        /* Section Headers */
-        .section-header { display: flex; align-items: center; margin-bottom: 0.75rem; font-size: 15px; font-weight: 700; color: #1E293B; }
-        .icon-circle-fail { background-color: #FEF2F2; color: #DC2626; padding: 6px; border-radius: 50%; display: inline-flex; margin-right: 10px; }
-        .icon-circle-pass { background-color: #DCFCE7; color: #16A34A; padding: 6px; border-radius: 50%; display: inline-flex; margin-right: 10px; }
-        .material-icons { font-size: 18px !important; vertical-align: middle; margin-right: 4px; }
     </style>
 """, unsafe_allow_html=True)
 
-st.title("Display Creative Inspector")
-st.write("Upload display assets to automatically extract their metadata and validate network compliance (Max 150 KB, Max 30s animation).")
+# 3. The New Header (Removed the extra text as requested)
+st.markdown('<div class="main-header">🎨 Display Creative Inspector</div>', unsafe_allow_html=True)
 
-uploaded_files = st.file_uploader("Click to upload or drag & drop", type=["jpg", "jpeg", "png", "gif"], accept_multiple_files=True)
+# 4. Improved Native Upload UI
+st.markdown("##### 📤 Upload Files")
+uploaded_files = st.file_uploader(
+    "Click to browse or drag & drop creatives below", 
+    type=["jpg", "jpeg", "png", "gif"], 
+    accept_multiple_files=True, 
+    label_visibility="collapsed"
+)
 
 if uploaded_files:
-    compliant_rows = []
-    non_compliant_rows = []
+    results = []
 
     for file in uploaded_files:
         file_name = file.name
-        status = "Pass"
+        status = "✅ Pass"
         file_type = "-"
         size_str = "0"
         dimensions = "-"
         animation = "N/A"
+        remarks = "Compliant"
         errors = []
-        
-        fail_flags = {"type": False, "size": False, "anim": False}
 
         # 1. Size Check
         size_kb = file.size / 1024
         size_str = f"{size_kb:.2f} KB"
         if size_kb > 150:
-            errors.append(f"Size > 150 KB")
-            status = "Fail"
-            fail_flags["size"] = True
+            errors.append("Size > 150 KB")
 
         # 2. Image Processing
         try:
             with Image.open(file) as img:
                 file_type = img.format.upper()
                 if file_type not in ['JPEG', 'PNG', 'GIF']:
-                    errors.append(f"Invalid format")
-                    status = "Fail"
-                    fail_flags["type"] = True
+                    errors.append("Invalid Format")
 
                 dimensions = f"{img.size[0]}x{img.size[1]}"
 
-                # --- GIF LOGIC (Loop Count as Total Plays) ---
+                # --- GIF LOGIC ---
                 if file_type == 'GIF' and getattr(img, "is_animated", False):
                     cycle_duration_ms = 0
                     loop_count = img.info.get("loop", -1) 
@@ -138,78 +77,76 @@ if uploaded_files:
                     cycle_sec = cycle_duration_ms / 1000.0
                     
                     if loop_count == 0:
-                        animation = f"∞ Infinite ({cycle_sec:.1f}s cycle)"
-                        errors.append("Infinite loop")
-                        status = "Fail"
-                        fail_flags["anim"] = True
+                        animation = f"∞ ({cycle_sec:.1f}s cycle)"
+                        errors.append("Infinite Loop")
                     elif loop_count > 0:
                         total_plays = loop_count
                         total_sec = cycle_sec * total_plays
                         animation = f"{total_sec:.1f}s ({cycle_sec:.1f}s × {total_plays})"
-                        
                         if total_sec > 30:
-                            errors.append(f"Animation > 30s")
-                            status = "Fail"
-                            fail_flags["anim"] = True
+                            errors.append("Animation > 30s")
                     else:
                         animation = f"{cycle_sec:.1f}s"
                         if cycle_sec > 30:
-                            errors.append(f"Animation > 30s")
-                            status = "Fail"
-                            fail_flags["anim"] = True
+                            errors.append("Animation > 30s")
         except Exception:
-            errors.append("Corrupted file")
-            status = "Fail"
-            fail_flags["type"] = True
+            errors.append("Unreadable File")
+            file_type = "ERROR"
 
-        # 3. Apply Classes
-        tc = "col-type cell-fail" if fail_flags["type"] else "col-type"
-        sc = "col-size cell-fail" if fail_flags["size"] else "col-size"
-        ac = "col-anim cell-fail" if fail_flags["anim"] else "col-anim"
+        # Determine Final Status
+        if errors:
+            status = "❌ Fail"
+            remarks = " • ".join(errors)
+
+        # Append to our data list
+        results.append({
+            "File Name": file_name,
+            "Type": file_type,
+            "Size": size_str,
+            "Dimensions": dimensions,
+            "Animation": animation,
+            "Remarks": remarks,
+            "Status": status
+        })
+
+    # Create a Pandas DataFrame
+    df = pd.DataFrame(results)
+
+    # 5. Pandas Styler to keep our Red Highlights on specific failing cells!
+    def style_dataframe(row):
+        styles = [''] * len(row)
         
-        if status == "Pass":
-            status_icon = '<span class="material-icons" style="color: #16A34A;">check_circle</span> Pass'
-            remarks = '<span style="color: #16A34A; font-weight: 500;">Compliant</span>'
-            row_html = f"<tr><td class='col-name'>{file_name}</td><td class='{tc}'>{file_type}</td><td class='{sc}'>{size_str}</td><td class='col-dim'>{dimensions}</td><td class='{ac}'>{animation}</td><td class='col-rem'>{remarks}</td><td class='col-stat'>{status_icon}</td></tr>"
-            compliant_rows.append(row_html)
+        if row['Status'] == '❌ Fail':
+            if 'Unreadable' in row['Remarks']:
+                return ['background-color: #FEF2F2; color: #DC2626;'] * len(row)
+            
+            for i, col in enumerate(row.index):
+                if col == 'Status' or col == 'Remarks':
+                    styles[i] = 'color: #DC2626; font-weight: bold;'
+                elif col == 'Size' and 'Size' in row['Remarks']:
+                    styles[i] = 'background-color: #FEF2F2; color: #DC2626; font-weight: bold;'
+                elif col == 'Type' and 'Format' in row['Remarks']:
+                    styles[i] = 'background-color: #FEF2F2; color: #DC2626; font-weight: bold;'
+                elif col == 'Animation' and ('Animation' in row['Remarks'] or 'Infinite' in row['Remarks']):
+                    styles[i] = 'background-color: #FEF2F2; color: #DC2626; font-weight: bold;'
         else:
-            status_icon = '<span class="material-icons" style="color: #DC2626;">cancel</span> Fail'
-            remarks = f"<div class='remarks-fail'>{'<br>• '.join([''] + errors)}</div>"
+            styles[df.columns.get_loc('Status')] = 'color: #16A34A; font-weight: bold;'
+            styles[df.columns.get_loc('Remarks')] = 'color: #16A34A; font-weight: bold;'
             
-            if "Corrupted file" in str(errors):
-                 row_html = f"<tr><td class='col-name'>{file_name}</td><td colspan='4' class='cell-fail' style='text-align: center;'>Unreadable File</td><td class='col-rem'>{remarks}</td><td class='col-stat'>{status_icon}</td></tr>"
-            else:
-                 row_html = f"<tr><td class='col-name'>{file_name}</td><td class='{tc}'>{file_type}</td><td class='{sc}'>{size_str}</td><td class='col-dim'>{dimensions}</td><td class='{ac}'>{animation}</td><td class='col-rem'>{remarks}</td><td class='col-stat'>{status_icon}</td></tr>"
-            
-            non_compliant_rows.append(row_html)
+        return styles
+
+    styled_df = df.style.apply(style_dataframe, axis=1)
 
     st.markdown("<br>", unsafe_allow_html=True)
-
-    # Reusable Table HTML String with Column Classes attached to Headers
-    table_headers = """
-        <thead>
-            <tr>
-                <th class="col-name"><span class="material-icons">insert_drive_file</span> File Name</th>
-                <th class="col-type"><span class="material-icons">image</span> Type</th>
-                <th class="col-size"><span class="material-icons">sd_storage</span> Size</th>
-                <th class="col-dim"><span class="material-icons">aspect_ratio</span> Dimensions</th>
-                <th class="col-anim"><span class="material-icons">timer</span> Animation</th>
-                <th class="col-rem"><span class="material-icons">rule</span> Remarks</th>
-                <th class="col-stat"><span class="material-icons">check_circle</span> Status</th>
-            </tr>
-        </thead>
-    """
-
-    if non_compliant_rows:
-        st.markdown(
-            f'<div class="section-header"><div class="icon-circle-fail"><span class="material-icons" style="margin:0;">warning</span></div><h2>Non-compliant</h2></div>'
-            f'<div class="custom-table-container"><table class="custom-table">{table_headers}<tbody>' + "".join(non_compliant_rows) + '</tbody></table></div>', 
-            unsafe_allow_html=True
-        )
-
-    if compliant_rows:
-        st.markdown(
-            f'<div class="section-header"><div class="icon-circle-pass"><span class="material-icons" style="margin:0;">check</span></div><h2>Compliant</h2></div>'
-            f'<div class="custom-table-container"><table class="custom-table">{table_headers}<tbody>' + "".join(compliant_rows) + '</tbody></table></div>', 
-            unsafe_allow_html=True
-        )
+    st.markdown("##### 📊 Compliance Report")
+    
+    # Render native Streamlit interactive dataframe
+    st.dataframe(
+        styled_df,
+        use_container_width=True,
+        hide_index=True,
+        column_config={
+            "File Name": st.column_config.TextColumn(width="medium"),
+            "Remarks": st.column_config.TextColumn(width="large")
+        }
+    )
