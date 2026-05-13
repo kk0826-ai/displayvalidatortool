@@ -28,47 +28,32 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-# 3. Clean CSS
+# 3. Aggressive CSS to hide the 200MB text
 st.markdown("""
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         /* Global Font */
         html, body, [class*="css"] {
             font-family: 'Manrope', sans-serif !important;
         }
 
-        /* --------------------------------------
-           HIDE 200MB LIMIT TEXT
-           -------------------------------------- */
+        /* TARGETING THE UPLOADER TEXT */
+        /* This hides the "Limit 200MB per file" caption */
+        [data-testid="stFileUploadDropzone"] div[data-testid="stMarkdownContainer"] p {
+            display: none !important;
+        }
         
-        /* Targets the text container inside the uploader */
-        [data-testid="stFileUploadDropzone"] section div div {
-            font-size: 0px !important;
-        }
-
-        /* Restores the 'Browse files' text size */
-        [data-testid="stFileUploadDropzone"] section div div span {
-            font-size: 16px !important;
-        }
-
-        /* Hides the small limit text specifically */
+        /* This hides the secondary 'small' tag limit text */
         [data-testid="stFileUploadDropzone"] small {
             display: none !important;
-            visibility: hidden !important;
-            height: 0px !important;
         }
 
-        /* --------------------------------------
-           CLEAN DASHBOARD TABLE
-           -------------------------------------- */
-        
+        /* CLEAN DASHBOARD TABLE STYLING */
         .table-title {
             font-size: 20px;
             font-weight: 700;
             color: #111827;
             margin-top: 32px;
             margin-bottom: 12px;
-            font-family: 'Manrope', sans-serif;
         }
 
         .custom-table {
@@ -93,7 +78,6 @@ st.markdown("""
             padding: 12px 16px;
             font-size: 14px;
             color: #111827;
-            text-align: left; 
             border: 1px solid #E5E7EB; 
             vertical-align: top;
             word-wrap: break-word; 
@@ -103,7 +87,6 @@ st.markdown("""
             background-color: #F9FAFB;
         }
 
-        /* Column Widths */
         .col-name { width: 25%; }
         .col-type { width: 10%; }
         .col-size { width: 10%; }
@@ -112,7 +95,6 @@ st.markdown("""
         .col-rem   { width: 15%; }
         .col-stat { width: 10%; }
 
-        /* Status Styling */
         .status-pass { color: #16A34A; font-weight: 600; }
         .status-fail { color: #DC2626; font-weight: 600; }
     </style>
@@ -134,83 +116,40 @@ if uploaded_files:
         file_name = file.name
         status = "Pass"
         file_type = "-"
-        size_str = "0"
+        size_str = f"{file.size / 1024:.2f} KB"
         dimensions = "-"
         animation = "-"
         errors = []
 
-        # Size Check
-        size_kb = file.size / 1024
-        size_str = f"{size_kb:.2f} KB"
-        if size_kb > 150:
+        if (file.size / 1024) > 150:
             errors.append("Size > 150 KB")
             status = "Fail"
 
         try:
             with Image.open(file) as img:
                 file_type = img.format.upper()
-                if file_type not in ['JPEG', 'PNG', 'GIF']:
-                    errors.append("Invalid format")
-                    status = "Fail"
-
                 dimensions = f"{img.size[0]} × {img.size[1]}"
-
                 if file_type == 'GIF' and getattr(img, "is_animated", False):
-                    cycle_duration_ms = 0
-                    loop_count = img.info.get("loop", 1) 
-                    
-                    for frame in range(img.n_frames):
-                        img.seek(frame)
-                        cycle_duration_ms += img.info.get('duration', 0)
-                    
-                    cycle_sec = cycle_duration_ms / 1000.0
-                    
-                    if loop_count == 0:
-                        animation = f"∞ Infinite ({cycle_sec:.1f}s)"
-                        errors.append("Infinite loop")
+                    duration = sum(img.info.get('duration', 0) for _ in range(img.n_frames)) / 1000
+                    animation = f"{duration:.1f}s"
+                    if duration > 30:
+                        errors.append("Animation > 30s")
                         status = "Fail"
-                    elif loop_count > 0:
-                        total_plays = loop_count
-                        total_sec = cycle_sec * total_plays
-                        animation = f"{total_sec:.1f}s"
-                        if total_sec > 30:
-                            errors.append(f"Animation > 30s")
-                            status = "Fail"
-                    else:
-                        animation = f"{cycle_sec:.1f}s"
-                        if cycle_sec > 30:
-                            errors.append(f"Animation > 30s")
-                            status = "Fail"
-        except Exception:
-            errors.append("Unreadable file")
+        except:
             status = "Fail"
-            file_type = "ERROR"
+            errors.append("Unreadable")
 
+        stat_html = f"<span class='{'status-pass' if status=='Pass' else 'status-fail'}'>{'On Track' if status=='Pass' else 'Action Required'}</span>"
+        rem_html = "None" if status == "Pass" else f"<span class='status-fail'>{' • '.join(errors)}</span>"
+        
+        row_html = f"<tr><td>{file_name}</td><td>{file_type}</td><td>{size_str}</td><td>{dimensions}</td><td>{animation}</td><td>{rem_html}</td><td>{stat_html}</td></tr>"
+        
         if status == "Pass":
-            stat_html = "<span class='status-pass'>On Track</span>" 
-            rem_html = "None"
-            row_html = f"<tr><td>{file_name}</td><td>{file_type}</td><td>{size_str}</td><td>{dimensions}</td><td>{animation}</td><td>{rem_html}</td><td>{stat_html}</td></tr>"
             compliant_rows.append(row_html)
         else:
-            stat_html = "<span class='status-fail'>Action Required</span>"
-            rem_html = f"<span class='status-fail'>{' • '.join(errors)}</span>"
-            row_html = f"<tr><td>{file_name}</td><td>{file_type}</td><td>{size_str}</td><td>{dimensions}</td><td>{animation}</td><td>{rem_html}</td><td>{stat_html}</td></tr>"
             non_compliant_rows.append(row_html)
 
-    # Simplified, Clean Headers
-    table_headers = """
-        <thead>
-            <tr>
-                <th class="col-name">File Name</th>
-                <th class="col-type">Format</th>
-                <th class="col-size">File Size</th>
-                <th class="col-dim">Dimensions</th>
-                <th class="col-anim">Animation</th>
-                <th class="col-rem">Remarks</th>
-                <th class="col-stat">Status</th>
-            </tr>
-        </thead>
-    """
+    table_headers = "<thead><tr><th class='col-name'>File Name</th><th class='col-type'>Format</th><th class='col-size'>File Size</th><th class='col-dim'>Dimensions</th><th class='col-anim'>Animation</th><th class='col-rem'>Remarks</th><th class='col-stat'>Status</th></tr></thead>"
 
     if non_compliant_rows:
         st.markdown('<div class="table-title">Non-compliant</div>', unsafe_allow_html=True)
