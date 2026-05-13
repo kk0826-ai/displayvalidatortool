@@ -28,7 +28,7 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-# 3. Dribbble-Inspired CSS Overhaul
+# 3. Structural CSS Fix
 st.markdown("""
     <style>
         /* Global Font */
@@ -36,100 +36,40 @@ st.markdown("""
             font-family: 'Manrope', sans-serif !important;
         }
 
-        /* ==================================================
-           DRIBBBLE-INSPIRED UPLOADER OVERHAUL
-           ================================================== */
+        /* --------------------------------------
+           THE BULLETPROOF UPLOADER FIX
+           -------------------------------------- */
         
-        /* 1. Nuke ALL default text colors and SVG icons inside the dropzone */
-        [data-testid="stFileUploadDropzone"] * {
-            color: transparent !important;
-            fill: transparent !important;
+        /* 1. Hide the entire text wrapper block inside the dropzone */
+        /* This ignores random class names and just hides the layout block containing the text */
+        [data-testid="stFileUploadDropzone"] > div > div {
+            display: none !important;
+        }
+        
+        /* Fallback for older Streamlit versions */
+        [data-testid="stFileUploadDropzoneInstructions"] {
+            display: none !important;
         }
 
-        /* 2. Collapse the default text elements so they take NO space */
-        /* This destroys the 200MB text permanently without touching file lists */
-        [data-testid="stFileUploadDropzone"] p,
-        [data-testid="stFileUploadDropzone"] small,
-        [data-testid="stFileUploadDropzone"] span {
-            font-size: 0px !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            line-height: 0 !important;
-        }
-
-        /* 3. Style the Dropzone Box (The outer dashed area) */
-        [data-testid="stFileUploadDropzone"] {
-            background-color: #F8FAFC !important;
-            border: 2px dashed #CBD5E1 !important;
-            border-radius: 16px !important;
-            padding: 50px 20px !important; /* Spacious, modern padding */
+        /* 2. Center the remaining 'Browse files' button neatly in the dashed box */
+        [data-testid="stFileUploadDropzone"] > div {
             display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
             justify-content: center !important;
-            transition: all 0.3s ease !important;
-            cursor: pointer !important;
-        }
-        [data-testid="stFileUploadDropzone"]:hover {
-            border-color: #3B82F6 !important;
-            background-color: #EFF6FF !important;
-        }
-
-        /* 4. Inject our beautiful custom header icon and text directly via CSS */
-        [data-testid="stFileUploadDropzone"]::before {
-            content: "☁️ Drop creatives here (JPG, PNG, GIF)";
-            font-size: 20px !important;
-            color: #1E293B !important;
-            font-weight: 700 !important;
-            margin-bottom: 24px !important;
-            display: block !important;
-            text-align: center !important;
-            letter-spacing: -0.5px !important;
-        }
-
-        /* 5. Style the native Streamlit button into a premium CTA */
-        [data-testid="stFileUploadDropzone"] button {
-            background: #0F172A !important; /* Dark blue matching your table headers */
-            border: none !important;
-            border-radius: 8px !important;
-            padding: 14px 32px !important;
-            min-height: 48px !important;
-            display: flex !important;
             align-items: center !important;
-            justify-content: center !important;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-            transition: all 0.2s ease !important;
-            z-index: 10 !important;
-        }
-        [data-testid="stFileUploadDropzone"] button:hover {
-            background: #1E293B !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+            padding: 2rem 0 !important;
         }
 
-        /* 6. Inject custom text into the button, overriding the invisible native text */
-        [data-testid="stFileUploadDropzone"] button::after {
-            content: "Select Files";
-            color: #FFFFFF !important;
-            font-size: 15px !important;
+        /* 3. Style our custom label to be clear and readable */
+        .stFileUploader label p {
+            font-size: 16px !important;
             font-weight: 600 !important;
-            letter-spacing: 0.5px !important;
-            visibility: visible !important;
-        }
-        
-        /* Hide inner elements Streamlit tries to push into the button */
-        [data-testid="stFileUploadDropzone"] button * {
-            display: none !important;
+            color: #111827 !important;
+            margin-bottom: 0.5rem !important;
         }
 
-        /* Hide the top file uploader label since we have big text now */
-        [data-testid="stFileUploader"] > label {
-            display: none !important;
-        }
-
-        /* ==================================================
+        /* --------------------------------------
            CLEAN DASHBOARD TABLE STYLING 
-           ================================================== */
+           -------------------------------------- */
         .table-title {
             font-size: 20px;
             font-weight: 700;
@@ -184,10 +124,10 @@ st.markdown("""
 
 # 4. Standard Streamlit Upload Dropzone
 uploaded_files = st.file_uploader(
-    "Upload", 
+    "Upload Creatives (JPG, PNG, GIF) — Drag & drop below or click 'Browse files'", 
     type=["jpg", "jpeg", "png", "gif"], 
     accept_multiple_files=True,
-    label_visibility="collapsed"
+    label_visibility="visible" 
 )
 
 if uploaded_files:
