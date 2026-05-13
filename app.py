@@ -4,87 +4,62 @@ from PIL import Image
 # 1. Page Config
 st.set_page_config(page_title="Display Validator Tool", layout="wide")
 
-# 2. Header with Background Image from URL
+# 2. Compact Header Banner
 header_image_url = "https://i.ibb.co/nMTJF4B9/vj-HZbu8-Imgur.jpg"
 
 st.markdown(f"""
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <div style="
         background-image: url('{header_image_url}');
         background-size: cover;
         background-position: center;
-        height: 120px;
+        height: 75px; /* Compact height */
         display: flex;
         align-items: center;
         justify-content: center;
         margin-top: -1rem;
         margin-bottom: 2rem;
-        box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.3);
+        box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.4);
         border-radius: 4px;
     ">
-        <h1 style="color: #FFFFFF; font-size: 36px; font-weight: 700; font-family: 'Manrope', sans-serif; margin: 0; letter-spacing: 1.5px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+        <h1 style="color: #FFFFFF; font-size: 28px; font-weight: 800; font-family: 'Manrope', sans-serif; margin: 0; letter-spacing: 1px;">
             DISPLAY VALIDATOR TOOL
         </h1>
     </div>
 """, unsafe_allow_html=True)
 
-# 3. Custom CSS for UI Components
+# 3. Simple, Clean CSS (Stripped down to exactly what you need)
 st.markdown("""
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Material+Icons&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
+        /* Global Font */
         html, body, [class*="css"] {
             font-family: 'Manrope', sans-serif !important;
         }
-        .material-icons {
-            font-size: 18px !important;
-            vertical-align: middle !important;
-            margin-right: 6px !important;
-        }
 
         /* --------------------------------------
-           UPLOAD UI (Classic Box-in-Box Style)
+           SIMPLE UPLOAD UI
            -------------------------------------- */
         
-        /* The Outer Pale Yellow/Beige Container */
-        [data-testid="stFileUploader"] {
-            background-color: #FDF9F1 !important; 
-            padding: 30px !important; 
-            border-radius: 4px;
-            margin-bottom: 2rem;
-        }
-
-        /* The Inner White Dashed Dropzone */
-        [data-testid="stFileUploadDropzone"] {
-            background-color: #FFFFFF !important;
-            border: 2px dashed #D1D5DB !important; 
-            border-radius: 0px !important; 
-            padding: 50px 20px !important;
-        }
-        
-        [data-testid="stFileUploadDropzone"]:hover {
-            border-color: #9CA3AF !important;
-            background-color: #F9FAFB !important;
-        }
-
-        /* HIDE THE 200MB AND TYPE LIMIT TEXT */
-        [data-testid="stFileUploader"] small { 
+        /* HIDE THE 200MB TEXT - Aggressive targeting */
+        [data-testid="stFileUploadDropzone"] small { 
             display: none !important; 
         }
-        
-        /* Hide the top "Drag and drop file here" label for a cleaner look */
-        .st-emotion-cache-16idsys p {
-            display: none !important;
+        [data-testid="stFileUploadDropzone"] div > small { 
+            display: none !important; 
         }
 
         /* --------------------------------------
-           HIGH-CONTRAST DASHBOARD TABLE
+           CLEAN DASHBOARD TABLE
            -------------------------------------- */
         
         .table-title {
-            font-size: 22px;
-            font-weight: 600;
+            font-size: 20px;
+            font-weight: 700;
             color: #111827;
             margin-top: 32px;
             margin-bottom: 12px;
+            font-family: 'Manrope', sans-serif;
         }
 
         .custom-table {
@@ -99,26 +74,24 @@ st.markdown("""
         .custom-table th {
             background-color: #0F172A; 
             color: #FFFFFF;
-            padding: 14px 16px;
+            padding: 12px 16px;
             font-size: 13px; 
             font-weight: 600;
             text-align: left; 
             border: 1px solid #334155; 
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
         }
 
         .custom-table td {
-            padding: 14px 16px;
+            padding: 12px 16px;
             font-size: 14px;
-            color: #374151;
+            color: #111827;
             text-align: left; 
             border: 1px solid #E5E7EB; 
-            vertical-align: middle;
+            vertical-align: top;
             word-wrap: break-word; 
         }
 
-        .custom-table tbody tr:hover {
+        .custom-table tbody tr:nth-child(even) {
             background-color: #F9FAFB;
         }
 
@@ -131,18 +104,18 @@ st.markdown("""
         .col-rem  { width: 15%; }
         .col-stat { width: 10%; }
 
-        /* Status Colors */
+        /* Status Styling */
         .status-pass { color: #16A34A; font-weight: 600; }
         .status-fail { color: #DC2626; font-weight: 600; }
-        .cell-fail { background-color: #FEF2F2 !important; color: #DC2626 !important; }
     </style>
 """, unsafe_allow_html=True)
 
-# 4. Upload UI
+# 4. Standard Streamlit Upload Dropzone
 uploaded_files = st.file_uploader(
-    "Upload Files", 
+    "Click to browse or drag & drop creatives below", 
     type=["jpg", "jpeg", "png", "gif"], 
-    accept_multiple_files=True
+    accept_multiple_files=True,
+    label_visibility="collapsed"
 )
 
 if uploaded_files:
@@ -157,7 +130,6 @@ if uploaded_files:
         dimensions = "-"
         animation = "-"
         errors = []
-        fail_flags = {"type": False, "size": False, "anim": False}
 
         # Size Check
         size_kb = file.size / 1024
@@ -165,7 +137,6 @@ if uploaded_files:
         if size_kb > 150:
             errors.append("Size > 150 KB")
             status = "Fail"
-            fail_flags["size"] = True
 
         try:
             with Image.open(file) as img:
@@ -173,7 +144,6 @@ if uploaded_files:
                 if file_type not in ['JPEG', 'PNG', 'GIF']:
                     errors.append("Invalid format")
                     status = "Fail"
-                    fail_flags["type"] = True
 
                 dimensions = f"{img.size[0]} × {img.size[1]}"
 
@@ -191,7 +161,6 @@ if uploaded_files:
                         animation = f"∞ Infinite ({cycle_sec:.1f}s)"
                         errors.append("Infinite loop")
                         status = "Fail"
-                        fail_flags["anim"] = True
                     elif loop_count > 0:
                         total_plays = loop_count
                         total_sec = cycle_sec * total_plays
@@ -199,34 +168,28 @@ if uploaded_files:
                         if total_sec > 30:
                             errors.append(f"Animation > 30s")
                             status = "Fail"
-                            fail_flags["anim"] = True
                     else:
                         animation = f"{cycle_sec:.1f}s"
                         if cycle_sec > 30:
                             errors.append(f"Animation > 30s")
                             status = "Fail"
-                            fail_flags["anim"] = True
         except Exception:
-            errors.append("Corrupted or unreadable")
+            errors.append("Unreadable file")
             status = "Fail"
             file_type = "ERROR"
-            fail_flags["type"] = True
 
-        sc = "cell-fail" if fail_flags["size"] else ""
-        ac = "cell-fail" if fail_flags["anim"] else ""
-        tc = "cell-fail" if fail_flags["type"] else ""
-        
         if status == "Pass":
             stat_html = "<span class='status-pass'>On Track</span>" 
-            rem_html = "Compliant"
-            row_html = f"<tr><td>{file_name}</td><td class='{tc}'>{file_type}</td><td class='{sc}'>{size_str}</td><td>{dimensions}</td><td class='{ac}'>{animation}</td><td>{rem_html}</td><td>{stat_html}</td></tr>"
+            rem_html = "None"
+            row_html = f"<tr><td>{file_name}</td><td>{file_type}</td><td>{size_str}</td><td>{dimensions}</td><td>{animation}</td><td>{rem_html}</td><td>{stat_html}</td></tr>"
             compliant_rows.append(row_html)
         else:
             stat_html = "<span class='status-fail'>Action Required</span>"
             rem_html = f"<span class='status-fail'>{' • '.join(errors)}</span>"
-            row_html = f"<tr><td>{file_name}</td><td class='{tc}'>{file_type}</td><td class='{sc}'>{size_str}</td><td>{dimensions}</td><td class='{ac}'>{animation}</td><td>{rem_html}</td><td>{stat_html}</td></tr>"
+            row_html = f"<tr><td>{file_name}</td><td>{file_type}</td><td>{size_str}</td><td>{dimensions}</td><td>{animation}</td><td>{rem_html}</td><td>{stat_html}</td></tr>"
             non_compliant_rows.append(row_html)
 
+    # Simplified, Clean Headers
     table_headers = """
         <thead>
             <tr>
@@ -242,9 +205,9 @@ if uploaded_files:
     """
 
     if non_compliant_rows:
-        st.markdown('<div class="table-title">Non-compliant Assets</div>', unsafe_allow_html=True)
+        st.markdown('<div class="table-title">Non-compliant</div>', unsafe_allow_html=True)
         st.markdown(f'<table class="custom-table">{table_headers}<tbody>' + "".join(non_compliant_rows) + '</tbody></table>', unsafe_allow_html=True)
 
     if compliant_rows:
-        st.markdown('<div class="table-title">Compliant Assets</div>', unsafe_allow_html=True)
+        st.markdown('<div class="table-title">Compliant</div>', unsafe_allow_html=True)
         st.markdown(f'<table class="custom-table">{table_headers}<tbody>' + "".join(compliant_rows) + '</tbody></table>', unsafe_allow_html=True)
