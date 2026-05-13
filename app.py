@@ -1,10 +1,14 @@
 import streamlit as st
 from PIL import Image
 
-# 1. Page Config
+# 1. Page Config (🎨 ICON REMOVED!)
 st.set_page_config(page_title="Display Creative Inspector", layout="wide")
 
-# 2. Custom CSS for Pixel-Perfect UI
+# 2. Add your Header Image / Logo here
+# Replace the URL below with your actual company logo URL or local file path (e.g., "logo.png")
+# st.image("https://via.placeholder.com/200x50?text=Your+Logo+Here", width=200)
+
+# 3. Custom CSS for Pixel-Perfect UI
 st.markdown("""
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -12,47 +16,46 @@ st.markdown("""
             font-family: 'Inter', sans-serif !important;
         }
 
-        /* Clean AdOps Tracker Header (No Emoji, Clean Line) */
+        /* Clean AdOps Tracker Header Text */
         .app-header {
             font-size: 32px;
             font-weight: 600;
             color: #111827;
+            margin-top: 10px;
             margin-bottom: 30px;
             padding-bottom: 15px;
             border-bottom: 2px solid #E5E7EB;
         }
 
         /* --------------------------------------
-           UPLOAD UI (Matching your screenshot)
+           UPLOAD UI (Perfect Box-in-Box)
            -------------------------------------- */
         
-        /* 1. The Outer Pale Yellow Box */
+        /* 1. The Outer Pale Yellow/Beige Box */
         [data-testid="stFileUploader"] {
-            background-color: #FAF6EB !important; /* Pale yellow */
-            padding: 30px !important;
+            background-color: #FDF9F1 !important; /* Pale beige background */
+            padding: 40px !important; /* Large padding creates the outer box effect */
+            border: 1px solid #F3EFE6 !important;
+            margin-bottom: 2rem;
         }
 
         /* 2. The Inner White Dashed Box */
         [data-testid="stFileUploadDropzone"] {
             background-color: #FFFFFF !important;
-            border: 1.5px dashed #A1A1AA !important; /* Clean gray dashed border */
+            border: 2px dashed #D1D5DB !important; /* Clean gray dashed border */
             border-radius: 0px !important; /* Sharp corners like screenshot */
-            padding: 50px 20px !important;
+            padding: 60px 20px !important;
         }
+        
+        /* Hover effect on the inner box */
         [data-testid="stFileUploadDropzone"]:hover {
-            border-color: #111827 !important;
+            border-color: #9CA3AF !important;
+            background-color: #F9FAFB !important;
         }
 
         /* 3. Hide the 200MB text completely */
-        [data-testid="stFileUploadDropzone"] small { 
+        [data-testid="stFileUploadDropzone"] > div > small { 
             display: none !important; 
-        }
-
-        /* Style the text inside the dropzone */
-        [data-testid="stFileUploadDropzone"] span {
-            color: #374151 !important;
-            font-size: 15px !important;
-            font-weight: 400 !important;
         }
 
         /* --------------------------------------
@@ -117,10 +120,10 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 3. App Header
+# 4. App Header Text
 st.markdown('<div class="app-header">Display Creative Inspector</div>', unsafe_allow_html=True)
 
-# 4. Upload UI
+# 5. Upload UI
 uploaded_files = st.file_uploader(
     "Click to upload or drag & drop", 
     type=["jpg", "jpeg", "png", "gif"], 
