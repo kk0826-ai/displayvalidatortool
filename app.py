@@ -28,7 +28,7 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-# 3. Aggressive CSS to hide the 200MB text
+# 3. Aggressive CSS to hide the 200MB text (Updated for newer Streamlit builds)
 st.markdown("""
     <style>
         /* Global Font */
@@ -36,18 +36,34 @@ st.markdown("""
             font-family: 'Manrope', sans-serif !important;
         }
 
-        /* TARGETING THE UPLOADER TEXT */
-        /* This hides the "Limit 200MB per file" caption */
-        [data-testid="stFileUploadDropzone"] div[data-testid="stMarkdownContainer"] p {
+        /* --------------------------------------
+           TARGETING THE UPLOADER TEXT 
+           -------------------------------------- */
+        
+        /* Hide "Drag and drop file here" helper text + limit */
+        [data-testid="stFileUploaderDropzoneInstructions"] {
+            display: none !important;
+        }
+
+        /* Hide uploaded file size limit text (newer versions) */
+        [data-testid="stFileUploader"] small {
             display: none !important;
         }
         
-        /* This hides the secondary 'small' tag limit text */
+        /* Hide uploaded file size limit text (older versions fallback) */
         [data-testid="stFileUploadDropzone"] small {
             display: none !important;
         }
 
-        /* CLEAN DASHBOARD TABLE STYLING */
+        /* Kill ALL text inside uploader except the button (Nuclear option) */
+        [data-testid="stFileUploader"] div:not(button) > small,
+        [data-testid="stFileUploader"] div:not(button) > p {
+            display: none !important;
+        }
+
+        /* --------------------------------------
+           CLEAN DASHBOARD TABLE STYLING 
+           -------------------------------------- */
         .table-title {
             font-size: 20px;
             font-weight: 700;
