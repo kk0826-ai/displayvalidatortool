@@ -245,4 +245,4 @@ html_code = """
 """
 
 # 3. Render the HTML inside a Streamlit component
-components.html(html_code, height=1200, scrolling=True
+components.html(html_code, height=1200, scrolling=True)
