@@ -1,134 +1,40 @@
 import streamlit as st
 from PIL import Image
 
-# 1. Page Config
-st.set_page_config(page_title="Display Validator Tool", layout="wide")
+st.set_page_config(page_title="Display Creative Inspector", layout="wide")
 
-# 2. Compact Header Banner
-header_image_url = "https://i.ibb.co/nMTJF4B9/vj-HZbu8-Imgur.jpg"
-
-st.markdown(f"""
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <div style="
-        background-image: url('{header_image_url}');
-        background-size: cover;
-        background-position: center;
-        height: 75px; 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-top: -1rem;
-        margin-bottom: 2rem;
-        box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.4);
-        border-radius: 4px;
-    ">
-        <h1 style="color: #FFFFFF; font-size: 28px; font-weight: 800; font-family: 'Manrope', sans-serif; margin: 0; letter-spacing: 1px;">
-            DISPLAY VALIDATOR TOOL
-        </h1>
-    </div>
-""", unsafe_allow_html=True)
-
-# 3. Structural CSS Fix
 st.markdown("""
+    <link href="https://fonts.googleapis.com/css?family=Manrope:400,500,600,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        /* Global Font */
-        html, body, [class*="css"] {
-            font-family: 'Manrope', sans-serif !important;
-        }
-
-        /* --------------------------------------
-           THE BULLETPROOF UPLOADER FIX
-           -------------------------------------- */
+        html, body, [class*="css"] { font-family: 'Manrope', sans-serif !important; }
+        [data-testid="stFileUploadDropzone"] { background-color: #FFCA011A !important; border: 2px dashed #d1d5db !important; border-radius: 8px; padding: 40px !important; }
+        [data-testid="stFileUploadDropzone"]:hover { background-color: #FFCA0133 !important; }
         
-        /* 1. Hide the entire text wrapper block inside the dropzone */
-        /* This ignores random class names and just hides the layout block containing the text */
-        [data-testid="stFileUploadDropzone"] > div > div {
-            display: none !important;
-        }
+        /* Table Styles */
+        .custom-table-container { width: 100%; overflow-x: auto; border: 1px solid #e5e7eb; border-radius: 4px; margin-bottom: 2rem; background-color: white; }
+        .custom-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 14px; }
+        .custom-table th { background-color: #2B0030; color: white; padding: 12px 16px; font-weight: 700; text-transform: uppercase; font-size: 12px; letter-spacing: 0.05em; }
+        .custom-table td { padding: 16px; border-top: 1px solid #e5e7eb; color: #4b5563; vertical-align: middle;}
+        .custom-table tbody tr:nth-child(even) { background-color: rgba(43, 0, 48, 0.02); }
         
-        /* Fallback for older Streamlit versions */
-        [data-testid="stFileUploadDropzoneInstructions"] {
-            display: none !important;
-        }
-
-        /* 2. Center the remaining 'Browse files' button neatly in the dashed box */
-        [data-testid="stFileUploadDropzone"] > div {
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
-            padding: 2rem 0 !important;
-        }
-
-        /* 3. Style our custom label to be clear and readable */
-        .stFileUploader label p {
-            font-size: 16px !important;
-            font-weight: 600 !important;
-            color: #111827 !important;
-            margin-bottom: 0.5rem !important;
-        }
-
-        /* --------------------------------------
-           CLEAN DASHBOARD TABLE STYLING 
-           -------------------------------------- */
-        .table-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #111827;
-            margin-top: 32px;
-            margin-bottom: 12px;
-        }
-
-        .custom-table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-            margin-bottom: 2rem;
-            background-color: #FFFFFF;
-        }
+        /* Highlighting Classes */
+        .text-left { text-align: left; }
+        .cell-fail { background-color: #FF20001A; color: #FF2000; font-weight: 700; border-radius: 4px; }
+        .remarks-fail { color: #FF2000; font-size: 13px; font-weight: 600; text-align: left;}
         
-        .custom-table th {
-            background-color: #0F172A; 
-            color: #FFFFFF;
-            padding: 12px 16px;
-            font-size: 13px; 
-            font-weight: 600;
-            text-align: left; 
-            border: 1px solid #334155; 
-        }
-
-        .custom-table td {
-            padding: 12px 16px;
-            font-size: 14px;
-            color: #111827;
-            border: 1px solid #E5E7EB; 
-            vertical-align: top;
-            word-wrap: break-word; 
-        }
-
-        .custom-table tbody tr:nth-child(even) {
-            background-color: #F9FAFB;
-        }
-
-        .col-name { width: 25%; }
-        .col-type { width: 10%; }
-        .col-size { width: 10%; }
-        .col-dim  { width: 15%; }
-        .col-anim { width: 15%; }
-        .col-rem   { width: 15%; }
-        .col-stat { width: 10%; }
-
-        .status-pass { color: #16A34A; font-weight: 600; }
-        .status-fail { color: #DC2626; font-weight: 600; }
+        /* Headers */
+        .section-header { display: flex; align-items: center; margin-bottom: 1rem; font-size: 14px; font-weight: 600; color: #4b5563; }
+        .icon-circle-fail { background-color: #FF20001A; color: #FF2000; padding: 8px; border-radius: 50%; display: inline-flex; margin-right: 12px; }
+        .icon-circle-pass { background-color: #dcfce7; color: #16a34a; padding: 8px; border-radius: 50%; display: inline-flex; margin-right: 12px; }
+        .material-icons { font-size: 18px !important; vertical-align: middle; margin-right: 6px; }
     </style>
 """, unsafe_allow_html=True)
 
-# 4. Standard Streamlit Upload Dropzone
-uploaded_files = st.file_uploader(
-    "Upload Creatives (JPG, PNG, GIF) — Drag & drop below or click 'Browse files'", 
-    type=["jpg", "jpeg", "png", "gif"], 
-    accept_multiple_files=True,
-    label_visibility="visible" 
-)
+st.title("Display Creative Inspector")
+st.write("Upload display assets to automatically extract their metadata and validate network compliance (Max 150 KB, Max 30s animation).")
+
+uploaded_files = st.file_uploader("Click to upload or drag & drop", type=["jpg", "jpeg", "png", "gif"], accept_multiple_files=True)
 
 if uploaded_files:
     compliant_rows = []
@@ -138,45 +44,110 @@ if uploaded_files:
         file_name = file.name
         status = "Pass"
         file_type = "-"
-        size_str = f"{file.size / 1024:.2f} KB"
+        size_str = "0"
         dimensions = "-"
-        animation = "-"
+        animation = "N/A"
         errors = []
+        
+        # Track which specific cells failed for highlighting
+        fail_flags = {"type": False, "size": False, "anim": False}
 
-        if (file.size / 1024) > 150:
-            errors.append("Size > 150 KB")
+        # 1. Size Check
+        size_kb = file.size / 1024
+        size_str = f"{size_kb:.2f} KB"
+        if size_kb > 150:
+            errors.append(f"Size > 150 KB")
             status = "Fail"
+            fail_flags["size"] = True
 
+        # 2. Image Processing
         try:
             with Image.open(file) as img:
                 file_type = img.format.upper()
-                dimensions = f"{img.size[0]} × {img.size[1]}"
-                if file_type == 'GIF' and getattr(img, "is_animated", False):
-                    duration = sum(img.info.get('duration', 0) for _ in range(img.n_frames)) / 1000
-                    animation = f"{duration:.1f}s"
-                    if duration > 30:
-                        errors.append("Animation > 30s")
-                        status = "Fail"
-        except:
-            status = "Fail"
-            errors.append("Unreadable")
+                if file_type not in ['JPEG', 'PNG', 'GIF']:
+                    errors.append(f"Invalid format")
+                    status = "Fail"
+                    fail_flags["type"] = True
 
-        stat_html = f"<span class='{'status-pass' if status=='Pass' else 'status-fail'}'>{'On Track' if status=='Pass' else 'Action Required'}</span>"
-        rem_html = "None" if status == "Pass" else f"<span class='status-fail'>{' • '.join(errors)}</span>"
-        
-        row_html = f"<tr><td>{file_name}</td><td>{file_type}</td><td>{size_str}</td><td>{dimensions}</td><td>{animation}</td><td>{rem_html}</td><td>{stat_html}</td></tr>"
+                dimensions = f"{img.size[0]}x{img.size[1]}"
+
+                # --- PURE RAW GIF LOGIC ---
+                if file_type == 'GIF' and getattr(img, "is_animated", False):
+                    cycle_duration_ms = 0
+                    
+                    # -1 means no loop (plays once). 0 means infinite. Positive number means exact loops.
+                    loop_count = img.info.get("loop", -1) 
+                    
+                    for frame in range(img.n_frames):
+                        img.seek(frame)
+                        # Sum the exact raw duration. Do not apply any browser fallbacks.
+                        cycle_duration_ms += img.info.get('duration', 0)
+                    
+                    cycle_sec = cycle_duration_ms / 1000.0
+                    
+                    if loop_count == 0:
+                        animation = f"∞ Infinite ({cycle_sec:.1f}s cycle)"
+                        errors.append("Infinite loop")
+                        status = "Fail"
+                        fail_flags["anim"] = True
+                    elif loop_count > 0:
+                        # NEW LOGIC: Treat loop_count exactly as Total Plays
+                        total_plays = loop_count
+                        total_sec = cycle_sec * total_plays
+                        animation = f"{total_sec:.1f}s ({cycle_sec:.1f}s × {total_plays})"
+                        
+                        if total_sec > 30:
+                            errors.append(f"Animation > 30s")
+                            status = "Fail"
+                            fail_flags["anim"] = True
+                    else:
+                        # Plays exactly once
+                        animation = f"{cycle_sec:.1f}s"
+                        if cycle_sec > 30:
+                            errors.append(f"Animation > 30s")
+                            status = "Fail"
+                            fail_flags["anim"] = True
+        except Exception:
+            errors.append("Corrupted file")
+            status = "Fail"
+            fail_flags["type"] = True
+
+        # 3. Format Cell Classes based on flags
+        tc = "cell-fail" if fail_flags["type"] else ""
+        sc = "cell-fail" if fail_flags["size"] else ""
+        ac = "cell-fail" if fail_flags["anim"] else ""
         
         if status == "Pass":
+            status_icon = '<span class="material-icons" style="color: #16a34a;">check_circle</span> Pass'
+            remarks = '<span style="color: #16a34a;">Compliant</span>'
+            row_html = f"<tr><td class='text-left' style='max-width: 180px; word-wrap: break-word;'>{file_name}</td><td class='{tc}'>{file_type}</td><td class='{sc}'>{size_str}</td><td>{dimensions}</td><td class='{ac}'>{animation}</td><td class='text-left'>{remarks}</td><td>{status_icon}</td></tr>"
             compliant_rows.append(row_html)
         else:
+            status_icon = '<span class="material-icons" style="color: #FF2000;">cancel</span> Fail'
+            remarks = f"<div class='remarks-fail'>{'<br>• '.join([''] + errors)}</div>"
+            
+            if "Corrupted file" in str(errors):
+                 row_html = f"<tr><td class='text-left' style='max-width: 180px; word-wrap: break-word;'>{file_name}</td><td colspan='4' class='cell-fail'>Unreadable File</td><td class='text-left'>{remarks}</td><td>{status_icon}</td></tr>"
+            else:
+                 row_html = f"<tr><td class='text-left' style='max-width: 180px; word-wrap: break-word;'>{file_name}</td><td class='{tc}'>{file_type}</td><td class='{sc}'>{size_str}</td><td>{dimensions}</td><td class='{ac}'>{animation}</td><td class='text-left'>{remarks}</td><td>{status_icon}</td></tr>"
+            
             non_compliant_rows.append(row_html)
 
-    table_headers = "<thead><tr><th class='col-name'>File Name</th><th class='col-type'>Format</th><th class='col-size'>File Size</th><th class='col-dim'>Dimensions</th><th class='col-anim'>Animation</th><th class='col-rem'>Remarks</th><th class='col-stat'>Status</th></tr></thead>"
+    st.markdown("<br><br>", unsafe_allow_html=True)
+
+    # Reusable Table HTML String
+    table_headers = '<thead><tr><th class="text-left"><span class="material-icons">insert_drive_file</span> File Name</th><th><span class="material-icons">image</span> Type</th><th><span class="material-icons">sd_storage</span> Size</th><th><span class="material-icons">aspect_ratio</span> Dimensions</th><th><span class="material-icons">timer</span> Animation</th><th class="text-left"><span class="material-icons">rule</span> Remarks</th><th><span class="material-icons">check_circle</span> Status</th></tr></thead>'
 
     if non_compliant_rows:
-        st.markdown('<div class="table-title">Non-compliant</div>', unsafe_allow_html=True)
-        st.markdown(f'<table class="custom-table">{table_headers}<tbody>' + "".join(non_compliant_rows) + '</tbody></table>', unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="section-header"><div class="icon-circle-fail"><span class="material-icons" style="margin:0;">warning</span></div><h2>Non-compliant</h2></div>'
+            f'<div class="custom-table-container"><table class="custom-table">{table_headers}<tbody>' + "".join(non_compliant_rows) + '</tbody></table></div>', 
+            unsafe_allow_html=True
+        )
 
     if compliant_rows:
-        st.markdown('<div class="table-title">Compliant</div>', unsafe_allow_html=True)
-        st.markdown(f'<table class="custom-table">{table_headers}<tbody>' + "".join(compliant_rows) + '</tbody></table>', unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="section-header"><div class="icon-circle-pass"><span class="material-icons" style="margin:0;">check</span></div><h2>Compliant</h2></div>'
+            f'<div class="custom-table-container"><table class="custom-table">{table_headers}<tbody>' + "".join(compliant_rows) + '</tbody></table></div>', 
+            unsafe_allow_html=True
+        )
