@@ -13,7 +13,7 @@ st.markdown(f"""
         background-image: url('{header_image_url}');
         background-size: cover;
         background-position: center;
-        height: 75px; /* Compact height */
+        height: 75px; 
         display: flex;
         align-items: center;
         justify-content: center;
@@ -28,7 +28,7 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-# 3. Simple, Clean CSS (Stripped down to exactly what you need)
+# 3. Clean CSS
 st.markdown("""
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
@@ -38,15 +38,24 @@ st.markdown("""
         }
 
         /* --------------------------------------
-           SIMPLE UPLOAD UI
+           HIDE 200MB LIMIT TEXT
            -------------------------------------- */
         
-        /* HIDE THE 200MB TEXT - Aggressive targeting */
-        [data-testid="stFileUploadDropzone"] small { 
-            display: none !important; 
+        /* Targets the text container inside the uploader */
+        [data-testid="stFileUploadDropzone"] section div div {
+            font-size: 0px !important;
         }
-        [data-testid="stFileUploadDropzone"] div > small { 
-            display: none !important; 
+
+        /* Restores the 'Browse files' text size */
+        [data-testid="stFileUploadDropzone"] section div div span {
+            font-size: 16px !important;
+        }
+
+        /* Hides the small limit text specifically */
+        [data-testid="stFileUploadDropzone"] small {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0px !important;
         }
 
         /* --------------------------------------
@@ -70,7 +79,6 @@ st.markdown("""
             background-color: #FFFFFF;
         }
         
-        /* Dark Header Matching "Summary" Screenshot */
         .custom-table th {
             background-color: #0F172A; 
             color: #FFFFFF;
@@ -101,7 +109,7 @@ st.markdown("""
         .col-size { width: 10%; }
         .col-dim  { width: 15%; }
         .col-anim { width: 15%; }
-        .col-rem  { width: 15%; }
+        .col-rem   { width: 15%; }
         .col-stat { width: 10%; }
 
         /* Status Styling */
