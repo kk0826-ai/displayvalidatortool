@@ -1,19 +1,48 @@
 import streamlit as st
+import base64
+import os
 from PIL import Image
 
 # 1. Page Config
 st.set_page_config(page_title="Display Validator Tool", layout="wide")
 
-# 2. Header Image
-# Make sure "vj-HZbu8-Imgur.jpg" is saved in the same folder as this app.py file!
-try:
-    st.image("vj-HZbu8-Imgur.jpg", use_container_width=True)
-except Exception:
-    st.warning("⚠️ Please ensure 'vj-HZbu8-Imgur.jpg' is in the same folder as this script to see the header image.")
+# 2. Dynamic Image Background Banner Logic
+def get_image_as_base64(file_path):
+    try:
+        with open(file_path, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode()
+    except Exception:
+        return None
 
-st.markdown('<h1 style="font-family: \'Manrope\', sans-serif; font-weight: 800; color: #111827; margin-top: -10px;">DISPLAY VALIDATOR TOOL</h1>', unsafe_allow_html=True)
+# Load the image you uploaded
+img_base64 = get_image_as_base64("vj-HZbu8-Imgur.jpg")
 
-# 3. Custom CSS
+if img_base64:
+    bg_style = f"background-image: url('data:image/jpeg;base64,{img_base64}');"
+else:
+    bg_style = "background-color: #111827;" # Dark fallback if image is missing
+
+# Render the Banner
+st.markdown(f"""
+    <div style="
+        {bg_style}
+        background-size: cover;
+        background-position: center;
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: -1rem;
+        margin-bottom: 2rem;
+        box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.4); /* Optional: Darkens image slightly so white text pops */
+    ">
+        <h1 style="color: #FFFFFF; font-size: 36px; font-weight: 600; font-family: 'Manrope', sans-serif; margin: 0; letter-spacing: 1px;">
+            DISPLAY VALIDATOR TOOL
+        </h1>
+    </div>
+""", unsafe_allow_html=True)
+
+# 3. Custom CSS for Uploader and Tables
 st.markdown("""
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Material+Icons&display=swap" rel="stylesheet">
     <style>
@@ -67,7 +96,7 @@ st.markdown("""
         
         .table-title {
             font-size: 22px;
-            font-weight: 500;
+            font-weight: 600;
             color: #111827;
             margin-top: 32px;
             margin-bottom: 12px;
@@ -123,11 +152,11 @@ st.markdown("""
         .col-stat { width: 10%; }
 
         .status-badge {
-            font-weight: 600;
-            font-size: 12px;
+            font-weight: 700;
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            padding: 4px 10px;
+            padding: 5px 10px;
             border-radius: 4px;
             display: inline-flex;
             align-items: center;
@@ -135,8 +164,8 @@ st.markdown("""
         .status-badge-pass { background-color: #DCFCE7; color: #166534; }
         .status-badge-fail { background-color: #FEE2E2; color: #991B1B; }
         
-        .remarks-fail { color: #DC2626; font-weight: 500; font-size: 13px; }
-        .cell-fail { background-color: rgba(220, 38, 38, 0.08) !important; color: #DC2626 !important; font-weight: 500; }
+        .remarks-fail { color: #DC2626; font-weight: 600; font-size: 13px; }
+        .cell-fail { background-color: rgba(220, 38, 38, 0.08) !important; color: #DC2626 !important; font-weight: 600; }
         .custom-table td.col-rem { text-align: left; }
     </style>
 """, unsafe_allow_html=True)
