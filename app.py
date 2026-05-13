@@ -4,154 +4,95 @@ from PIL import Image
 # 1. Page Config
 st.set_page_config(page_title="Display Creative Inspector", page_icon="🎨", layout="wide")
 
-# 2. Ultra-Modern SaaS CSS
+# 2. High-Contrast Dashboard CSS (Matching your screenshot)
 st.markdown("""
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* Global Font Upgrade */
         html, body, [class*="css"] {
             font-family: 'Inter', sans-serif !important;
         }
 
-        /* Modern App Header */
+        /* Clean App Header */
         .app-header {
             font-size: 28px;
-            font-weight: 700;
-            color: #0F172A;
-            letter-spacing: -0.02em;
-            margin-bottom: 8px;
-        }
-        .app-subheader {
-            font-size: 15px;
-            color: #64748B;
-            margin-bottom: 32px;
+            font-weight: 500;
+            color: #111827;
+            margin-bottom: 24px;
         }
 
-        /* Sleek Upload Dropzone */
+        /* Simple Upload Dropzone */
         [data-testid="stFileUploadDropzone"] {
-            border: 2px dashed #CBD5E1 !important;
-            border-radius: 16px !important;
-            background-color: #F8FAFC !important;
-            padding: 48px 24px !important;
-            transition: all 0.3s ease !important;
+            border: 2px dashed #D1D5DB !important;
+            background-color: #F9FAFB !important;
+            padding: 40px 20px !important;
         }
-        [data-testid="stFileUploadDropzone"]:hover {
-            border-color: #6366F1 !important;
-            background-color: #EEF2FF !important;
-        }
-        
-        /* Hide the default "Limit 200MB per file" text for a cleaner look */
         [data-testid="stFileUploadDropzone"] small { display: none; }
 
-        /* Modern Table Container */
-        .modern-table-container {
-            width: 100%;
-            background: #FFFFFF;
-            border: 1px solid #E2E8F0;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            overflow: hidden;
-            margin-bottom: 2rem;
+        /* Table Title (Matches "Summary" from your screenshot) */
+        .table-title {
+            font-size: 22px;
+            font-weight: 500;
+            color: #111827;
+            margin-top: 32px;
+            margin-bottom: 12px;
         }
 
-        /* Table Structure & Alignment */
-        .modern-table {
+        /* Dashboard Table Structure */
+        .custom-table {
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
+            margin-bottom: 2rem;
+            background-color: #FFFFFF;
         }
         
-        .modern-table thead {
-            background-color: #F8FAFC;
-            border-bottom: 1px solid #E2E8F0;
-        }
-
-        /* Perfect Header Centering */
-        .modern-table th {
-            padding: 16px 12px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #64748B;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            text-align: center; /* CENTER ALIGNED */
-        }
-        .modern-table th.align-left {
-            text-align: left; /* ONLY File Name & Remarks left-aligned */
-        }
-
-        /* Perfect Data Centering */
-        .modern-table td {
-            padding: 16px 12px;
+        /* Dark Header with Vertical Borders */
+        .custom-table th {
+            background-color: #0F172A; /* Dark almost-black background */
+            color: #FFFFFF;
+            padding: 14px 16px;
             font-size: 14px;
-            color: #334155;
-            border-bottom: 1px solid #F1F5F9;
-            vertical-align: middle;
-            text-align: center; /* CENTER ALIGNED */
+            font-weight: 500;
+            text-align: left; /* Left aligned like screenshot */
+            border: 1px solid #334155; /* Darker borders between headers */
+        }
+
+        /* Table Cells with Vertical Borders */
+        .custom-table td {
+            padding: 14px 16px;
+            font-size: 14px;
+            color: #374151;
+            text-align: left; /* Left aligned like screenshot */
+            border: 1px solid #E5E7EB; /* Light grey grid lines */
+            vertical-align: top;
             word-wrap: break-word;
         }
-        .modern-table td.align-left {
-            text-align: left;
-            font-weight: 500;
-            color: #0F172A;
-        }
 
-        /* Hover Effects */
-        .modern-table tbody tr:hover {
-            background-color: #F8FAFC;
+        /* Subtle Row Hover */
+        .custom-table tbody tr:hover {
+            background-color: #F9FAFB;
         }
-        .modern-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        /* Sleek Pill Badges */
-        .badge-pass {
-            background: #DCFCE7;
-            color: #166534;
-            padding: 6px 12px;
-            border-radius: 9999px;
-            font-weight: 600;
-            font-size: 12px;
-            display: inline-block;
-        }
-        .badge-fail {
-            background: #FEE2E2;
-            color: #991B1B;
-            padding: 6px 12px;
-            border-radius: 9999px;
-            font-weight: 600;
-            font-size: 12px;
-            display: inline-block;
-        }
-        .badge-type {
-            background: #F1F5F9;
-            color: #475569;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        /* Text Highlighting */
-        .text-error { color: #DC2626; font-weight: 600; }
-        .remarks-text { font-size: 13px; color: #475569; }
-        .remarks-error { font-size: 13px; color: #DC2626; font-weight: 500; }
 
         /* Column Widths */
         .col-name { width: 25%; }
         .col-type { width: 10%; }
-        .col-size { width: 12%; }
+        .col-size { width: 10%; }
         .col-dim  { width: 15%; }
         .col-anim { width: 15%; }
-        .col-rem  { width: 13%; }
+        .col-rem  { width: 15%; }
         .col-stat { width: 10%; }
+
+        /* Status Colors */
+        .status-pass { color: #16A34A; font-weight: 500; }
+        .status-fail { color: #DC2626; font-weight: 500; }
+        .text-error { color: #DC2626; font-weight: 500; }
+        .remarks-text { color: #6B7280; }
+        .remarks-error { color: #DC2626; }
     </style>
 """, unsafe_allow_html=True)
 
-# 3. Clean Header
+# 3. App Header
 st.markdown('<div class="app-header">Display Creative Inspector</div>', unsafe_allow_html=True)
-st.markdown('<div class="app-subheader">Validate network compliance (Max 150 KB, Max 30s animation).</div>', unsafe_allow_html=True)
 
 # 4. Upload UI
 uploaded_files = st.file_uploader(
@@ -234,48 +175,42 @@ if uploaded_files:
             file_type = "ERROR"
             fail_flags["type"] = True
 
-        # 3. Format UI Elements
-        type_badge = f"<span class='badge-type'>{file_type}</span>"
+        # 3. Format UI Elements (Grid Style)
         sc = "text-error" if fail_flags["size"] else ""
         ac = "text-error" if fail_flags["anim"] else ""
+        tc = "text-error" if fail_flags["type"] else ""
         
         if status == "Pass":
-            stat_badge = "<span class='badge-pass'>Compliant</span>"
+            stat_html = "<span class='status-pass'>On Track</span>" # Matched to screenshot verbiage
             rem_html = "<span class='remarks-text'>None</span>"
-            row_html = f"<tr><td class='align-left'>{file_name}</td><td>{type_badge}</td><td class='{sc}'>{size_str}</td><td>{dimensions}</td><td class='{ac}'>{animation}</td><td class='align-left'>{rem_html}</td><td>{stat_badge}</td></tr>"
+            row_html = f"<tr><td>{file_name}</td><td class='{tc}'>{file_type}</td><td class='{sc}'>{size_str}</td><td>{dimensions}</td><td class='{ac}'>{animation}</td><td>{rem_html}</td><td>{stat_html}</td></tr>"
             compliant_rows.append(row_html)
         else:
-            stat_badge = "<span class='badge-fail'>Action Required</span>"
+            stat_html = "<span class='status-fail'>Action Required</span>"
             rem_html = f"<div class='remarks-error'>{'<br>'.join(errors)}</div>"
-            row_html = f"<tr><td class='align-left'>{file_name}</td><td>{type_badge}</td><td class='{sc}'>{size_str}</td><td>{dimensions}</td><td class='{ac}'>{animation}</td><td class='align-left'>{rem_html}</td><td>{stat_badge}</td></tr>"
+            row_html = f"<tr><td>{file_name}</td><td class='{tc}'>{file_type}</td><td class='{sc}'>{size_str}</td><td>{dimensions}</td><td class='{ac}'>{animation}</td><td>{rem_html}</td><td>{stat_html}</td></tr>"
             non_compliant_rows.append(row_html)
 
-    # Reusable Table Headers
+    # Clean Grid Headers (No icons, matching screenshot)
     table_headers = """
         <thead>
             <tr>
-                <th class="col-name align-left">File Name</th>
+                <th class="col-name">File Name</th>
                 <th class="col-type">Format</th>
                 <th class="col-size">File Size</th>
                 <th class="col-dim">Dimensions</th>
                 <th class="col-anim">Animation</th>
-                <th class="col-rem align-left">Remarks</th>
+                <th class="col-rem">Remarks</th>
                 <th class="col-stat">Status</th>
             </tr>
         </thead>
     """
 
-    st.markdown("<br>", unsafe_allow_html=True)
-
     # Render Tables
     if non_compliant_rows:
-        st.markdown(
-            f'<div class="modern-table-container"><table class="modern-table">{table_headers}<tbody>' + "".join(non_compliant_rows) + '</tbody></table></div>', 
-            unsafe_allow_html=True
-        )
+        st.markdown('<div class="table-title">Non-compliant</div>', unsafe_allow_html=True)
+        st.markdown(f'<table class="custom-table">{table_headers}<tbody>' + "".join(non_compliant_rows) + '</tbody></table>', unsafe_allow_html=True)
 
     if compliant_rows:
-        st.markdown(
-            f'<div class="modern-table-container"><table class="modern-table">{table_headers}<tbody>' + "".join(compliant_rows) + '</tbody></table></div>', 
-            unsafe_allow_html=True
-        )
+        st.markdown('<div class="table-title">Compliant</div>', unsafe_allow_html=True)
+        st.markdown(f'<table class="custom-table">{table_headers}<tbody>' + "".join(compliant_rows) + '</tbody></table>', unsafe_allow_html=True)
