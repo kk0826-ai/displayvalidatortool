@@ -209,9 +209,14 @@ html_code = """
                     if (gifData.isAnimated) {
                         let cSec = gifData.duration, loops = gifData.loops;
                         if (loops === 0) {
-                            animation = `∞ Infinite (${cSec.toFixed(1)}s)`; errors.push("Infinite loop"); status = "Fail";
+                            // RESTORED: Infinite loop cycle text
+                            animation = `∞ Infinite (${cSec.toFixed(1)}s cycle)`; 
+                            errors.push("Infinite loop"); 
+                            status = "Fail";
                         } else if (loops > 0) {
-                            let tSec = cSec * loops; animation = `${tSec.toFixed(1)}s`;
+                            let tSec = cSec * loops; 
+                            // RESTORED: Total Sec (Cycle Sec x Loops)
+                            animation = `${tSec.toFixed(1)}s (${cSec.toFixed(1)}s × ${loops})`;
                             if (tSec > 30) { errors.push("Animation > 30s"); status = "Fail"; }
                         } else {
                             animation = `${cSec.toFixed(1)}s`;
@@ -238,6 +243,6 @@ html_code = """
 </body>
 </html>
 """
+
 # 3. Render the HTML inside a Streamlit component
-# Setting height=1000 ensures there is plenty of room to see the tables, and scrolling=True allows scrolling if the table gets massive.
-components.html(html_code, height=1200, scrolling=True)
+components.html(html_code, height=1200, scrolling=True
