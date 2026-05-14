@@ -55,8 +55,8 @@ html_code = """
             text-align: center;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            margin-bottom: 3rem;
-            border-radius: 0px; /* Razor sharp corners */
+            margin-bottom: 1.5rem;
+            border-radius: 0px; 
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -90,6 +90,33 @@ html_code = """
         }
         #file-input { display: none; }
 
+        /* Action Bar (Clear Button) */
+        .action-bar {
+            display: none; 
+            justify-content: flex-end;
+            margin-bottom: 1.5rem;
+        }
+        .clear-btn {
+            background-color: #FFFFFF;
+            border: 1px solid #CBD5E1;
+            color: #475569;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+        .clear-btn:hover {
+            background-color: #F1F5F9;
+            color: #0F172A;
+            border-color: #94A3B8;
+        }
+
         /* Minimalist High-End Data Tables */
         .table-wrapper {
             background: #FFFFFF;
@@ -97,7 +124,7 @@ html_code = """
             margin-bottom: 3rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
             display: none; 
-            border-radius: 0px; /* Sharp corners */
+            border-radius: 0px; 
         }
         .table-header-title {
             padding: 20px 24px;
@@ -115,7 +142,7 @@ html_code = """
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         
         th { 
-            background-color: #FAFAFA; 
+            background-color: #FFFFFF; 
             color: #64748B; 
             padding: 14px 24px; 
             font-size: 11px; 
@@ -130,16 +157,24 @@ html_code = """
             font-size: 13px; 
             color: #0F172A; 
             text-align: left; 
-            border-bottom: 1px solid #F1F5F9; 
+            border-bottom: 1px solid #E2E8F0; 
             vertical-align: middle; 
             word-wrap: break-word; 
             font-weight: 500;
         }
         tr:last-child td { border-bottom: none; }
-        tr:hover td { background-color: #F8FAFC; cursor: default; }
+
+        /* Subtle Vertical Column Banding */
+        th:nth-child(2), td:nth-child(2),
+        th:nth-child(4), td:nth-child(4) {
+            background-color: #F8FAFC; /* Subtle slate gray */
+        }
+
+        /* Hover overrides column banding */
+        tr:hover td { background-color: #F1F5F9 !important; cursor: default; }
 
         /* Column Sizing */
-        th:nth-child(1), td:nth-child(1) { width: 30%; font-weight: 700; } /* Emphasize File Name */
+        th:nth-child(1), td:nth-child(1) { width: 30%; font-weight: 700; } 
         th:nth-child(2), td:nth-child(2) { width: 12%; }
         th:nth-child(3), td:nth-child(3) { width: 14%; }
         th:nth-child(4), td:nth-child(4) { width: 18%; }
@@ -158,7 +193,7 @@ html_code = """
         .text-primary { color: #0F172A; font-size: 14px; font-weight: 700; }
         .text-secondary { color: #64748B; font-size: 12px; font-weight: 500; margin-top: 4px; display: block; }
         .text-error-detail { color: #DC2626; font-size: 12px; font-weight: 600; margin-top: 4px; display: block; }
-        .format-badge { background: #F1F5F9; color: #475569; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+        .format-badge { background: #E2E8F0; color: #334155; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
 
     </style>
 </head>
@@ -173,6 +208,13 @@ html_code = """
             <span class="upload-text">Drag & drop your creatives here</span>
             <span class="upload-subtext">or click to browse files</span>
             <input type="file" id="file-input" multiple accept=".jpg,.jpeg,.png,.gif">
+        </div>
+
+        <div class="action-bar" id="action-bar">
+            <button class="clear-btn" onclick="clearResults()">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                Clear Results
+            </button>
         </div>
 
         <div class="table-wrapper" id="wrapper-fail">
@@ -199,6 +241,16 @@ html_code = """
     <script>
         const dropzone = document.getElementById('dropzone');
         const fileInput = document.getElementById('file-input');
+
+        // Clear Results Functionality
+        function clearResults() {
+            document.getElementById('tbody-pass').innerHTML = "";
+            document.getElementById('tbody-fail').innerHTML = "";
+            document.getElementById('wrapper-pass').style.display = "none";
+            document.getElementById('wrapper-fail').style.display = "none";
+            document.getElementById('action-bar').style.display = "none";
+            fileInput.value = ""; // Reset the input so the same files can be uploaded again if needed
+        }
 
         dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
         dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
@@ -271,9 +323,11 @@ html_code = """
         }
 
         async function handleFiles(files) {
-            document.getElementById('tbody-pass').innerHTML = "";
-            document.getElementById('tbody-fail').innerHTML = "";
-            let hasPass = false, hasFail = false;
+            // Do not clear the table immediately upon uploading more, instead append them. 
+            // The user can use the "Clear Results" button to start fresh.
+            
+            let hasPass = document.getElementById('tbody-pass').innerHTML !== "";
+            let hasFail = document.getElementById('tbody-fail').innerHTML !== "";
 
             for (let file of files) {
                 let status = "Pass", errors = [], animationHtml = "<span class='text-secondary'>Static Image</span>";
@@ -295,22 +349,22 @@ html_code = """
                         let displayLoops = rawLoops < 0 ? 1 : rawLoops; 
 
                         if (rawLoops === 0) {
-                            animationHtml = `<span class='text-primary'>∞ Infinite</span><span class='text-secondary'>${cSec.toFixed(1)}s base cycle</span>`; 
+                            // CLEANED UP TEXT: Just Infinity and seconds
+                            animationHtml = `<span class='text-primary'>∞ Infinite</span><span class='text-secondary'>${cSec.toFixed(1)}s</span>`; 
                             errors.push("Contains infinite loop"); 
                             status = "Fail";
                         } else {
                             let tSec = cSec * displayLoops;
-                            animationHtml = `<span class='text-primary'>${tSec.toFixed(1)}s total</span><span class='text-secondary'>${cSec.toFixed(1)}s × ${displayLoops} plays</span>`;
+                            // CLEANED UP TEXT: Just total seconds
+                            animationHtml = `<span class='text-primary'>${tSec.toFixed(1)}s</span>`;
                             if (tSec > 30) { errors.push("Animation exceeds 30s"); status = "Fail"; }
                         }
                     }
                 }
 
-                // Consolidated Size & Dimensions column for cleaner UI
                 let sizeColorClass = sizeKB > 150 ? 'text-error-detail' : 'text-primary';
                 let sizeDimHtml = `<span class='${sizeColorClass}'>${sizeStr}</span><span class='text-secondary'>${dimensions}</span>`;
 
-                // Elevated Status & Remarks
                 let statusBlock = "";
                 if (status === "Pass") {
                     statusBlock = `<div class='status-container'>
@@ -335,6 +389,10 @@ html_code = """
                 else { document.getElementById('tbody-fail').innerHTML += tr; hasFail = true; }
             }
 
+            // Display UI elements
+            if (hasPass || hasFail) {
+                document.getElementById('action-bar').style.display = "flex";
+            }
             document.getElementById('wrapper-pass').style.display = hasPass ? "block" : "none";
             document.getElementById('wrapper-fail').style.display = hasFail ? "block" : "none";
         }
