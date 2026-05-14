@@ -43,7 +43,7 @@ html_code = """
         header h1 {
             color: #FFFFFF;
             font-size: 24px;
-            font-weight: 800;
+            font-weight: 300;
             letter-spacing: 2px;
         }
 
@@ -192,7 +192,7 @@ html_code = """
     </style>
 </head>
 <body>
-    <header><h1>DISPLAY VALIDATOR TOOL</h1></header>
+    <header><h1>Display Validator Tool</h1></header>
     
     <div class="container">
         <div class="upload-section" id="dropzone" onclick="document.getElementById('file-input').click();">
