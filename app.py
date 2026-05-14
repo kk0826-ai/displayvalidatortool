@@ -43,7 +43,7 @@ html_code = """
         header h1 {
             color: #FFFFFF;
             font-size: 24px;
-            font-weight: 800;
+            font-weight: 300;
             letter-spacing: 2px;
         }
 
