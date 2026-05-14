@@ -12,7 +12,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 2. The Premium HTML/JS Code
+# 2. The Ultra-Premium HTML/JS Code
 html_code = """
 <!DOCTYPE html>
 <html lang="en">
@@ -24,8 +24,8 @@ html_code = """
     <style>
         /* Global & Reset */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Manrope', sans-serif; }
-        body { background-color: #F1F5F9; color: #0F172A; padding-bottom: 60px; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        body { background-color: #FAFAFA; color: #0F172A; padding-bottom: 80px; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
 
         /* Premium Header Banner */
         header {
@@ -36,119 +36,130 @@ html_code = """
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 2.5rem;
-            box-shadow: inset 0 0 0 2000px rgba(15, 23, 42, 0.6); /* Deeper overlay for text contrast */
+            margin-bottom: 3rem;
+            box-shadow: inset 0 0 0 2000px rgba(15, 23, 42, 0.7); 
+            border-bottom: 4px solid #111827;
         }
         header h1 {
             color: #FFFFFF;
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 800;
-            letter-spacing: 1.5px;
+            letter-spacing: 2px;
         }
 
-        /* Modern Upload Dropzone */
+        /* Ultra-Clean Sharp Upload Dropzone */
         .upload-section {
             background-color: #FFFFFF;
-            border: 2px dashed #CBD5E1;
-            padding: 50px 20px;
+            border: 1.5px dashed #CBD5E1;
+            padding: 60px 20px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s ease;
-            margin-bottom: 2.5rem;
-            border-radius: 0px; /* Sharp corners as requested */
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 3rem;
+            border-radius: 0px; /* Razor sharp corners */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
         }
         .upload-section:hover, .upload-section.dragover {
-            border-color: #3B82F6;
-            background-color: #EFF6FF;
+            border-color: #0F172A;
+            background-color: #F8FAFC;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
         }
         .upload-icon {
-            width: 48px;
-            height: 48px;
-            color: #94A3B8;
+            width: 42px;
+            height: 42px;
+            color: #64748B;
             margin-bottom: 16px;
-            transition: color 0.2s ease;
+            transition: color 0.3s ease;
         }
-        .upload-section:hover .upload-icon { color: #3B82F6; }
+        .upload-section:hover .upload-icon { color: #0F172A; }
         .upload-text {
-            color: #334155;
-            font-size: 16px;
+            color: #0F172A;
+            font-size: 15px;
             font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        .upload-subtext {
+            color: #64748B;
+            font-size: 13px;
+            margin-top: 6px;
+            font-weight: 500;
         }
         #file-input { display: none; }
 
-        /* Enterprise SaaS Data Tables */
+        /* Minimalist High-End Data Tables */
         .table-wrapper {
             background: #FFFFFF;
             border: 1px solid #E2E8F0;
-            margin-bottom: 2.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            display: none; /* Hidden initially */
+            margin-bottom: 3rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            display: none; 
+            border-radius: 0px; /* Sharp corners */
         }
         .table-header-title {
-            padding: 16px 20px;
+            padding: 20px 24px;
             border-bottom: 1px solid #E2E8F0;
             background: #FFFFFF;
-            font-size: 18px;
-            font-weight: 700;
+            font-size: 16px;
+            font-weight: 800;
             color: #0F172A;
+            letter-spacing: 0.5px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
         
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         
         th { 
-            background-color: #F8FAFC; 
+            background-color: #FAFAFA; 
             color: #64748B; 
-            padding: 12px 20px; 
-            font-size: 12px; 
+            padding: 14px 24px; 
+            font-size: 11px; 
             font-weight: 700; 
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.1em;
             text-align: left; 
             border-bottom: 1px solid #E2E8F0; 
         }
         td { 
-            padding: 16px 20px; 
-            font-size: 14px; 
-            color: #334155; 
+            padding: 18px 24px; 
+            font-size: 13px; 
+            color: #0F172A; 
             text-align: left; 
             border-bottom: 1px solid #F1F5F9; 
             vertical-align: middle; 
             word-wrap: break-word; 
+            font-weight: 500;
         }
         tr:last-child td { border-bottom: none; }
-        tr:hover { background-color: #F8FAFC; }
+        tr:hover td { background-color: #F8FAFC; cursor: default; }
 
         /* Column Sizing */
-        th:nth-child(1), td:nth-child(1) { width: 28%; font-weight: 500; color: #0F172A; }
-        th:nth-child(2), td:nth-child(2) { width: 10%; }
-        th:nth-child(3), td:nth-child(3) { width: 12%; }
-        th:nth-child(4), td:nth-child(4) { width: 14%; }
-        th:nth-child(5), td:nth-child(5) { width: 16%; }
-        th:nth-child(6), td:nth-child(6) { width: 10%; }
+        th:nth-child(1), td:nth-child(1) { width: 30%; font-weight: 700; } /* Emphasize File Name */
+        th:nth-child(2), td:nth-child(2) { width: 12%; }
+        th:nth-child(3), td:nth-child(3) { width: 14%; }
+        th:nth-child(4), td:nth-child(4) { width: 18%; }
+        th:nth-child(5), td:nth-child(5) { width: 26%; }
 
-        /* Pill Badges */
-        .badge {
-            padding: 4px 10px;
-            border-radius: 9999px;
-            font-size: 12px;
-            font-weight: 700;
-            display: inline-block;
-            text-align: center;
-        }
-        .badge-pass { background-color: #DCFCE7; color: #166534; }
-        .badge-fail { background-color: #FEE2E2; color: #991B1B; }
+        /* Sleek Status Dots */
+        .status-container { display: flex; flex-direction: column; gap: 4px; }
+        .status-main { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px; }
+        .dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; }
+        .dot-pass { background-color: #10B981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15); }
+        .dot-fail { background-color: #EF4444; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15); }
+        .status-text-pass { color: #064E3B; }
+        .status-text-fail { color: #7F1D1D; }
 
-        /* Status text formatting */
-        .text-error { color: #DC2626; font-weight: 600; }
-        .text-sub { color: #64748B; font-size: 12px; margin-top: 4px; display: block; }
+        /* Typography Hierarchy */
+        .text-primary { color: #0F172A; font-size: 14px; font-weight: 700; }
+        .text-secondary { color: #64748B; font-size: 12px; font-weight: 500; margin-top: 4px; display: block; }
+        .text-error-detail { color: #DC2626; font-size: 12px; font-weight: 600; margin-top: 4px; display: block; }
+        .format-badge { background: #F1F5F9; color: #475569; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+
     </style>
 </head>
 <body>
@@ -157,28 +168,29 @@ html_code = """
     <div class="container">
         <div class="upload-section" id="dropzone" onclick="document.getElementById('file-input').click();">
             <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
             </svg>
-            <span class="upload-text">Click to browse or drag & drop creatives</span>
+            <span class="upload-text">Drag & drop your creatives here</span>
+            <span class="upload-subtext">or click to browse files</span>
             <input type="file" id="file-input" multiple accept=".jpg,.jpeg,.png,.gif">
         </div>
 
         <div class="table-wrapper" id="wrapper-fail">
             <div class="table-header-title">
-                <span style="color: #DC2626;">●</span> Action Required
+                <span class="dot dot-fail" style="margin-right: 4px;"></span> Action Required
             </div>
             <table>
-                <thead><tr><th>File Name</th><th>Format</th><th>Size</th><th>Dimensions</th><th>Animation</th><th>Status</th></tr></thead>
+                <thead><tr><th>File Name</th><th>Format</th><th>Size & Dims</th><th>Animation</th><th>Status Report</th></tr></thead>
                 <tbody id="tbody-fail"></tbody>
             </table>
         </div>
 
         <div class="table-wrapper" id="wrapper-pass">
             <div class="table-header-title">
-                <span style="color: #16A34A;">●</span> Compliant Assets
+                <span class="dot dot-pass" style="margin-right: 4px;"></span> Compliant Assets
             </div>
             <table>
-                <thead><tr><th>File Name</th><th>Format</th><th>Size</th><th>Dimensions</th><th>Animation</th><th>Status</th></tr></thead>
+                <thead><tr><th>File Name</th><th>Format</th><th>Size & Dims</th><th>Animation</th><th>Status Report</th></tr></thead>
                 <tbody id="tbody-pass"></tbody>
             </table>
         </div>
@@ -264,14 +276,14 @@ html_code = """
             let hasPass = false, hasFail = false;
 
             for (let file of files) {
-                let status = "Pass", errors = [], animationHtml = "-";
+                let status = "Pass", errors = [], animationHtml = "<span class='text-secondary'>Static Image</span>";
                 
                 let sizeKB = file.size / 1024;
-                let sizeStr = sizeKB.toFixed(2) + " KB";
-                if (sizeKB > 150) { errors.push("Size > 150 KB"); status = "Fail"; }
+                let sizeStr = sizeKB.toFixed(1) + " KB";
+                if (sizeKB > 150) { errors.push("Exceeds 150 KB limit"); status = "Fail"; }
 
                 let ext = file.name.split('.').pop().toUpperCase();
-                if (!['JPG', 'JPEG', 'PNG', 'GIF'].includes(ext)) { errors.push("Invalid format"); status = "Fail"; }
+                if (!['JPG', 'JPEG', 'PNG', 'GIF'].includes(ext)) { errors.push("Invalid file format"); status = "Fail"; }
 
                 let dimensions = await getImageDimensions(file);
 
@@ -280,32 +292,43 @@ html_code = """
                     if (gifData.isAnimated) {
                         let cSec = gifData.duration;
                         let rawLoops = gifData.loops;
-                        let displayLoops = rawLoops < 0 ? 1 : rawLoops; // Default to 1 play if no loop tag found
+                        let displayLoops = rawLoops < 0 ? 1 : rawLoops; 
 
                         if (rawLoops === 0) {
-                            animationHtml = `∞ Infinite <span class='text-sub'>(${cSec.toFixed(1)}s cycle)</span>`; 
-                            errors.push("Infinite loop"); 
+                            animationHtml = `<span class='text-primary'>∞ Infinite</span><span class='text-secondary'>${cSec.toFixed(1)}s base cycle</span>`; 
+                            errors.push("Contains infinite loop"); 
                             status = "Fail";
                         } else {
                             let tSec = cSec * displayLoops;
-                            // MATH ALWAYS SHOWS HERE:
-                            animationHtml = `${tSec.toFixed(1)}s <span class='text-sub'>(${cSec.toFixed(1)}s × ${displayLoops} plays)</span>`;
-                            if (tSec > 30) { errors.push("Animation > 30s"); status = "Fail"; }
+                            animationHtml = `<span class='text-primary'>${tSec.toFixed(1)}s total</span><span class='text-secondary'>${cSec.toFixed(1)}s × ${displayLoops} plays</span>`;
+                            if (tSec > 30) { errors.push("Animation exceeds 30s"); status = "Fail"; }
                         }
                     }
                 }
 
-                // Removed the separate remarks column and combined it with Status for a cleaner look
-                let statBadge = status === "Pass" ? "<span class='badge badge-pass'>Compliant</span>" : "<span class='badge badge-fail'>Fail</span>";
-                let errorHtml = status === "Fail" ? `<span class='text-sub text-error'>${errors.join(" • ")}</span>` : "";
+                // Consolidated Size & Dimensions column for cleaner UI
+                let sizeColorClass = sizeKB > 150 ? 'text-error-detail' : 'text-primary';
+                let sizeDimHtml = `<span class='${sizeColorClass}'>${sizeStr}</span><span class='text-secondary'>${dimensions}</span>`;
+
+                // Elevated Status & Remarks
+                let statusBlock = "";
+                if (status === "Pass") {
+                    statusBlock = `<div class='status-container'>
+                                      <div class='status-main status-text-pass'><span class='dot dot-pass'></span> Approved</div>
+                                   </div>`;
+                } else {
+                    statusBlock = `<div class='status-container'>
+                                      <div class='status-main status-text-fail'><span class='dot dot-fail'></span> Rejected</div>
+                                      <span class='text-error-detail'>${errors.join("<br>")}</span>
+                                   </div>`;
+                }
 
                 let tr = `<tr>
                     <td>${file.name}</td>
-                    <td>${ext}</td>
-                    <td><span class="${sizeKB > 150 ? 'text-error' : ''}">${sizeStr}</span></td>
-                    <td>${dimensions}</td>
+                    <td><span class='format-badge'>${ext}</span></td>
+                    <td>${sizeDimHtml}</td>
                     <td>${animationHtml}</td>
-                    <td>${statBadge}${errorHtml}</td>
+                    <td>${statusBlock}</td>
                 </tr>`;
 
                 if (status === "Pass") { document.getElementById('tbody-pass').innerHTML += tr; hasPass = true; } 
