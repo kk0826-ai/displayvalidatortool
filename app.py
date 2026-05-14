@@ -187,7 +187,7 @@ html_code = """
         .text-primary { color: #0F172A; font-size: 14px; font-weight: 700; }
         .text-secondary { color: #64748B; font-size: 12px; font-weight: 500; margin-top: 4px; display: block; }
         .text-error-detail { color: #DC2626; font-size: 12px; font-weight: 600; margin-top: 4px; display: block; }
-        .format-badge { background: #E2E8F0; color: #334155; padding: 4px 8px; border-radius: 0px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; } /* Razor sharp badge */
+        .format-badge { background: #E2E8F0; color: #334155; padding: 4px 8px; border-radius: 0px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
 
     </style>
 </head>
@@ -246,8 +246,9 @@ html_code = """
             fileInput.value = ""; 
         }
 
+        // --- BUG FIX: Removed the extra curly brace here ---
         dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
-        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'); });
+        dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('dragover'); });
         dropzone.addEventListener('drop', (e) => { e.preventDefault(); dropzone.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
         fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
 
