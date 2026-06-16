@@ -40,7 +40,14 @@ html_code = """
             box-shadow: inset 0 0 0 2000px rgba(15, 23, 42, 0.75); 
             border-bottom: 4px solid #111827;
         }
-        header h1 { color: #FFFFFF; font-size: 24px; font-weight: 800; letter-spacing: 2px; }
+        
+        header h1 { 
+            color: #FFFFFF; 
+            font-size: 24px; 
+            font-family: 'Century Gothic', Arial; 
+            font-weight: 400; 
+            letter-spacing: 2px; 
+        }
 
         /* Sharp Upload Dropzone */
         .upload-section {
@@ -208,6 +215,7 @@ html_code = """
             </button>
         </div>
 
+        <!-- 3 Distinct Tables -->
         <div class="table-wrapper" id="wrapper-fail">
             <div class="table-header-title">
                 <span class="dot dot-fail" style="margin-right: 4px;"></span> Rejected Assets
@@ -393,7 +401,6 @@ html_code = """
                     let isStandard = STANDARD_DIMENSIONS.includes(actualDimStr);
                     let isNearMiss = false;
 
-                    // Expanded threshold: Now catches up to 4 pixels off (1, 2, 3, or 4 px bleeds)
                     if (!isStandard) {
                         for (let sDim of STANDARD_DIMENSIONS) {
                             let [sW, sH] = sDim.split('x').map(Number);
@@ -404,24 +411,24 @@ html_code = """
                         }
                     }
 
-                    // Extract dimensions stated in filename
                     let nameRegex = /(?<!\d)(\d+)[xX](\d+)(?!\d)/;
                     let nameMatch = file.name.match(nameRegex);
                     let nameDimStr = nameMatch ? `${nameMatch[1]}x${nameMatch[2]}` : null;
+                    let nameClaimsStandard = nameDimStr ? STANDARD_DIMENSIONS.includes(nameDimStr) : false;
 
-                    // New Strict Dimension Logic
-                    if (nameDimStr && nameDimStr !== actualDimStr) {
-                        // 1. If filename claims a size and actual size is different -> INSTANT FAIL
-                        status = "Fail"; dimHasError = true;
-                    } else if (isStandard) {
-                        // 2. If it's standard and name matched (or didn't exist) -> PASS
-                        // Just let it keep status = "Pass"
-                    } else if (isNearMiss) {
-                        // 3. If it's a 1-4 pixel sloppy export from a standard size -> FAIL
-                        status = "Fail"; dimHasError = true;
+                    // Application of Logic
+                    if (isStandard) {
+                        if (nameDimStr && nameDimStr !== actualDimStr) {
+                            status = "Fail"; dimHasError = true;
+                        }
                     } else {
-                        // 4. If it's a completely random size (e.g. 500x500) and no misleading filename -> CAUTION
-                        if (status !== "Fail") status = "Caution"; dimHasWarning = true;
+                        if (nameClaimsStandard) {
+                            status = "Fail"; dimHasError = true;
+                        } else if (isNearMiss) {
+                            status = "Fail"; dimHasError = true;
+                        } else {
+                            if (status !== "Fail") status = "Caution"; dimHasWarning = true;
+                        }
                     }
 
                     let dimColorClass = 'text-primary';
