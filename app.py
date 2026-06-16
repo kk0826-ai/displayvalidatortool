@@ -222,7 +222,7 @@ html_code = """
     </style>
 </head>
 <body>
-    <header><h1>DISPLAY VALIDATOR TOOL</h1></header>
+    <header id="main-header"><h1>DISPLAY VALIDATOR TOOL</h1></header>
     
     <div class="container">
         
@@ -376,8 +376,21 @@ html_code = """
             document.getElementById('tbody-fail').innerHTML = "";
             fileInput.value = ""; 
             updateSummary();
-            // Scroll smoothly back to the top of the page!
+            
+            // Bulletproof scrolling approach:
+            
+            // 1. Force the iframe view to snap directly to the header element
+            try {
+                document.getElementById('main-header').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch(e) {}
+            
+            // 2. Standard window scroll as fallback
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // 3. If possible, try to scroll the parent Streamlit window (might be blocked by cross-origin security, but safe to attempt)
+            try {
+                window.parent.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch(e) {}
         }
 
         dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
