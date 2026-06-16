@@ -376,6 +376,8 @@ html_code = """
             document.getElementById('tbody-fail').innerHTML = "";
             fileInput.value = ""; 
             updateSummary();
+            // Scroll smoothly back to the top of the page!
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
