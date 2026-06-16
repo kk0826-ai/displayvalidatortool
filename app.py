@@ -171,7 +171,9 @@ html_code = """
         .text-secondary { color: #64748B; font-size: 12px; font-weight: 500; margin-top: 4px; display: block; }
         .text-caution-detail { color: #D97706; font-size: 12px; font-weight: 600; margin-top: 4px; display: block; }
         .text-error-detail { color: #DC2626; font-size: 12px; font-weight: 600; margin-top: 4px; display: block; }
-        .format-badge { background: #E2E8F0; color: #334155; padding: 4px 8px; border-radius: 0px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+        
+        /* Updated File Type styling - Clean, no background, lowercase friendly */
+        .format-badge { color: #475569; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
@@ -215,7 +217,7 @@ html_code = """
                 <span class="dot dot-fail" style="margin-right: 4px;"></span> Action Required
             </div>
             <table>
-                <thead><tr><th>File Name</th><th>Format</th><th>Size</th><th>Dimensions</th><th>Animation</th><th>Status Report</th></tr></thead>
+                <thead><tr><th>File Name</th><th>File Type</th><th>Size</th><th>Dimensions</th><th>Animation</th><th>Status Report</th></tr></thead>
                 <tbody id="tbody-fail"></tbody>
             </table>
         </div>
@@ -225,7 +227,7 @@ html_code = """
                 <span class="dot dot-pass" style="margin-right: 4px;"></span> Compliant Assets
             </div>
             <table>
-                <thead><tr><th>File Name</th><th>Format</th><th>Size</th><th>Dimensions</th><th>Animation</th><th>Status Report</th></tr></thead>
+                <thead><tr><th>File Name</th><th>File Type</th><th>Size</th><th>Dimensions</th><th>Animation</th><th>Status Report</th></tr></thead>
                 <tbody id="tbody-pass"></tbody>
             </table>
         </div>
@@ -348,18 +350,23 @@ html_code = """
                 let status = "Pass", errors = [], warnings = [], animationHtml = "<span class='text-secondary'>Static Image</span>";
                 let sizeKB = file.size / 1024;
                 let sizeStr = sizeKB.toFixed(1) + " KB";
-                let ext = file.name.split('.').pop().toUpperCase();
+                
+                // Separate raw extension (for UI) and logic extension (for validation)
+                let rawExt = file.name.split('.').pop();
+                let logicExt = rawExt.toUpperCase();
+                let displayExt = "." + rawExt.toLowerCase();
+                
                 let dimHtml = "<span class='text-secondary'>-</span>";
                 let dimHasWarning = false;
                 
                 if (sizeKB > 5120) { 
                     status = "Fail";
                     errors.push("File exceeds 5MB hard limit");
-                    appendRow(file.name, ext, sizeStr, dimHtml, animationHtml, status, errors, warnings, sizeKB, false, false);
+                    appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, warnings, sizeKB, false, false);
                     continue;
                 }
 
-                if (!allowedMimeTypes.includes(file.type) && !['JPG', 'JPEG', 'PNG', 'GIF'].includes(ext)) {
+                if (!allowedMimeTypes.includes(file.type) && !['JPG', 'JPEG', 'PNG', 'GIF'].includes(logicExt)) {
                     errors.push("Invalid file format"); 
                     status = "Fail"; 
                 }
@@ -401,7 +408,7 @@ html_code = """
                     let nameDimStr = nameMatch ? `${nameMatch[1]}x${nameMatch[2]}` : null;
                     let nameClaimsStandard = nameDimStr ? STANDARD_DIMENSIONS.includes(nameDimStr) : false;
 
-                    // Apply the new, strict logic rules
+                    // Apply the strict logic rules
                     if (isStandard) {
                         if (nameDimStr && nameDimStr !== actualDimStr) {
                             errors.push(`Mismatch: Name says ${nameDimStr} but file is ${actualDimStr}`);
@@ -431,7 +438,7 @@ html_code = """
                 }
 
                 // Hard Cap: Animation Time
-                if (ext === "GIF" && imgInfo.valid) { 
+                if (logicExt === "GIF" && imgInfo.valid) { 
                     let gifData = await extractGIFData(file);
                     if (gifData.isAnimated) {
                         let cSec = gifData.duration;
@@ -450,7 +457,7 @@ html_code = """
                     }
                 }
 
-                appendRow(file.name, ext, sizeStr, dimHtml, animationHtml, status, errors, warnings, sizeKB);
+                appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, warnings, sizeKB);
             }
 
             document.getElementById('upload-main-text').innerText = "Drag & drop your creatives here";
@@ -458,7 +465,7 @@ html_code = """
             updateSummary();
         }
 
-        function appendRow(name, ext, sizeStr, dimHtml, animationHtml, status, errors, warnings, sizeKB) {
+        function appendRow(name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, warnings, sizeKB) {
             let sizeColorClass = sizeKB > 150 ? 'text-error-detail' : 'text-primary';
             let formattedSize = `<span class='${sizeColorClass}'>${sizeStr}</span>`;
 
@@ -481,7 +488,7 @@ html_code = """
 
             let tr = `<tr class='data-row'>
                 <td>${name}</td>
-                <td><span class='format-badge'>${ext}</span></td>
+                <td><span class='format-badge'>${displayExt}</span></td>
                 <td>${formattedSize}</td>
                 <td>${dimHtml}</td>
                 <td>${animationHtml}</td>
