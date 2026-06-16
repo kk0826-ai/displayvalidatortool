@@ -206,7 +206,7 @@ html_code = """
 
         .status-container { display: flex; flex-direction: column; gap: 4px; }
         
-        /* Added justify-content: center so the flex icon and text align to middle */
+        /* Centered status icons */
         .status-main { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500; font-size: 13px; }
         
         .status-text-pass { color: #22C55E; }
@@ -490,7 +490,8 @@ html_code = """
                         }
                     }
 
-                    let nameRegex = /(?<!\d)(\d+)[xX](\d+)(?!\d)/;
+                    // --- FIX: The regex now accounts for optional spaces around the 'x' ---
+                    let nameRegex = /(?<!\d)(\d+)\s*[xX]\s*(\d+)(?!\d)/;
                     let nameMatch = file.name.match(nameRegex);
                     let nameDimStr = nameMatch ? `${nameMatch[1]}x${nameMatch[2]}` : null;
 
