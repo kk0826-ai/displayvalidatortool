@@ -233,4 +233,269 @@ html_code = """
                 <span class="dot dot-pass" style="margin-right: 4px;"></span> Approved Assets
             </div>
             <table>
-                <thead><tr><th>File Name</th><th>File
+                <thead><tr><th>File Name</th><th>File Type</th><th>Size</th><th>Dimensions</th><th>Animation</th><th>Status</th></tr></thead>
+                <tbody id="tbody-pass"></tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('file-input');
+        
+        let processedFiles = new Set();
+        let passCount = 0;
+        let cautionCount = 0;
+        let failCount = 0;
+
+        const STANDARD_DIMENSIONS = [
+            "120x600", "160x600", "300x250", "300x600", "336x280",
+            "468x60", "728x90", "970x250", "970x90", "300x50",
+            "320x50", "320x480", "480x320", "768x1024", "1024x768"
+        ];
+
+        function updateSummary() {
+            document.getElementById('count-pass').innerText = passCount;
+            document.getElementById('count-caution').innerText = cautionCount;
+            document.getElementById('count-fail').innerText = failCount;
+            
+            let total = passCount + cautionCount + failCount;
+            
+            if (total > 0) {
+                document.getElementById('summary-dashboard').style.display = "grid";
+                document.getElementById('action-bar').style.display = "block";
+                
+                // Only show the tables if they actually have rows
+                document.getElementById('wrapper-fail').style.display = failCount > 0 ? "block" : "none";
+                document.getElementById('wrapper-caution').style.display = cautionCount > 0 ? "block" : "none";
+                document.getElementById('wrapper-pass').style.display = passCount > 0 ? "block" : "none";
+            } else {
+                document.getElementById('summary-dashboard').style.display = "none";
+                document.getElementById('action-bar').style.display = "none";
+                document.getElementById('wrapper-fail').style.display = "none";
+                document.getElementById('wrapper-caution').style.display = "none";
+                document.getElementById('wrapper-pass').style.display = "none";
+            }
+        }
+
+        function clearResults() {
+            processedFiles.clear();
+            passCount = 0; cautionCount = 0; failCount = 0;
+            document.getElementById('tbody-pass').innerHTML = "";
+            document.getElementById('tbody-caution').innerHTML = "";
+            document.getElementById('tbody-fail').innerHTML = "";
+            fileInput.value = ""; 
+            updateSummary();
+        }
+
+        dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+        dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('dragover'); });
+        dropzone.addEventListener('drop', (e) => { e.preventDefault(); dropzone.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
+        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+        async function extractGIFData(file) {
+            try {
+                const buffer = await file.arrayBuffer();
+                const view = new DataView(buffer);
+                let offset = 0;
+                if (view.getUint8(0) !== 0x47) return { isAnimated: false }; 
+                offset += 13; 
+                const packed = view.getUint8(10);
+                if (packed & 0x80) offset += 3 * (2 << (packed & 7)); 
+
+                let loopCount = -1, totalMs = 0, frames = 0;
+                function skipBlocks(o) { while (o < view.byteLength) { let s = view.getUint8(o++); if (s === 0) break; o += s; } return o; }
+
+                while (offset < view.byteLength) {
+                    const introducer = view.getUint8(offset++);
+                    if (introducer === 0x3B) break; 
+                    if (introducer === 0x21) { 
+                        const label = view.getUint8(offset++);
+                        if (label === 0xF9) { 
+                            offset++; const delay = view.getUint16(offset + 1, true) * 10; totalMs += (delay === 0 ? 100 : delay); frames++; offset += 5; 
+                        } else if (label === 0xFF) { 
+                            const size = view.getUint8(offset++);
+                            if (size === 11) {
+                                const app = String.fromCharCode(...new Uint8Array(buffer, offset, 11)); offset += 11;
+                                if (app === "NETSCAPE2.0" || app === "ANIMEXTS1.0") { offset += 2; loopCount = view.getUint16(offset, true); offset += 3; } 
+                                else { offset = skipBlocks(offset); }
+                            } else { offset += size; offset = skipBlocks(offset); }
+                        } else { offset = skipBlocks(offset); }
+                    } else if (introducer === 0x2C) { 
+                        offset += 8; const imgPacked = view.getUint8(offset++); if (imgPacked & 0x80) offset += 3 * (2 << (imgPacked & 7)); offset++; offset = skipBlocks(offset);
+                    } else { break; }
+                }
+                return { isAnimated: frames > 1, loops: loopCount, duration: totalMs / 1000 };
+            } catch (error) { return { isAnimated: false }; }
+        }
+
+        function getImageInfo(file) {
+            const imgPromise = new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve({ width: img.width, height: img.height, valid: true });
+                img.onerror = () => resolve({ valid: false });
+                img.src = URL.createObjectURL(file);
+            });
+            const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve({ valid: false, timeout: true }), 2000));
+            return Promise.race([imgPromise, timeoutPromise]);
+        }
+
+        async function handleFiles(files) {
+            document.getElementById('upload-main-text').innerText = "Processing files...";
+            document.getElementById('upload-icon-svg').style.color = "#3B82F6";
+            await new Promise(resolve => setTimeout(resolve, 50)); 
+
+            const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
+
+            for (let file of files) {
+                let fileId = file.name + "_" + file.size;
+                if (processedFiles.has(fileId)) continue; 
+                processedFiles.add(fileId);
+
+                let status = "Pass", animationHtml = "<span class='text-secondary'>Static Image</span>";
+                let sizeKB = file.size / 1024;
+                let sizeStr = sizeKB.toFixed(1) + " KB";
+                
+                let rawExt = file.name.split('.').pop();
+                let logicExt = rawExt.toUpperCase();
+                let displayExt = "." + rawExt.toLowerCase();
+                
+                let dimHtml = "<span class='text-secondary'>-</span>";
+                let dimHasWarning = false;
+                
+                // Hard Cap: Exceeds 5MB
+                if (sizeKB > 5120) { 
+                    status = "Fail";
+                    appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, sizeKB);
+                    continue;
+                }
+
+                if (!allowedMimeTypes.includes(file.type) && !['JPG', 'JPEG', 'PNG', 'GIF'].includes(logicExt)) {
+                    status = "Fail"; 
+                }
+                
+                // Hard Cap: Size
+                if (sizeKB > 150) { status = "Fail"; }
+
+                let imgInfo = await getImageInfo(file);
+                let dimHasError = false;
+
+                if (!imgInfo.valid) {
+                    status = "Fail";
+                    dimHasError = true;
+                    dimHtml = `<span class='text-error-detail'>Corrupted/Unreadable</span>`;
+                } else {
+                    let actualW = imgInfo.width;
+                    let actualH = imgInfo.height;
+                    let actualDimStr = `${actualW}x${actualH}`;
+
+                    let isStandard = STANDARD_DIMENSIONS.includes(actualDimStr);
+                    let isNearMiss = false;
+
+                    if (!isStandard) {
+                        for (let sDim of STANDARD_DIMENSIONS) {
+                            let [sW, sH] = sDim.split('x').map(Number);
+                            if (Math.abs(actualW - sW) <= 2 && Math.abs(actualH - sH) <= 2) {
+                                isNearMiss = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    let nameRegex = /(?<!\d)(\d+)[xX](\d+)(?!\d)/;
+                    let nameMatch = file.name.match(nameRegex);
+                    let nameDimStr = nameMatch ? `${nameMatch[1]}x${nameMatch[2]}` : null;
+                    let nameClaimsStandard = nameDimStr ? STANDARD_DIMENSIONS.includes(nameDimStr) : false;
+
+                    // Application of Logic
+                    if (isStandard) {
+                        if (nameDimStr && nameDimStr !== actualDimStr) {
+                            status = "Fail"; dimHasError = true;
+                        }
+                    } else {
+                        if (nameClaimsStandard) {
+                            status = "Fail"; dimHasError = true;
+                        } else if (isNearMiss) {
+                            status = "Fail"; dimHasError = true;
+                        } else {
+                            if (status !== "Fail") status = "Caution"; dimHasWarning = true;
+                        }
+                    }
+
+                    let dimColorClass = 'text-primary';
+                    if (dimHasWarning) dimColorClass = 'text-caution-detail';
+                    if (status === "Fail" && dimHasError) dimColorClass = 'text-error-detail';
+                    
+                    dimHtml = `<span class='${dimColorClass}'>${actualW} × ${actualH}</span>`;
+                }
+
+                // Hard Cap: Animation Time
+                if (logicExt === "GIF" && imgInfo.valid) { 
+                    let gifData = await extractGIFData(file);
+                    if (gifData.isAnimated) {
+                        let cSec = gifData.duration;
+                        let rawLoops = gifData.loops;
+                        let displayLoops = rawLoops < 0 ? 1 : rawLoops; 
+
+                        if (rawLoops === 0) {
+                            animationHtml = `<span class='text-error-detail'>∞ Infinite (${cSec.toFixed(1)}s)</span>`; 
+                            status = "Fail";
+                        } else {
+                            let tSec = cSec * displayLoops;
+                            if (tSec > 30) { 
+                                animationHtml = `<span class='text-error-detail'>${tSec.toFixed(1)}s</span>`;
+                                status = "Fail"; 
+                            } else {
+                                animationHtml = `<span class='text-primary'>${tSec.toFixed(1)}s</span>`;
+                            }
+                        }
+                    }
+                }
+
+                appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, sizeKB);
+            }
+
+            document.getElementById('upload-main-text').innerText = "Drag & drop your creatives here";
+            document.getElementById('upload-icon-svg').style.color = "#64748B";
+            updateSummary();
+        }
+
+        function appendRow(name, displayExt, sizeStr, dimHtml, animationHtml, status, sizeKB) {
+            let sizeColorClass = sizeKB > 150 ? 'text-error-detail' : 'text-primary';
+            let formattedSize = `<span class='${sizeColorClass}'>${sizeStr}</span>`;
+
+            let statusBlock = "";
+            let targetTbody = "";
+
+            if (status === "Pass") {
+                passCount++;
+                statusBlock = `<div class='status-container'><div class='status-main status-text-pass'><span class='dot dot-pass'></span> Pass</div></div>`;
+                targetTbody = 'tbody-pass';
+            } else if (status === "Caution") {
+                cautionCount++;
+                statusBlock = `<div class='status-container'><div class='status-main status-text-caution'><span class='dot dot-caution'></span> Caution</div></div>`;
+                targetTbody = 'tbody-caution';
+            } else {
+                failCount++;
+                statusBlock = `<div class='status-container'><div class='status-main status-text-fail'><span class='dot dot-fail'></span> Fail</div></div>`;
+                targetTbody = 'tbody-fail';
+            }
+
+            let tr = `<tr class='data-row'>
+                <td>${name}</td>
+                <td><span class='format-badge'>${displayExt}</span></td>
+                <td>${formattedSize}</td>
+                <td>${dimHtml}</td>
+                <td>${animationHtml}</td>
+                <td>${statusBlock}</td>
+            </tr>`;
+
+            document.getElementById(targetTbody).innerHTML += tr;
+        }
+    </script>
+</body>
+</html>
+"""
+
+components.html(html_code, height=1200, scrolling=True)
