@@ -44,7 +44,7 @@ html_code = """
         header h1 { 
             color: #FFFFFF; 
             font-size: 24px; 
-            font-family: 'Century Gothic', Arial; 
+            font-family: 'Century Gothic', Arial, sans-serif; 
             font-weight: 400; 
             letter-spacing: 2px; 
         }
@@ -91,7 +91,18 @@ html_code = """
             border-radius: 0px; 
         }
         .summary-value { font-size: 28px; font-weight: 800; color: #0F172A; line-height: 1; }
-        .summary-label { font-size: 11px; color: #64748B; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-top: 8px; }
+        .summary-label { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 6px; 
+            font-size: 11px; 
+            color: #64748B; 
+            text-transform: uppercase; 
+            font-weight: 800; 
+            letter-spacing: 0.5px; 
+            margin-top: 10px; 
+        }
         
         /* Status Colors */
         .val-pass { color: #10B981; }
@@ -133,11 +144,12 @@ html_code = """
             margin-bottom: 2rem;
             display: none; 
             border-radius: 0px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
         .table-header-title {
             padding: 20px 24px;
-            border-bottom: 1px solid #E2E8F0;
-            background: #FAFAFA; 
+            border-bottom: 2px solid #E2E8F0;
+            background: #FFFFFF; 
             font-size: 16px;
             font-weight: 800;
             color: #0F172A;
@@ -146,7 +158,25 @@ html_code = """
             gap: 10px;
         }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th { background-color: #F1F5F9; color: #334155; padding: 14px 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; text-align: left; border-bottom: 2px solid #E2E8F0; }
+        
+        /* Enhanced Header */
+        th { 
+            background-color: #F8FAFC; 
+            color: #475569; 
+            padding: 14px 20px; 
+            font-size: 11px; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            letter-spacing: 0.1em; 
+            text-align: left; 
+            border-bottom: 1px solid #E2E8F0; 
+        }
+        .th-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
         td { padding: 18px 20px; font-size: 13px; color: #0F172A; text-align: left; border-bottom: 1px solid #E2E8F0; vertical-align: middle; word-wrap: break-word; font-weight: 500; }
         tr:last-child td { border-bottom: none; }
         tr.data-row:hover td { background-color: #F8FAFC !important; cursor: default; }
@@ -160,16 +190,11 @@ html_code = """
         th:nth-child(6), td:nth-child(6) { width: 25%; } 
 
         .status-container { display: flex; flex-direction: column; gap: 4px; }
-        .status-main { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px; }
+        .status-main { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 13px; }
         
-        .dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; }
-        .dot-pass { background-color: #10B981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15); }
-        .dot-caution { background-color: #F59E0B; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15); }
-        .dot-fail { background-color: #EF4444; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15); }
-        
-        .status-text-pass { color: #064E3B; }
-        .status-text-caution { color: #92400E; }
-        .status-text-fail { color: #7F1D1D; }
+        .status-text-pass { color: #10B981; }
+        .status-text-caution { color: #F59E0B; }
+        .status-text-fail { color: #EF4444; }
 
         .text-primary { color: #0F172A; font-size: 14px; font-weight: 700; }
         .text-secondary { color: #64748B; font-size: 12px; font-weight: 500; }
@@ -177,6 +202,9 @@ html_code = """
         .text-error-detail { color: #DC2626; font-size: 13px; font-weight: 700; }
         
         .format-badge { color: #475569; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; }
+        
+        /* Table Header SVG Size */
+        .th-content svg { width: 14px; height: 14px; color: #64748B; }
     </style>
 </head>
 <body>
@@ -187,15 +215,24 @@ html_code = """
         <div class="summary-dashboard" id="summary-dashboard">
             <div class="summary-card">
                 <div class="summary-value val-pass" id="count-pass">0</div>
-                <div class="summary-label">Compliant</div>
+                <div class="summary-label">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="val-pass"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Compliant
+                </div>
             </div>
             <div class="summary-card">
                 <div class="summary-value val-caution" id="count-caution">0</div>
-                <div class="summary-label">Review (Caution)</div>
+                <div class="summary-label">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="val-caution"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    Review (Caution)
+                </div>
             </div>
             <div class="summary-card">
                 <div class="summary-value val-fail" id="count-fail">0</div>
-                <div class="summary-label">Rejected</div>
+                <div class="summary-label">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="val-fail"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Rejected
+                </div>
             </div>
         </div>
 
@@ -215,33 +252,48 @@ html_code = """
             </button>
         </div>
 
-        <!-- 3 Distinct Tables -->
+        <script>
+            const thRowHTML = `
+                <tr>
+                    <th><div class="th-content"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg> File Name</div></th>
+                    <th><div class="th-content"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg> File Type</div></th>
+                    <th><div class="th-content"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg> Size</div></th>
+                    <th><div class="th-content"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg> Dimensions</div></th>
+                    <th><div class="th-content"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Animation</div></th>
+                    <th><div class="th-content"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg> Status</div></th>
+                </tr>
+            `;
+        </script>
+
         <div class="table-wrapper" id="wrapper-fail">
             <div class="table-header-title">
-                <span class="dot dot-fail" style="margin-right: 4px;"></span> Rejected Assets
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="val-fail"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 
+                Rejected Assets
             </div>
             <table>
-                <thead><tr><th>File Name</th><th>File Type</th><th>Size</th><th>Dimensions</th><th>Animation</th><th>Status</th></tr></thead>
+                <thead id="thead-fail"></thead>
                 <tbody id="tbody-fail"></tbody>
             </table>
         </div>
 
         <div class="table-wrapper" id="wrapper-caution">
             <div class="table-header-title">
-                <span class="dot dot-caution" style="margin-right: 4px;"></span> Review Required (Caution)
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="val-caution"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                Review Required (Caution)
             </div>
             <table>
-                <thead><tr><th>File Name</th><th>File Type</th><th>Size</th><th>Dimensions</th><th>Animation</th><th>Status</th></tr></thead>
+                <thead id="thead-caution"></thead>
                 <tbody id="tbody-caution"></tbody>
             </table>
         </div>
 
         <div class="table-wrapper" id="wrapper-pass">
             <div class="table-header-title">
-                <span class="dot dot-pass" style="margin-right: 4px;"></span> Approved Assets
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="val-pass"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Approved Assets
             </div>
             <table>
-                <thead><tr><th>File Name</th><th>File Type</th><th>Size</th><th>Dimensions</th><th>Animation</th><th>Status</th></tr></thead>
+                <thead id="thead-pass"></thead>
                 <tbody id="tbody-pass"></tbody>
             </table>
         </div>
@@ -249,6 +301,11 @@ html_code = """
     </div>
 
     <script>
+        // Inject headers
+        document.getElementById('thead-fail').innerHTML = thRowHTML;
+        document.getElementById('thead-caution').innerHTML = thRowHTML;
+        document.getElementById('thead-pass').innerHTML = thRowHTML;
+
         const dropzone = document.getElementById('dropzone');
         const fileInput = document.getElementById('file-input');
         
@@ -262,6 +319,11 @@ html_code = """
             "468x60", "728x90", "970x250", "970x90", "300x50",
             "320x50", "320x480", "480x320", "768x1024", "1024x768"
         ];
+
+        // SVGs for Status Column
+        const iconPass = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+        const iconCaution = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+        const iconFail = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
 
         function updateSummary() {
             document.getElementById('count-pass').innerText = passCount;
@@ -414,21 +476,16 @@ html_code = """
                     let nameRegex = /(?<!\d)(\d+)[xX](\d+)(?!\d)/;
                     let nameMatch = file.name.match(nameRegex);
                     let nameDimStr = nameMatch ? `${nameMatch[1]}x${nameMatch[2]}` : null;
-                    let nameClaimsStandard = nameDimStr ? STANDARD_DIMENSIONS.includes(nameDimStr) : false;
 
-                    // Application of Logic
-                    if (isStandard) {
-                        if (nameDimStr && nameDimStr !== actualDimStr) {
-                            status = "Fail"; dimHasError = true;
-                        }
+                    // Strict Dimension Logic
+                    if (nameDimStr && nameDimStr !== actualDimStr) {
+                        status = "Fail"; dimHasError = true;
+                    } else if (isStandard) {
+                        // Pass
+                    } else if (isNearMiss) {
+                        status = "Fail"; dimHasError = true;
                     } else {
-                        if (nameClaimsStandard) {
-                            status = "Fail"; dimHasError = true;
-                        } else if (isNearMiss) {
-                            status = "Fail"; dimHasError = true;
-                        } else {
-                            if (status !== "Fail") status = "Caution"; dimHasWarning = true;
-                        }
+                        if (status !== "Fail") status = "Caution"; dimHasWarning = true;
                     }
 
                     let dimColorClass = 'text-primary';
@@ -478,15 +535,15 @@ html_code = """
 
             if (status === "Pass") {
                 passCount++;
-                statusBlock = `<div class='status-container'><div class='status-main status-text-pass'><span class='dot dot-pass'></span> Pass</div></div>`;
+                statusBlock = `<div class='status-container'><div class='status-main status-text-pass'>${iconPass} Pass</div></div>`;
                 targetTbody = 'tbody-pass';
             } else if (status === "Caution") {
                 cautionCount++;
-                statusBlock = `<div class='status-container'><div class='status-main status-text-caution'><span class='dot dot-caution'></span> Caution</div></div>`;
+                statusBlock = `<div class='status-container'><div class='status-main status-text-caution'>${iconCaution} Caution</div></div>`;
                 targetTbody = 'tbody-caution';
             } else {
                 failCount++;
-                statusBlock = `<div class='status-container'><div class='status-main status-text-fail'><span class='dot dot-fail'></span> Fail</div></div>`;
+                statusBlock = `<div class='status-container'><div class='status-main status-text-fail'>${iconFail} Fail</div></div>`;
                 targetTbody = 'tbody-fail';
             }
 
