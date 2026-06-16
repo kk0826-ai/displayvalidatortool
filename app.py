@@ -24,7 +24,7 @@ html_code = """
     <style>
         /* Global & Reset */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Manrope', sans-serif; font-weight: 400; }
-        body { background-color: #FAFAFA; color: #0F172A; padding-bottom: 100px; }
+        body { background-color: #FAFAFA; color: #0F172A; padding-bottom: 40px; }
         .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
 
         /* Premium Header */
@@ -104,14 +104,12 @@ html_code = """
             margin-top: 10px; 
         }
 
-        /* Floating Sticky Clear Button */
-        .sticky-action-bar {
+        /* Standard Flow Action Bar */
+        .action-bar-container {
             display: none;
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
+            justify-content: center;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
         }
         .clear-btn {
             background-color: #111827;
@@ -125,12 +123,13 @@ html_code = """
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             text-transform: uppercase;
             letter-spacing: 1px;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, transform 0.1s;
         }
         .clear-btn:hover { background-color: #334155; }
+        .clear-btn:active { transform: scale(0.98); }
 
         /* Data Tables */
         .table-wrapper {
@@ -159,7 +158,6 @@ html_code = """
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         
-        /* Default to Center Alignment for Headers */
         th { 
             background-color: #2C0A38; 
             color: #FFFFFF; 
@@ -173,30 +171,18 @@ html_code = """
             white-space: nowrap; 
         }
 
-        .th-content {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .th-content { display: flex; align-items: center; gap: 8px; }
         
-        /* Force First Header Column to Left Align */
         th:nth-child(1) { text-align: left; }
-        
-        /* Center flex content for columns 2 through 6 */
         th:not(:nth-child(1)) .th-content { justify-content: center; }
-        
         .th-content svg { width: 14px; height: 14px; fill: #FFFFFF; }
         
-        /* Default to Center Alignment for Data Cells */
         td { padding: 14px 16px; font-size: 13px; color: #0F172A; text-align: center; border-bottom: 1px solid #E2E8F0; vertical-align: middle; word-wrap: break-word; font-weight: 400; }
-        
-        /* Force First Data Column to Left Align */
         td:nth-child(1) { text-align: left; }
 
         tr:last-child td { border-bottom: none; }
         tr.data-row:hover td { background-color: #F8FAFC !important; cursor: default; }
 
-        /* Rebalanced Column Sizing */
         th:nth-child(1), td:nth-child(1) { width: 28%; font-weight: 400; } 
         th:nth-child(2), td:nth-child(2) { width: 13%; } 
         th:nth-child(3), td:nth-child(3) { width: 12%; } 
@@ -205,8 +191,6 @@ html_code = """
         th:nth-child(6), td:nth-child(6) { width: 18%; } 
 
         .status-container { display: flex; flex-direction: column; gap: 4px; }
-        
-        /* Centered status icons */
         .status-main { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 400; font-size: 13px; }
         
         .status-text-pass { color: #22C55E; }
@@ -222,7 +206,7 @@ html_code = """
     </style>
 </head>
 <body>
-    <header id="main-header"><h1>DISPLAY VALIDATOR TOOL</h1></header>
+    <header id="main-header"><h1>Display Validator Tool</h1></header>
     
     <div class="container">
         
@@ -248,13 +232,6 @@ html_code = """
             <span class="upload-text" id="upload-main-text">Drag & drop your creatives here</span>
             <span class="upload-subtext" id="upload-sub-text">or click to browse files</span>
             <input type="file" id="file-input" multiple accept=".jpg,.jpeg,.png,.gif">
-        </div>
-
-        <div class="sticky-action-bar" id="action-bar">
-            <button class="clear-btn" onclick="clearResults()">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                Clear All Results
-            </button>
         </div>
 
         <script>
@@ -320,6 +297,13 @@ html_code = """
             </div>
         </div>
 
+        <div class="action-bar-container" id="action-bar">
+            <button class="clear-btn" onclick="clearResults()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                Clear All Results
+            </button>
+        </div>
+
     </div>
 
     <script>
@@ -354,7 +338,8 @@ html_code = """
             
             if (total > 0) {
                 document.getElementById('summary-dashboard').style.display = "grid";
-                document.getElementById('action-bar').style.display = "block";
+                // Show action bar as a flex container so it flows normally
+                document.getElementById('action-bar').style.display = "flex";
                 
                 document.getElementById('wrapper-fail').style.display = failCount > 0 ? "block" : "none";
                 document.getElementById('wrapper-caution').style.display = cautionCount > 0 ? "block" : "none";
@@ -377,17 +362,12 @@ html_code = """
             fileInput.value = ""; 
             updateSummary();
             
-            // Bulletproof scrolling approach:
-            
-            // 1. Force the iframe view to snap directly to the header element
             try {
                 document.getElementById('main-header').scrollIntoView({ behavior: 'smooth', block: 'start' });
             } catch(e) {}
             
-            // 2. Standard window scroll as fallback
             window.scrollTo({ top: 0, behavior: 'smooth' });
             
-            // 3. If possible, try to scroll the parent Streamlit window (might be blocked by cross-origin security, but safe to attempt)
             try {
                 window.parent.scrollTo({ top: 0, behavior: 'smooth' });
             } catch(e) {}
