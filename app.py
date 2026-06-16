@@ -222,7 +222,7 @@ html_code = """
     </style>
 </head>
 <body>
-    <header><h1>Display Validator Tool</h1></header>
+    <header><h1>DISPLAY VALIDATOR TOOL</h1></header>
     
     <div class="container">
         
