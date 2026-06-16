@@ -19,11 +19,11 @@ html_code = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         /* Global & Reset */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Manrope', sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Manrope', sans-serif; font-weight: 100; }
         body { background-color: #FAFAFA; color: #0F172A; padding-bottom: 100px; }
         .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
 
@@ -43,9 +43,9 @@ html_code = """
         
         header h1 { 
             color: #FFFFFF; 
-            font-size: 24px; 
+            font-size: 44px; 
             font-family: 'Century Gothic', Arial, sans-serif; 
-            font-weight: 400; 
+            font-weight: 100; 
             letter-spacing: 2px; 
         }
 
@@ -71,8 +71,8 @@ html_code = """
         }
         .upload-icon { width: 42px; height: 42px; color: #64748B; margin-bottom: 12px; transition: color 0.2s ease; }
         .upload-section:hover .upload-icon { color: #0F172A; }
-        .upload-text { color: #0F172A; font-size: 15px; font-weight: 700; letter-spacing: 0.3px; }
-        .upload-subtext { color: #64748B; font-size: 13px; margin-top: 6px; font-weight: 500; }
+        .upload-text { color: #0F172A; font-size: 15px; font-weight: 100; letter-spacing: 0.3px; }
+        .upload-subtext { color: #64748B; font-size: 13px; margin-top: 6px; font-weight: 100; }
         #file-input { display: none; }
 
         /* Summary Dashboard */
@@ -90,7 +90,7 @@ html_code = """
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
             border-radius: 0px; 
         }
-        .summary-value { font-size: 28px; font-weight: 800; color: #0F172A; line-height: 1; }
+        .summary-value { font-size: 28px; font-weight: 100; color: #0F172A; line-height: 1; }
         .summary-label { 
             display: flex; 
             align-items: center; 
@@ -99,7 +99,7 @@ html_code = """
             font-size: 11px; 
             color: #64748B; 
             text-transform: uppercase; 
-            font-weight: 800; 
+            font-weight: 100; 
             letter-spacing: 0.5px; 
             margin-top: 10px; 
         }
@@ -119,7 +119,7 @@ html_code = """
             border: none;
             padding: 12px 24px;
             font-size: 13px;
-            font-weight: 700;
+            font-weight: 100;
             border-radius: 0px; 
             cursor: pointer;
             display: flex;
@@ -142,7 +142,7 @@ html_code = """
         .table-header-title {
             padding: 0 0 12px 0;
             font-size: 18px;
-            font-weight: 400;
+            font-weight: 100;
             color: #334155;
             display: flex;
             align-items: center;
@@ -165,10 +165,10 @@ html_code = """
             color: #FFFFFF; 
             padding: 10px 16px; 
             font-size: 11px; 
-            font-weight: 700; 
+            font-weight: 100; 
             text-transform: uppercase; 
             letter-spacing: 0.05em; 
-            text-align: center; /* Centered by default */
+            text-align: center; 
             border-bottom: none; 
             white-space: nowrap; 
         }
@@ -188,7 +188,7 @@ html_code = """
         .th-content svg { width: 14px; height: 14px; fill: #FFFFFF; }
         
         /* Default to Center Alignment for Data Cells */
-        td { padding: 14px 16px; font-size: 13px; color: #0F172A; text-align: center; /* Centered by default */ border-bottom: 1px solid #E2E8F0; vertical-align: middle; word-wrap: break-word; font-weight: 500; }
+        td { padding: 14px 16px; font-size: 13px; color: #0F172A; text-align: center; border-bottom: 1px solid #E2E8F0; vertical-align: middle; word-wrap: break-word; font-weight: 100; }
         
         /* Force First Data Column to Left Align */
         td:nth-child(1) { text-align: left; }
@@ -197,7 +197,7 @@ html_code = """
         tr.data-row:hover td { background-color: #F8FAFC !important; cursor: default; }
 
         /* Rebalanced Column Sizing */
-        th:nth-child(1), td:nth-child(1) { width: 28%; font-weight: 700; } 
+        th:nth-child(1), td:nth-child(1) { width: 28%; font-weight: 100; } 
         th:nth-child(2), td:nth-child(2) { width: 13%; } 
         th:nth-child(3), td:nth-child(3) { width: 12%; } 
         th:nth-child(4), td:nth-child(4) { width: 15%; } 
@@ -207,22 +207,22 @@ html_code = """
         .status-container { display: flex; flex-direction: column; gap: 4px; }
         
         /* Centered status icons */
-        .status-main { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500; font-size: 13px; }
+        .status-main { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 100; font-size: 13px; }
         
         .status-text-pass { color: #22C55E; }
         .status-text-caution { color: #F59E0B; }
         .status-text-fail { color: #E85D04; }
 
-        .text-primary { color: #0F172A; font-size: 14px; font-weight: 700; }
-        .text-secondary { color: #64748B; font-size: 12px; font-weight: 500; }
-        .text-caution-detail { color: #D97706; font-size: 13px; font-weight: 700; }
-        .text-error-detail { color: #DC2626; font-size: 13px; font-weight: 700; }
+        .text-primary { color: #0F172A; font-size: 14px; font-weight: 100; }
+        .text-secondary { color: #64748B; font-size: 12px; font-weight: 100; }
+        .text-caution-detail { color: #D97706; font-size: 13px; font-weight: 100; }
+        .text-error-detail { color: #DC2626; font-size: 13px; font-weight: 100; }
         
-        .format-badge { color: #475569; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; }
+        .format-badge { color: #475569; font-size: 13px; font-weight: 100; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
-    <header><h1>Display Validator Tool</h1></header>
+    <header><h1>DISPLAY VALIDATOR TOOL</h1></header>
     
     <div class="container">
         
@@ -490,7 +490,6 @@ html_code = """
                         }
                     }
 
-                    // --- FIX: The regex now accounts for optional spaces around the 'x' ---
                     let nameRegex = /(?<!\d)(\d+)\s*[xX]\s*(\d+)(?!\d)/;
                     let nameMatch = file.name.match(nameRegex);
                     let nameDimStr = nameMatch ? `${nameMatch[1]}x${nameMatch[2]}` : null;
