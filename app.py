@@ -139,7 +139,6 @@ html_code = """
             display: none; 
         }
         
-        /* Updated to match the light, floating section headers from screenshot */
         .table-header-title {
             padding: 0 0 12px 0;
             font-size: 18px;
@@ -160,17 +159,18 @@ html_code = """
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         
-        /* EXACT MATCH: Dark purple background for headers with white text */
+        /* UPDATED HEADER STYLES */
         th { 
             background-color: #2C0A38; 
             color: #FFFFFF; 
-            padding: 16px 20px; 
+            padding: 10px 16px; /* Reduced vertical padding for compactness */
             font-size: 11px; 
             font-weight: 700; 
             text-transform: uppercase; 
             letter-spacing: 0.05em; 
             text-align: left; 
             border-bottom: none; 
+            white-space: nowrap; /* Prevents "FILE TYPE" from wrapping to a new line */
         }
         .th-content {
             display: flex;
@@ -178,25 +178,23 @@ html_code = """
             gap: 8px;
         }
         
-        /* Ensure the small icons in the dark header remain white */
         .th-content svg { width: 14px; height: 14px; fill: #FFFFFF; }
         
-        td { padding: 18px 20px; font-size: 13px; color: #0F172A; text-align: left; border-bottom: 1px solid #E2E8F0; vertical-align: middle; word-wrap: break-word; font-weight: 500; }
+        td { padding: 14px 16px; font-size: 13px; color: #0F172A; text-align: left; border-bottom: 1px solid #E2E8F0; vertical-align: middle; word-wrap: break-word; font-weight: 500; }
         tr:last-child td { border-bottom: none; }
         tr.data-row:hover td { background-color: #F8FAFC !important; cursor: default; }
 
-        /* 6 Column Sizing */
-        th:nth-child(1), td:nth-child(1) { width: 26%; font-weight: 700; } 
-        th:nth-child(2), td:nth-child(2) { width: 10%; } 
-        th:nth-child(3), td:nth-child(3) { width: 10%; } 
+        /* Rebalanced Column Sizing */
+        th:nth-child(1), td:nth-child(1) { width: 28%; font-weight: 700; } 
+        th:nth-child(2), td:nth-child(2) { width: 13%; } /* Widened for File Type */
+        th:nth-child(3), td:nth-child(3) { width: 12%; } /* Widened for Size */
         th:nth-child(4), td:nth-child(4) { width: 15%; } 
         th:nth-child(5), td:nth-child(5) { width: 14%; } 
-        th:nth-child(6), td:nth-child(6) { width: 25%; } 
+        th:nth-child(6), td:nth-child(6) { width: 18%; } 
 
         .status-container { display: flex; flex-direction: column; gap: 4px; }
         .status-main { display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 13px; }
         
-        /* Updated Text Colors */
         .status-text-pass { color: #22C55E; }
         .status-text-caution { color: #F59E0B; }
         .status-text-fail { color: #E85D04; }
@@ -246,7 +244,6 @@ html_code = """
         </div>
 
         <script>
-            // Note: SVG icons in headers changed to be solid white paths to match screenshot's solid white icons
             const thRowHTML = `
                 <tr>
                     <th><div class="th-content"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> FILE NAME</div></th>
@@ -312,7 +309,6 @@ html_code = """
     </div>
 
     <script>
-        // Inject headers
         document.getElementById('thead-fail').innerHTML = thRowHTML;
         document.getElementById('thead-caution').innerHTML = thRowHTML;
         document.getElementById('thead-pass').innerHTML = thRowHTML;
@@ -331,7 +327,6 @@ html_code = """
             "320x50", "320x480", "480x320", "768x1024", "1024x768"
         ];
 
-        // NEW: Filled Status Row SVGs precisely matching your screenshot
         const iconPass = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#22C55E" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="11"/><path d="M8 12.5L10.5 15L16 9" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
         const iconCaution = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#F59E0B" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="11"/><path d="M12 7V13M12 17H12.01" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
         const iconFail = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#E85D04" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="11"/><path d="M15 9L9 15M9 9L15 15" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -347,7 +342,6 @@ html_code = """
                 document.getElementById('summary-dashboard').style.display = "grid";
                 document.getElementById('action-bar').style.display = "block";
                 
-                // Only show the tables if they actually have rows
                 document.getElementById('wrapper-fail').style.display = failCount > 0 ? "block" : "none";
                 document.getElementById('wrapper-caution').style.display = cautionCount > 0 ? "block" : "none";
                 document.getElementById('wrapper-pass').style.display = passCount > 0 ? "block" : "none";
