@@ -393,34 +393,35 @@ html_code = """
                     let isStandard = STANDARD_DIMENSIONS.includes(actualDimStr);
                     let isNearMiss = false;
 
+                    // Expanded threshold: Now catches up to 4 pixels off (1, 2, 3, or 4 px bleeds)
                     if (!isStandard) {
                         for (let sDim of STANDARD_DIMENSIONS) {
                             let [sW, sH] = sDim.split('x').map(Number);
-                            if (Math.abs(actualW - sW) <= 2 && Math.abs(actualH - sH) <= 2) {
+                            if (Math.abs(actualW - sW) <= 4 && Math.abs(actualH - sH) <= 4) {
                                 isNearMiss = true;
                                 break;
                             }
                         }
                     }
 
+                    // Extract dimensions stated in filename
                     let nameRegex = /(?<!\d)(\d+)[xX](\d+)(?!\d)/;
                     let nameMatch = file.name.match(nameRegex);
                     let nameDimStr = nameMatch ? `${nameMatch[1]}x${nameMatch[2]}` : null;
-                    let nameClaimsStandard = nameDimStr ? STANDARD_DIMENSIONS.includes(nameDimStr) : false;
 
-                    // Application of Logic
-                    if (isStandard) {
-                        if (nameDimStr && nameDimStr !== actualDimStr) {
-                            status = "Fail"; dimHasError = true;
-                        }
+                    // New Strict Dimension Logic
+                    if (nameDimStr && nameDimStr !== actualDimStr) {
+                        // 1. If filename claims a size and actual size is different -> INSTANT FAIL
+                        status = "Fail"; dimHasError = true;
+                    } else if (isStandard) {
+                        // 2. If it's standard and name matched (or didn't exist) -> PASS
+                        // Just let it keep status = "Pass"
+                    } else if (isNearMiss) {
+                        // 3. If it's a 1-4 pixel sloppy export from a standard size -> FAIL
+                        status = "Fail"; dimHasError = true;
                     } else {
-                        if (nameClaimsStandard) {
-                            status = "Fail"; dimHasError = true;
-                        } else if (isNearMiss) {
-                            status = "Fail"; dimHasError = true;
-                        } else {
-                            if (status !== "Fail") status = "Caution"; dimHasWarning = true;
-                        }
+                        // 4. If it's a completely random size (e.g. 500x500) and no misleading filename -> CAUTION
+                        if (status !== "Fail") status = "Caution"; dimHasWarning = true;
                     }
 
                     let dimColorClass = 'text-primary';
