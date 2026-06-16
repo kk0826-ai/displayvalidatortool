@@ -159,41 +159,55 @@ html_code = """
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         
-        /* UPDATED HEADER STYLES */
+        /* Default to Center Alignment for Headers */
         th { 
             background-color: #2C0A38; 
             color: #FFFFFF; 
-            padding: 10px 16px; /* Reduced vertical padding for compactness */
+            padding: 10px 16px; 
             font-size: 11px; 
             font-weight: 700; 
             text-transform: uppercase; 
             letter-spacing: 0.05em; 
-            text-align: left; 
+            text-align: center; /* Centered by default */
             border-bottom: none; 
-            white-space: nowrap; /* Prevents "FILE TYPE" from wrapping to a new line */
+            white-space: nowrap; 
         }
+
         .th-content {
             display: flex;
             align-items: center;
             gap: 8px;
         }
         
+        /* Force First Header Column to Left Align */
+        th:nth-child(1) { text-align: left; }
+        
+        /* Center flex content for columns 2 through 6 */
+        th:not(:nth-child(1)) .th-content { justify-content: center; }
+        
         .th-content svg { width: 14px; height: 14px; fill: #FFFFFF; }
         
-        td { padding: 14px 16px; font-size: 13px; color: #0F172A; text-align: left; border-bottom: 1px solid #E2E8F0; vertical-align: middle; word-wrap: break-word; font-weight: 500; }
+        /* Default to Center Alignment for Data Cells */
+        td { padding: 14px 16px; font-size: 13px; color: #0F172A; text-align: center; /* Centered by default */ border-bottom: 1px solid #E2E8F0; vertical-align: middle; word-wrap: break-word; font-weight: 500; }
+        
+        /* Force First Data Column to Left Align */
+        td:nth-child(1) { text-align: left; }
+
         tr:last-child td { border-bottom: none; }
         tr.data-row:hover td { background-color: #F8FAFC !important; cursor: default; }
 
         /* Rebalanced Column Sizing */
         th:nth-child(1), td:nth-child(1) { width: 28%; font-weight: 700; } 
-        th:nth-child(2), td:nth-child(2) { width: 13%; } /* Widened for File Type */
-        th:nth-child(3), td:nth-child(3) { width: 12%; } /* Widened for Size */
+        th:nth-child(2), td:nth-child(2) { width: 13%; } 
+        th:nth-child(3), td:nth-child(3) { width: 12%; } 
         th:nth-child(4), td:nth-child(4) { width: 15%; } 
         th:nth-child(5), td:nth-child(5) { width: 14%; } 
         th:nth-child(6), td:nth-child(6) { width: 18%; } 
 
         .status-container { display: flex; flex-direction: column; gap: 4px; }
-        .status-main { display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 13px; }
+        
+        /* Added justify-content: center so the flex icon and text align to middle */
+        .status-main { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500; font-size: 13px; }
         
         .status-text-pass { color: #22C55E; }
         .status-text-caution { color: #F59E0B; }
