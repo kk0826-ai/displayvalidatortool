@@ -153,7 +153,7 @@ html_code = """
             border: 1px solid #E2E8F0;
             border-radius: 0px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-            /* Removed overflow: hidden so hover previews can float out of the container bounds */
+            overflow: hidden;
         }
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
@@ -187,7 +187,9 @@ html_code = """
             text-align: center; 
             border-bottom: 1px solid #E2E8F0; 
             vertical-align: middle; 
-            word-wrap: break-word; 
+            /* Fix: aggressive word breaking for long filenames */
+            word-break: break-word; 
+            overflow-wrap: anywhere;
             font-weight: 400; 
         }
 
@@ -224,9 +226,12 @@ html_code = """
             display: inline-block;
             cursor: pointer;
             transition: color 0.2s;
+            /* Fix: Force wrapper to respect column width and break long words */
+            max-width: 100%;
+            word-break: break-all;
         }
         .filename-wrapper:hover {
-            color: #3B82F6; /* Turns blue on hover to indicate interactivity */
+            color: #3B82F6; 
         }
         .preview-tooltip {
             visibility: hidden;
@@ -250,7 +255,6 @@ html_code = """
             max-height: 250px;
             display: block;
             object-fit: contain;
-            /* subtle checkered background for transparent PNGs */
             background-color: #f0f0f0;
             background-image: linear-gradient(45deg, #e4e4e4 25%, transparent 25%), linear-gradient(-45deg, #e4e4e4 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e4e4e4 75%), linear-gradient(-45deg, transparent 75%, #e4e4e4 75%);
             background-size: 10px 10px;
