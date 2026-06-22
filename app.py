@@ -158,6 +158,7 @@ html_code = """
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         
+        /* Unified Left Alignment for Headers */
         th { 
             background-color: #2C0A38; 
             color: #FFFFFF; 
@@ -172,11 +173,25 @@ html_code = """
         }
 
         .th-content { display: flex; align-items: center; gap: 8px; }
+        
+        /* Left Align ONLY the first column */
         th:nth-child(1) { text-align: left; }
         th:not(:nth-child(1)) .th-content { justify-content: center; }
         .th-content svg { width: 14px; height: 14px; fill: #FFFFFF; }
         
-        td { padding: 14px 16px; font-size: 13px; color: #0F172A; text-align: center; border-bottom: 1px solid #E2E8F0; vertical-align: middle; word-wrap: break-word; font-weight: 400; }
+        /* Unified Base Alignment & Text Style for All Data Cells */
+        td { 
+            padding: 14px 16px; 
+            font-size: 13px; 
+            color: #0F172A; /* Match File Name color */
+            text-align: center; /* Center by default */
+            border-bottom: 1px solid #E2E8F0; 
+            vertical-align: middle; 
+            word-wrap: break-word; 
+            font-weight: 400; 
+        }
+
+        /* Left Align ONLY the first column */
         td:nth-child(1) { text-align: left; }
 
         tr:last-child td { border-bottom: none; }
@@ -196,12 +211,10 @@ html_code = """
         .status-text-caution { color: #F59E0B; }
         .status-text-fail { color: #E85D04; }
 
-        .text-primary { color: #0F172A; font-size: 14px; font-weight: 400; }
-        .text-secondary { color: #64748B; font-size: 12px; font-weight: 400; }
-        .text-caution-detail { color: #D97706; font-size: 13px; font-weight: 400; }
-        .text-error-detail { color: #DC2626; font-size: 13px; font-weight: 400; }
+        /* Error highlights only */
+        .text-caution-detail { color: #D97706; font-weight: 400; }
+        .text-error-detail { color: #DC2626; font-weight: 400; }
         
-        .format-badge { color: #475569; font-size: 13px; font-weight: 400; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
@@ -301,6 +314,7 @@ html_code = """
         let compliantCount = 0;
         let nonCompliantCount = 0;
 
+        // The New Master Set
         const MASTER_DIMENSIONS = [
             "120x600", "160x600", "250x250", "300x250", "300x50", "300x600", 
             "320x100", "320x480", "320x50", "336x280", "468x60", "480x320", 
@@ -437,6 +451,7 @@ html_code = """
                 
                 if (sizeKB > 150) { 
                     status = "Fail"; 
+                    errors.push("File size exceeds 150 KB limit");
                 }
 
                 let imgInfo = await getImageInfo(file);
