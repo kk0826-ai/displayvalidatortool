@@ -158,7 +158,7 @@ html_code = """
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         
-        /* Unified Left Alignment for Headers */
+        /* Default to Center Alignment for Headers */
         th { 
             background-color: #2C0A38; 
             color: #FFFFFF; 
@@ -167,25 +167,32 @@ html_code = """
             font-weight: 400; 
             text-transform: uppercase; 
             letter-spacing: 0.05em; 
-            text-align: left; 
+            text-align: center; 
             border-bottom: none; 
             white-space: nowrap; 
         }
 
         .th-content { display: flex; align-items: center; gap: 8px; }
+        
+        /* Left Align ONLY the first column */
+        th:nth-child(1) { text-align: left; }
+        th:not(:nth-child(1)) .th-content { justify-content: center; }
         .th-content svg { width: 14px; height: 14px; fill: #FFFFFF; }
         
         /* Unified Base Alignment & Text Style for All Data Cells */
         td { 
             padding: 14px 16px; 
             font-size: 13px; 
-            color: #0F172A; /* This ensures every column matches the File Name color perfectly */
-            text-align: left; 
+            color: #0F172A; /* Match File Name color */
+            text-align: center; /* Center by default */
             border-bottom: 1px solid #E2E8F0; 
             vertical-align: middle; 
             word-wrap: break-word; 
             font-weight: 400; 
         }
+
+        /* Left Align ONLY the first column */
+        td:nth-child(1) { text-align: left; }
 
         tr:last-child td { border-bottom: none; }
         tr.data-row:hover td { background-color: #F8FAFC !important; cursor: default; }
@@ -198,13 +205,13 @@ html_code = """
         th:nth-child(6), td:nth-child(6) { width: 18%; } 
 
         .status-container { display: flex; flex-direction: column; gap: 4px; }
-        .status-main { display: flex; align-items: center; gap: 8px; font-weight: 400; font-size: 13px; }
+        .status-main { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 400; font-size: 13px; }
         
         .status-text-pass { color: #22C55E; }
         .status-text-caution { color: #F59E0B; }
         .status-text-fail { color: #E85D04; }
 
-        /* Keeping ONLY the error colors for highlights */
+        /* Error highlights only */
         .text-caution-detail { color: #D97706; font-weight: 400; }
         .text-error-detail { color: #DC2626; font-weight: 400; }
         
@@ -307,7 +314,6 @@ html_code = """
         let compliantCount = 0;
         let nonCompliantCount = 0;
 
-        // The New Master Set
         const MASTER_DIMENSIONS = [
             "120x600", "160x600", "250x250", "300x250", "300x50", "300x600", 
             "320x100", "320x480", "320x50", "336x280", "468x60", "480x320", 
@@ -430,7 +436,6 @@ html_code = """
                 let dimHasWarning = false;
                 let dimHasError = false;
                 
-                // Exceeds 5MB Browser Safety Limit
                 if (sizeKB > 5120) { 
                     status = "Fail";
                     errors.push("File exceeds 5MB hard limit");
@@ -476,7 +481,6 @@ html_code = """
                     let nameMatch = file.name.match(nameRegex);
                     let nameDimStr = nameMatch ? `${nameMatch[1]}x${nameMatch[2]}` : null;
 
-                    // Strictly Apply Master List Logic
                     let handledAsAlert = false;
 
                     if (isStandard) {
@@ -500,7 +504,6 @@ html_code = """
                             handledAsAlert = true;
                         }
 
-                        // If it wasn't a near-miss, and didn't trigger a mismatch, it's a completely rogue dimension
                         if (!handledAsAlert) {
                             status = "Fail";
                             dimHasError = true;
@@ -508,7 +511,6 @@ html_code = """
                         }
                     }
 
-                    // Apply standard text if passing, or wrap in color span if failing/alerting
                     if (dimHasWarning) {
                         dimHtml = `<span class='text-caution-detail'>${actualW} × ${actualH}</span>`;
                     } else if (status === "Fail" && dimHasError) {
@@ -526,17 +528,14 @@ html_code = """
                         let displayLoops = rawLoops < 0 ? 1 : rawLoops; 
 
                         if (rawLoops === 0) {
-                            // Infinite loop gets error color
                             animationHtml = `<span class='text-error-detail'>Infinite</span>`; 
                             status = "Fail";
                         } else {
                             let tSec = cSec * displayLoops;
                             if (tSec > 30) { 
-                                // Show raw time in red if > 30s
                                 animationHtml = `<span class='text-error-detail'>${tSec.toFixed(1)}s</span>`;
                                 status = "Fail"; 
                             } else {
-                                // Standard text if passes
                                 animationHtml = `${tSec.toFixed(1)}s`;
                             }
                         }
@@ -552,8 +551,6 @@ html_code = """
         }
 
         function appendRow(name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, sizeKB) {
-            
-            // Format size based on whether it passes or fails
             let formattedSize = sizeKB > 150 ? `<span class='text-error-detail'>${sizeStr}</span>` : sizeStr;
 
             let finalMessages = [];
@@ -577,7 +574,6 @@ html_code = """
                 targetTbody = 'tbody-fail';
             }
 
-            // Notice we removed all the span wrappers so columns inherit standard text styling
             let tr = `<tr class='data-row'>
                 <td>${name}</td>
                 <td>${displayExt}</td>
