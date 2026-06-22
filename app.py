@@ -526,7 +526,7 @@ html_code = """
                         if (isNearMiss && !mismatchTriggered) {
                             if (status === "Pass") status = "Alert"; 
                             dimHasWarning = true;
-                            errors.push(`Invalid size: ${actualDimStr} (Near-miss of master size ${closestStandard})`);
+                            errors.push(`Invalid Dimension`);
                             handledAsAlert = true;
                         }
 
