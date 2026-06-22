@@ -439,6 +439,7 @@ html_code = """
                 // Exceeds 5MB Browser Safety Limit
                 if (sizeKB > 5120) { 
                     status = "Fail";
+                    errors.push("File exceeds 5MB hard limit");
                     appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, sizeKB);
                     continue;
                 }
@@ -454,7 +455,7 @@ html_code = """
                 // Weight Logic
                 if (sizeKB > 150) { 
                     status = "Fail"; 
-                    // Explicitly NOT pushing text error because red number is sufficient
+                    errors.push("File size exceeds 150 KB limit");
                 }
 
                 let imgInfo = await getImageInfo(file);
@@ -545,13 +546,13 @@ html_code = """
                         if (rawLoops === 0) {
                             animationHtml = `<span class='text-error-detail'>Infinite</span>`; 
                             status = "Fail";
-                            // Explicitly NOT pushing text error because red text is sufficient
+                            errors.push("Animation loops infinitely");
                         } else {
                             let tSec = cSec * displayLoops;
                             if (tSec > 30) { 
                                 animationHtml = `<span class='text-error-detail'>${tSec.toFixed(1)}s</span>`;
                                 status = "Fail"; 
-                                // Explicitly NOT pushing text error because red text is sufficient
+                                errors.push(`Animation duration (${tSec.toFixed(1)}s) exceeds 30s limit`);
                             } else {
                                 animationHtml = `${tSec.toFixed(1)}s`;
                             }
