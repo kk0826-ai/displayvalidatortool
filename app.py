@@ -262,13 +262,19 @@ html_code = """
         </script>
 
         <div class="table-wrapper" id="wrapper-fail">
-            <div class="table-header-title">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                    <line x1="12" y1="9" x2="12" y2="13"></line>
-                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                </svg> 
-                Non-Compliant
+            <div style="padding: 0 0 12px 0;">
+                <div class="table-header-title" style="padding-bottom: 4px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg> 
+                    Non-Compliant
+                </div>
+                <div style="font-size: 12px; color: #64748B; margin-top: 4px; display: flex; gap: 24px; align-items: center; line-height: 1.4;">
+                    <span><strong style="color: #0F172A; font-weight: 600;">Dimension Mismatch:</strong> Filename dimensions do not match the actual asset dimensions.</span>
+                    <span><strong style="color: #0F172A; font-weight: 600;">Review:</strong> Non-standard dimensions.</span>
+                </div>
             </div>
             <div class="table-container">
                 <table>
@@ -504,14 +510,14 @@ html_code = """
                         if (nameDimStr && nameDimStr !== actualDimStr) {
                             if (status === "Pass") status = "Alert"; 
                             dimHasWarning = true;
-                            errors.push(`Mismatch: Name says ${nameDimStr} but file is ${actualDimStr}`);
+                            errors.push(`Dimension Mismatch`);
                             mismatchTriggered = true;
                         }
                     } else {
                         if (nameDimStr && nameDimStr !== actualDimStr) {
                             if (status === "Pass") status = "Alert"; 
                             dimHasWarning = true;
-                            errors.push(`Mismatch: Name says ${nameDimStr} but file is ${actualDimStr}`);
+                            errors.push(`Dimension Mismatch`);
                             handledAsAlert = true;
                             mismatchTriggered = true;
                         }
@@ -531,7 +537,7 @@ html_code = """
                             } else {
                                 dimHasError = true; 
                             }
-                            errors.push(`Dimension ${actualDimStr} is not in the approved master list`);
+                            // Removing the text error for 'Review' status to keep UI clean
                         }
                     }
 
@@ -554,13 +560,13 @@ html_code = """
                         if (rawLoops === 0) {
                             animationHtml = `<span class='text-error-detail'>Infinite</span>`; 
                             status = "Fail";
-                            errors.push("Animation loops infinitely");
+                            errors.push("Animates infinitely");
                         } else {
                             let tSec = cSec * displayLoops;
                             if (tSec > 30) { 
                                 animationHtml = `<span class='text-error-detail'>${tSec.toFixed(1)}s</span>`;
                                 status = "Fail"; 
-                                errors.push(`Animation duration (${tSec.toFixed(1)}s) exceeds 30s limit`);
+                                errors.push(`Animates more than 30s`);
                             } else {
                                 animationHtml = `${tSec.toFixed(1)}s`;
                             }
