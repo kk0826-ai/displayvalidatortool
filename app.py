@@ -153,7 +153,7 @@ html_code = """
             border: 1px solid #E2E8F0;
             border-radius: 0px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-            overflow: hidden;
+            /* Removed overflow: hidden so hover previews can float out of the container bounds */
         }
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
@@ -209,15 +209,68 @@ html_code = """
         
         /* Three distinct colors for hierarchy */
         .status-text-pass { color: #22C55E; }
-        .status-text-review { color: #3B82F6; } /* Blue for Review */
-        .status-text-caution { color: #F59E0B; } /* Amber for Alert */
-        .status-text-fail { color: #DC2626; }    /* Red for Fail */
+        .status-text-review { color: #3B82F6; }
+        .status-text-caution { color: #F59E0B; }
+        .status-text-fail { color: #DC2626; }    
 
         /* Specific dimension highlight colors */
         .text-review-detail { color: #3B82F6; font-weight: 400; }
         .text-caution-detail { color: #DC2626; font-weight: 400; }
         .text-error-detail { color: #DC2626; font-weight: 400; }
         
+        /* HOVER PREVIEW CSS */
+        .filename-wrapper {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .filename-wrapper:hover {
+            color: #3B82F6; /* Turns blue on hover to indicate interactivity */
+        }
+        .preview-tooltip {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-left: 15px;
+            z-index: 1000;
+            background: #FFFFFF;
+            padding: 8px;
+            border: 1px solid #CBD5E1;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            pointer-events: none;
+            width: max-content;
+        }
+        .preview-tooltip img {
+            max-width: 250px;
+            max-height: 250px;
+            display: block;
+            object-fit: contain;
+            /* subtle checkered background for transparent PNGs */
+            background-color: #f0f0f0;
+            background-image: linear-gradient(45deg, #e4e4e4 25%, transparent 25%), linear-gradient(-45deg, #e4e4e4 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e4e4e4 75%), linear-gradient(-45deg, transparent 75%, #e4e4e4 75%);
+            background-size: 10px 10px;
+            background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+        }
+        /* Arrow for tooltip */
+        .preview-tooltip::before {
+            content: ''; position: absolute; top: 50%; left: -6px; transform: translateY(-50%);
+            border-width: 6px 6px 6px 0; border-style: solid;
+            border-color: transparent #CBD5E1 transparent transparent;
+        }
+        .preview-tooltip::after {
+            content: ''; position: absolute; top: 50%; left: -5px; transform: translateY(-50%);
+            border-width: 5px 5px 5px 0; border-style: solid;
+            border-color: transparent #FFFFFF transparent transparent;
+        }
+        .filename-wrapper:hover .preview-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -323,6 +376,9 @@ html_code = """
         let compliantCount = 0;
         let nonCompliantCount = 0;
 
+        // Image Preview Memory Management
+        let activePreviewURLs = [];
+
         // Buckets for grouping rows
         let passRows = [];
         let reviewRows = [];
@@ -365,6 +421,10 @@ html_code = """
             compliantCount = 0; nonCompliantCount = 0;
             passRows = []; reviewRows = []; alertRows = []; failRows = [];
             
+            // Clean up memory from image previews
+            activePreviewURLs.forEach(url => URL.revokeObjectURL(url));
+            activePreviewURLs = [];
+
             document.getElementById('tbody-pass').innerHTML = "";
             document.getElementById('tbody-fail').innerHTML = "";
             fileInput.value = ""; 
@@ -419,14 +479,20 @@ html_code = """
         function getImageInfo(file) {
             const imgPromise = new Promise((resolve) => {
                 const img = new Image();
+                const objectUrl = URL.createObjectURL(file);
+                
                 img.onload = () => {
-                    resolve({ width: img.width, height: img.height, valid: true });
-                    URL.revokeObjectURL(img.src);
+                    // We no longer revoke the URL immediately so we can use it for the hover preview.
+                    // It will be revoked by clearResults() instead.
+                    resolve({ width: img.width, height: img.height, valid: true, previewUrl: objectUrl });
                 };
-                img.onerror = () => resolve({ valid: false });
-                img.src = URL.createObjectURL(file);
+                img.onerror = () => {
+                    URL.revokeObjectURL(objectUrl);
+                    resolve({ valid: false, previewUrl: null });
+                };
+                img.src = objectUrl;
             });
-            const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve({ valid: false, timeout: true }), 2000));
+            const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve({ valid: false, timeout: true, previewUrl: null }), 2000));
             return Promise.race([imgPromise, timeoutPromise]);
         }
 
@@ -458,7 +524,7 @@ html_code = """
                 if (sizeKB > 5120) { 
                     status = "Fail";
                     errors.push("File exceeds 5MB hard limit");
-                    appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, sizeKB);
+                    appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, sizeKB, null);
                     continue;
                 }
 
@@ -466,7 +532,7 @@ html_code = """
                 if (!allowedMimeTypes.includes(file.type) && !['JPG', 'JPEG', 'PNG', 'GIF'].includes(logicExt)) {
                     status = "Fail"; 
                     errors.push(`Invalid format: ${displayExt}`);
-                    appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, sizeKB);
+                    appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, sizeKB, null);
                     continue;
                 }
                 
@@ -477,6 +543,11 @@ html_code = """
                 }
 
                 let imgInfo = await getImageInfo(file);
+                let finalPreviewUrl = imgInfo.previewUrl;
+                
+                if (finalPreviewUrl) {
+                    activePreviewURLs.push(finalPreviewUrl);
+                }
 
                 if (!imgInfo.valid) {
                     status = "Fail";
@@ -541,7 +612,6 @@ html_code = """
                             } else {
                                 dimHasError = true; 
                             }
-                            // Removing the text error for 'Review' status to keep UI clean
                         }
                     }
 
@@ -582,7 +652,7 @@ html_code = """
                     }
                 }
 
-                appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, sizeKB);
+                appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, sizeKB, finalPreviewUrl);
             }
 
             // Once the loop is done, inject everything into the tables to ensure correct sorting
@@ -596,11 +666,10 @@ html_code = """
             updateSummary();
         }
 
-        function appendRow(name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, sizeKB) {
+        function appendRow(name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, sizeKB, previewUrl) {
             let formattedSize = sizeKB > 150 ? `<span class='text-error-detail'>${sizeStr}</span>` : sizeStr;
 
             let finalMessages = [];
-            // Use block divs for clean stacking without weird flex gaps
             errors.forEach(e => finalMessages.push(`<div class='text-error-detail' style='font-size:12px; line-height:1.25;'>• ${e}</div>`));
             let msgHtml = finalMessages.join("");
 
@@ -620,8 +689,21 @@ html_code = """
                 statusBlock = `<div class='status-container'><div class='status-main status-text-fail'>${iconFail} Fail</div>${msgHtml}</div>`;
             }
 
+            // Build filename HTML with hover preview logic
+            let filenameHtml = name;
+            if (previewUrl) {
+                filenameHtml = `
+                <div class='filename-wrapper'>
+                    ${name}
+                    <div class='preview-tooltip'>
+                        <img src="${previewUrl}" alt="Preview">
+                    </div>
+                </div>
+                `;
+            }
+
             let tr = `<tr class='data-row'>
-                <td>${name}</td>
+                <td>${filenameHtml}</td>
                 <td>${displayExt}</td>
                 <td>${formattedSize}</td>
                 <td>${dimHtml}</td>
