@@ -158,7 +158,6 @@ html_code = """
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         
-        /* Default to Center Alignment for Headers */
         th { 
             background-color: #2C0A38; 
             color: #FFFFFF; 
@@ -173,25 +172,11 @@ html_code = """
         }
 
         .th-content { display: flex; align-items: center; gap: 8px; }
-        
-        /* Left Align ONLY the first column */
         th:nth-child(1) { text-align: left; }
         th:not(:nth-child(1)) .th-content { justify-content: center; }
         .th-content svg { width: 14px; height: 14px; fill: #FFFFFF; }
         
-        /* Unified Base Alignment & Text Style for All Data Cells */
-        td { 
-            padding: 14px 16px; 
-            font-size: 13px; 
-            color: #0F172A; /* Match File Name color */
-            text-align: center; /* Center by default */
-            border-bottom: 1px solid #E2E8F0; 
-            vertical-align: middle; 
-            word-wrap: break-word; 
-            font-weight: 400; 
-        }
-
-        /* Left Align ONLY the first column */
+        td { padding: 14px 16px; font-size: 13px; color: #0F172A; text-align: center; border-bottom: 1px solid #E2E8F0; vertical-align: middle; word-wrap: break-word; font-weight: 400; }
         td:nth-child(1) { text-align: left; }
 
         tr:last-child td { border-bottom: none; }
@@ -211,10 +196,12 @@ html_code = """
         .status-text-caution { color: #F59E0B; }
         .status-text-fail { color: #E85D04; }
 
-        /* Error highlights only */
-        .text-caution-detail { color: #D97706; font-weight: 400; }
-        .text-error-detail { color: #DC2626; font-weight: 400; }
+        .text-primary { color: #0F172A; font-size: 14px; font-weight: 400; }
+        .text-secondary { color: #64748B; font-size: 12px; font-weight: 400; }
+        .text-caution-detail { color: #D97706; font-size: 13px; font-weight: 400; }
+        .text-error-detail { color: #DC2626; font-size: 13px; font-weight: 400; }
         
+        .format-badge { color: #475569; font-size: 13px; font-weight: 400; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
@@ -436,6 +423,7 @@ html_code = """
                 let dimHasWarning = false;
                 let dimHasError = false;
                 
+                // Exceeds 5MB Browser Safety Limit
                 if (sizeKB > 5120) { 
                     status = "Fail";
                     errors.push("File exceeds 5MB hard limit");
@@ -482,12 +470,14 @@ html_code = """
                     let nameDimStr = nameMatch ? `${nameMatch[1]}x${nameMatch[2]}` : null;
 
                     let handledAsAlert = false;
+                    let mismatchTriggered = false;
 
                     if (isStandard) {
                         if (nameDimStr && nameDimStr !== actualDimStr) {
                             if (status === "Pass") status = "Alert"; 
                             dimHasWarning = true;
                             errors.push(`Mismatch: Name says ${nameDimStr} but file is ${actualDimStr}`);
+                            mismatchTriggered = true;
                         }
                     } else {
                         if (nameDimStr && nameDimStr !== actualDimStr) {
@@ -495,9 +485,11 @@ html_code = """
                             dimHasWarning = true;
                             errors.push(`Mismatch: Name says ${nameDimStr} but file is ${actualDimStr}`);
                             handledAsAlert = true;
+                            mismatchTriggered = true;
                         }
                         
-                        if (isNearMiss) {
+                        // Deduplicate: Don't show near-miss if we already caught it via a naming mismatch
+                        if (isNearMiss && !mismatchTriggered) {
                             if (status === "Pass") status = "Alert"; 
                             dimHasWarning = true;
                             errors.push(`Invalid size: ${actualDimStr} (Near-miss of master size ${closestStandard})`);
@@ -505,8 +497,12 @@ html_code = """
                         }
 
                         if (!handledAsAlert) {
-                            status = "Fail";
-                            dimHasError = true;
+                            if (status !== "Fail") {
+                                status = "Review"; 
+                                dimHasWarning = true; 
+                            } else {
+                                dimHasError = true; 
+                            }
                             errors.push(`Dimension ${actualDimStr} is not in the approved master list`);
                         }
                     }
@@ -564,9 +560,10 @@ html_code = """
                 compliantCount++;
                 statusBlock = `<div class='status-container'><div class='status-main status-text-pass'>${iconPass} Pass</div></div>`;
                 targetTbody = 'tbody-pass';
-            } else if (status === "Alert") {
+            } else if (status === "Alert" || status === "Review") {
                 nonCompliantCount++;
-                statusBlock = `<div class='status-container'><div class='status-main status-text-caution'>${iconAlert} Alert</div>${msgHtml}</div>`;
+                let displayStatus = status; // Show either Alert or Review on the badge
+                statusBlock = `<div class='status-container'><div class='status-main status-text-caution'>${iconAlert} ${displayStatus}</div>${msgHtml}</div>`;
                 targetTbody = 'tbody-fail';
             } else {
                 nonCompliantCount++;
