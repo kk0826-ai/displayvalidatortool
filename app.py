@@ -207,11 +207,14 @@ html_code = """
         .status-container { display: flex; flex-direction: column; gap: 4px; }
         .status-main { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 400; font-size: 13px; }
         
+        /* Three distinct colors for hierarchy */
         .status-text-pass { color: #22C55E; }
-        .status-text-caution { color: #F59E0B; }
-        .status-text-fail { color: #E85D04; }
+        .status-text-review { color: #3B82F6; } /* Blue for Review */
+        .status-text-caution { color: #F59E0B; } /* Amber for Alert */
+        .status-text-fail { color: #DC2626; }    /* Red for Fail */
 
-        /* Error highlights only */
+        /* Specific dimension highlight colors */
+        .text-review-detail { color: #3B82F6; font-weight: 400; }
         .text-caution-detail { color: #DC2626; font-weight: 400; }
         .text-error-detail { color: #DC2626; font-weight: 400; }
         
@@ -333,8 +336,9 @@ html_code = """
         ];
 
         const iconPass = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#22C55E" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="11"/><path d="M8 12.5L10.5 15L16 9" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        const iconReview = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#3B82F6" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="11"/><path d="M12 10V16M12 7H12.01" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
         const iconAlert = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#F59E0B" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="11"/><path d="M12 7V13M12 17H12.01" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-        const iconFail = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#E85D04" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="11"/><path d="M15 9L9 15M9 9L15 15" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        const iconFail = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#DC2626" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="11"/><path d="M15 9L9 15M9 9L15 15" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
         function updateSummary() {
             document.getElementById('count-pass').innerText = compliantCount;
@@ -542,7 +546,11 @@ html_code = """
                     }
 
                     if (dimHasWarning) {
-                        dimHtml = `<span class='text-caution-detail'>${actualW} × ${actualH}</span>`;
+                        if (status === "Review") {
+                            dimHtml = `<span class='text-review-detail'>${actualW} × ${actualH}</span>`;
+                        } else {
+                            dimHtml = `<span class='text-caution-detail'>${actualW} × ${actualH}</span>`;
+                        }
                     } else if (status === "Fail" && dimHasError) {
                         dimHtml = `<span class='text-error-detail'>${actualW} × ${actualH}</span>`;
                     } else {
@@ -592,7 +600,7 @@ html_code = """
             let formattedSize = sizeKB > 150 ? `<span class='text-error-detail'>${sizeStr}</span>` : sizeStr;
 
             let finalMessages = [];
-            // Changed from spans joined by <br> to block divs for clean stacking without weird flex gaps
+            // Use block divs for clean stacking without weird flex gaps
             errors.forEach(e => finalMessages.push(`<div class='text-error-detail' style='font-size:12px; line-height:1.25;'>• ${e}</div>`));
             let msgHtml = finalMessages.join("");
 
@@ -601,10 +609,12 @@ html_code = """
             if (status === "Pass") {
                 compliantCount++;
                 statusBlock = `<div class='status-container'><div class='status-main status-text-pass'>${iconPass} Pass</div></div>`;
-            } else if (status === "Alert" || status === "Review") {
+            } else if (status === "Review") {
                 nonCompliantCount++;
-                let displayStatus = status; // Show either Alert or Review on the badge
-                statusBlock = `<div class='status-container'><div class='status-main status-text-caution'>${iconAlert} ${displayStatus}</div>${msgHtml}</div>`;
+                statusBlock = `<div class='status-container'><div class='status-main status-text-review'>${iconReview} Review</div>${msgHtml}</div>`;
+            } else if (status === "Alert") {
+                nonCompliantCount++;
+                statusBlock = `<div class='status-container'><div class='status-main status-text-caution'>${iconAlert} Alert</div>${msgHtml}</div>`;
             } else {
                 nonCompliantCount++;
                 statusBlock = `<div class='status-container'><div class='status-main status-text-fail'>${iconFail} Fail</div>${msgHtml}</div>`;
