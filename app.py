@@ -314,6 +314,12 @@ html_code = """
         let compliantCount = 0;
         let nonCompliantCount = 0;
 
+        // Buckets for grouping rows
+        let passRows = [];
+        let reviewRows = [];
+        let alertRows = [];
+        let failRows = [];
+
         const MASTER_DIMENSIONS = [
             "120x600", "160x600", "250x250", "300x250", "300x50", "300x600", 
             "320x100", "320x480", "320x50", "336x280", "468x60", "480x320", 
@@ -347,6 +353,8 @@ html_code = """
         function clearResults() {
             processedFiles.clear();
             compliantCount = 0; nonCompliantCount = 0;
+            passRows = []; reviewRows = []; alertRows = []; failRows = [];
+            
             document.getElementById('tbody-pass').innerHTML = "";
             document.getElementById('tbody-fail').innerHTML = "";
             fileInput.value = ""; 
@@ -563,6 +571,12 @@ html_code = """
                 appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, sizeKB);
             }
 
+            // Once the loop is done, inject everything into the tables to ensure correct sorting
+            document.getElementById('tbody-pass').innerHTML = passRows.join('');
+            
+            // Stacking Non-Compliant rows in priority order: 1. Review, 2. Alert, 3. Fail
+            document.getElementById('tbody-fail').innerHTML = reviewRows.join('') + alertRows.join('') + failRows.join('');
+
             document.getElementById('upload-main-text').innerText = "Drag & drop your creatives here";
             document.getElementById('upload-icon-svg').style.color = "#64748B";
             updateSummary();
@@ -576,21 +590,17 @@ html_code = """
             let msgHtml = finalMessages.join("<br>");
 
             let statusBlock = "";
-            let targetTbody = "";
 
             if (status === "Pass") {
                 compliantCount++;
                 statusBlock = `<div class='status-container'><div class='status-main status-text-pass'>${iconPass} Pass</div></div>`;
-                targetTbody = 'tbody-pass';
             } else if (status === "Alert" || status === "Review") {
                 nonCompliantCount++;
                 let displayStatus = status; // Show either Alert or Review on the badge
                 statusBlock = `<div class='status-container'><div class='status-main status-text-caution'>${iconAlert} ${displayStatus}</div>${msgHtml}</div>`;
-                targetTbody = 'tbody-fail';
             } else {
                 nonCompliantCount++;
                 statusBlock = `<div class='status-container'><div class='status-main status-text-fail'>${iconFail} Fail</div>${msgHtml}</div>`;
-                targetTbody = 'tbody-fail';
             }
 
             let tr = `<tr class='data-row'>
@@ -602,7 +612,16 @@ html_code = """
                 <td>${statusBlock}</td>
             </tr>`;
 
-            document.getElementById(targetTbody).innerHTML += tr;
+            // Push into correct bucket for grouped sorting instead of directly appending to the table
+            if (status === "Pass") {
+                passRows.push(tr);
+            } else if (status === "Review") {
+                reviewRows.push(tr);
+            } else if (status === "Alert") {
+                alertRows.push(tr);
+            } else {
+                failRows.push(tr);
+            }
         }
     </script>
 </body>
