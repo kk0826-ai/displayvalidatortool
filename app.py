@@ -592,8 +592,9 @@ html_code = """
             let formattedSize = sizeKB > 150 ? `<span class='text-error-detail'>${sizeStr}</span>` : sizeStr;
 
             let finalMessages = [];
-            errors.forEach(e => finalMessages.push(`<span class='text-error-detail' style='font-size:12px; margin-top:4px;'>• ${e}</span>`));
-            let msgHtml = finalMessages.join("<br>");
+            // Changed from spans joined by <br> to block divs for clean stacking without weird flex gaps
+            errors.forEach(e => finalMessages.push(`<div class='text-error-detail' style='font-size:12px; line-height:1.25;'>• ${e}</div>`));
+            let msgHtml = finalMessages.join("");
 
             let statusBlock = "";
 
