@@ -24,7 +24,10 @@ html_code = """
     <style>
         /* Global & Reset */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Manrope', sans-serif; font-weight: 400; }
-        body { background-color: #FAFAFA; color: #0F172A; padding-bottom: 40px; }
+        
+        /* FIX: Massive bottom padding so bottom-row tooltips don't get cut off */
+        body { background-color: #FAFAFA; color: #0F172A; padding-bottom: 250px; }
+        
         .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
 
         /* Premium Header */
@@ -153,7 +156,7 @@ html_code = """
             border: 1px solid #E2E8F0;
             border-radius: 0px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-            overflow: hidden;
+            overflow: visible; /* Ensures tooltips can escape */
         }
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
@@ -187,7 +190,6 @@ html_code = """
             text-align: center; 
             border-bottom: 1px solid #E2E8F0; 
             vertical-align: middle; 
-            /* Fix: aggressive word breaking for long filenames */
             word-break: break-word; 
             overflow-wrap: anywhere;
             font-weight: 400; 
@@ -226,7 +228,6 @@ html_code = """
             display: inline-block;
             cursor: pointer;
             transition: color 0.2s;
-            /* Fix: Force wrapper to respect column width and break long words */
             max-width: 100%;
             word-break: break-all;
         }
@@ -238,8 +239,8 @@ html_code = """
             opacity: 0;
             position: absolute;
             left: 100%;
-            top: 50%;
-            transform: translateY(-50%);
+            /* FIX: Anchor near the top and remove translateY so it grows DOWN instead of UP */
+            top: -15px; 
             margin-left: 15px;
             z-index: 1000;
             background: #FFFFFF;
@@ -251,8 +252,8 @@ html_code = """
             width: max-content;
         }
         .preview-tooltip img {
-            max-width: 250px;
-            max-height: 250px;
+            max-width: 220px; /* Slightly tightened */
+            max-height: 220px;
             display: block;
             object-fit: contain;
             background-color: #f0f0f0;
@@ -260,14 +261,14 @@ html_code = """
             background-size: 10px 10px;
             background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
         }
-        /* Arrow for tooltip */
+        /* FIX: Adjust arrows to match the new top alignment */
         .preview-tooltip::before {
-            content: ''; position: absolute; top: 50%; left: -6px; transform: translateY(-50%);
+            content: ''; position: absolute; top: 20px; left: -6px; 
             border-width: 6px 6px 6px 0; border-style: solid;
             border-color: transparent #CBD5E1 transparent transparent;
         }
         .preview-tooltip::after {
-            content: ''; position: absolute; top: 50%; left: -5px; transform: translateY(-50%);
+            content: ''; position: absolute; top: 21px; left: -5px; 
             border-width: 5px 5px 5px 0; border-style: solid;
             border-color: transparent #FFFFFF transparent transparent;
         }
@@ -674,6 +675,7 @@ html_code = """
             let formattedSize = sizeKB > 150 ? `<span class='text-error-detail'>${sizeStr}</span>` : sizeStr;
 
             let finalMessages = [];
+            // Use block divs for clean stacking without weird flex gaps
             errors.forEach(e => finalMessages.push(`<div class='text-error-detail' style='font-size:12px; line-height:1.25;'>• ${e}</div>`));
             let msgHtml = finalMessages.join("");
 
