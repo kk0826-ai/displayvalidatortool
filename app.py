@@ -24,10 +24,7 @@ html_code = """
     <style>
         /* Global & Reset */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Manrope', sans-serif; font-weight: 400; }
-        
-        /* FIX: Massive bottom padding so bottom-row tooltips don't get cut off */
         body { background-color: #FAFAFA; color: #0F172A; padding-bottom: 250px; }
-        
         .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
 
         /* Premium Header */
@@ -156,7 +153,7 @@ html_code = """
             border: 1px solid #E2E8F0;
             border-radius: 0px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-            overflow: visible; /* Ensures tooltips can escape */
+            overflow: visible; 
         }
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
@@ -213,8 +210,8 @@ html_code = """
         
         /* Three distinct colors for hierarchy */
         .status-text-pass { color: #22C55E; }
-        .status-text-review { color: #3B82F6; }
-        .status-text-caution { color: #F59E0B; }
+        .status-text-review { color: #3B82F6; } 
+        .status-text-caution { color: #F59E0B; } 
         .status-text-fail { color: #DC2626; }    
 
         /* Specific dimension highlight colors */
@@ -239,7 +236,6 @@ html_code = """
             opacity: 0;
             position: absolute;
             left: 100%;
-            /* FIX: Anchor near the top and remove translateY so it grows DOWN instead of UP */
             top: -15px; 
             margin-left: 15px;
             z-index: 1000;
@@ -252,7 +248,7 @@ html_code = """
             width: max-content;
         }
         .preview-tooltip img {
-            max-width: 220px; /* Slightly tightened */
+            max-width: 220px; 
             max-height: 220px;
             display: block;
             object-fit: contain;
@@ -261,7 +257,6 @@ html_code = """
             background-size: 10px 10px;
             background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
         }
-        /* FIX: Adjust arrows to match the new top alignment */
         .preview-tooltip::before {
             content: ''; position: absolute; top: 20px; left: -6px; 
             border-width: 6px 6px 6px 0; border-style: solid;
@@ -332,9 +327,9 @@ html_code = """
                     </svg> 
                     Non-Compliant
                 </div>
-                <div style="font-size: 12px; color: #64748B; margin-top: 4px; display: flex; gap: 24px; align-items: center; line-height: 1.4;">
-                    <span><strong style="color: #0F172A; font-weight: 600;">Dimension Mismatch:</strong> Filename dimensions do not match the actual asset dimensions.</span>
-                    <span><strong style="color: #0F172A; font-weight: 600;">Review:</strong> Non-standard dimensions.</span>
+                <div id="legend-container" style="display: none; font-size: 12px; color: #64748B; margin-top: 4px; gap: 24px; align-items: center; line-height: 1.4;">
+                    <span id="legend-mismatch" style="display: none;"><strong style="color: #0F172A; font-weight: 600;">Dimension Mismatch:</strong> Filename dimensions do not match the actual asset dimensions.</span>
+                    <span id="legend-review" style="display: none;"><strong style="color: #0F172A; font-weight: 600;">Review:</strong> Non-standard dimensions.</span>
                 </div>
             </div>
             <div class="table-container">
@@ -380,6 +375,10 @@ html_code = """
         let processedFiles = new Set();
         let compliantCount = 0;
         let nonCompliantCount = 0;
+        
+        // State trackers for the dynamic legend
+        let hasMismatchIssue = false;
+        let hasReviewIssue = false;
 
         // Image Preview Memory Management
         let activePreviewURLs = [];
@@ -413,11 +412,22 @@ html_code = """
                 
                 document.getElementById('wrapper-fail').style.display = nonCompliantCount > 0 ? "block" : "none";
                 document.getElementById('wrapper-pass').style.display = compliantCount > 0 ? "block" : "none";
+                
+                // Show dynamic legend only if those specific issues occurred
+                if (hasMismatchIssue || hasReviewIssue) {
+                    document.getElementById('legend-container').style.display = "flex";
+                    document.getElementById('legend-mismatch').style.display = hasMismatchIssue ? "block" : "none";
+                    document.getElementById('legend-review').style.display = hasReviewIssue ? "block" : "none";
+                } else {
+                    document.getElementById('legend-container').style.display = "none";
+                }
+                
             } else {
                 document.getElementById('summary-dashboard').style.display = "none";
                 document.getElementById('action-bar').style.display = "none";
                 document.getElementById('wrapper-fail').style.display = "none";
                 document.getElementById('wrapper-pass').style.display = "none";
+                document.getElementById('legend-container').style.display = "none";
             }
         }
 
@@ -425,6 +435,9 @@ html_code = """
             processedFiles.clear();
             compliantCount = 0; nonCompliantCount = 0;
             passRows = []; reviewRows = []; alertRows = []; failRows = [];
+            
+            hasMismatchIssue = false;
+            hasReviewIssue = false;
             
             // Clean up memory from image previews
             activePreviewURLs.forEach(url => URL.revokeObjectURL(url));
@@ -487,8 +500,6 @@ html_code = """
                 const objectUrl = URL.createObjectURL(file);
                 
                 img.onload = () => {
-                    // We no longer revoke the URL immediately so we can use it for the hover preview.
-                    // It will be revoked by clearResults() instead.
                     resolve({ width: img.width, height: img.height, valid: true, previewUrl: objectUrl });
                 };
                 img.onerror = () => {
@@ -525,7 +536,6 @@ html_code = """
                 let dimHasWarning = false;
                 let dimHasError = false;
                 
-                // Exceeds 5MB Browser Safety Limit
                 if (sizeKB > 5120) { 
                     status = "Fail";
                     errors.push("File exceeds 5MB hard limit");
@@ -533,7 +543,6 @@ html_code = """
                     continue;
                 }
 
-                // Invalid Format Short-Circuit
                 if (!allowedMimeTypes.includes(file.type) && !['JPG', 'JPEG', 'PNG', 'GIF'].includes(logicExt)) {
                     status = "Fail"; 
                     errors.push(`Invalid format: ${displayExt}`);
@@ -541,7 +550,6 @@ html_code = """
                     continue;
                 }
                 
-                // Weight Logic
                 if (sizeKB > 150) { 
                     status = "Fail"; 
                     errors.push("File size exceeds 150 KB limit");
@@ -592,6 +600,7 @@ html_code = """
                             dimHasWarning = true;
                             errors.push(`Dimension Mismatch`);
                             mismatchTriggered = true;
+                            hasMismatchIssue = true;
                         }
                     } else {
                         if (nameDimStr && nameDimStr !== actualDimStr) {
@@ -600,6 +609,7 @@ html_code = """
                             errors.push(`Dimension Mismatch`);
                             handledAsAlert = true;
                             mismatchTriggered = true;
+                            hasMismatchIssue = true;
                         }
                         
                         // Deduplicate: Don't show near-miss if we already caught it via a naming mismatch
@@ -614,6 +624,7 @@ html_code = """
                             if (status !== "Fail") {
                                 status = "Review"; 
                                 dimHasWarning = true; 
+                                hasReviewIssue = true;
                             } else {
                                 dimHasError = true; 
                             }
@@ -660,10 +671,7 @@ html_code = """
                 appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, sizeKB, finalPreviewUrl);
             }
 
-            // Once the loop is done, inject everything into the tables to ensure correct sorting
             document.getElementById('tbody-pass').innerHTML = passRows.join('');
-            
-            // Stacking Non-Compliant rows in priority order: 1. Review, 2. Alert, 3. Fail
             document.getElementById('tbody-fail').innerHTML = reviewRows.join('') + alertRows.join('') + failRows.join('');
 
             document.getElementById('upload-main-text').innerText = "Drag & drop your creatives here";
@@ -675,7 +683,6 @@ html_code = """
             let formattedSize = sizeKB > 150 ? `<span class='text-error-detail'>${sizeStr}</span>` : sizeStr;
 
             let finalMessages = [];
-            // Use block divs for clean stacking without weird flex gaps
             errors.forEach(e => finalMessages.push(`<div class='text-error-detail' style='font-size:12px; line-height:1.25;'>• ${e}</div>`));
             let msgHtml = finalMessages.join("");
 
@@ -695,7 +702,6 @@ html_code = """
                 statusBlock = `<div class='status-container'><div class='status-main status-text-fail'>${iconFail} Fail</div>${msgHtml}</div>`;
             }
 
-            // Build filename HTML with hover preview logic
             let filenameHtml = name;
             if (previewUrl) {
                 filenameHtml = `
@@ -717,7 +723,6 @@ html_code = """
                 <td>${statusBlock}</td>
             </tr>`;
 
-            // Push into correct bucket for grouped sorting instead of directly appending to the table
             if (status === "Pass") {
                 passRows.push(tr);
             } else if (status === "Review") {
