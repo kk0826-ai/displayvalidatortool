@@ -75,10 +75,10 @@ html_code = """
         .upload-subtext { color: #64748B; font-size: 13px; margin-top: 6px; font-weight: 400; }
         #file-input { display: none; }
 
-        /* Summary Dashboard */
+        /* Summary Dashboard (Now 2 Columns) */
         .summary-dashboard {
             display: none; 
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 20px;
             margin-bottom: 2rem;
         }
@@ -104,7 +104,7 @@ html_code = """
             margin-top: 10px; 
         }
 
-        /* Standard Flow Action Bar */
+        /* Action Bar */
         .action-bar-container {
             display: none;
             justify-content: center;
@@ -172,7 +172,6 @@ html_code = """
         }
 
         .th-content { display: flex; align-items: center; gap: 8px; }
-        
         th:nth-child(1) { text-align: left; }
         th:not(:nth-child(1)) .th-content { justify-content: center; }
         .th-content svg { width: 14px; height: 14px; fill: #FFFFFF; }
@@ -203,6 +202,9 @@ html_code = """
         .text-error-detail { color: #DC2626; font-size: 13px; font-weight: 400; }
         
         .format-badge { color: #475569; font-size: 13px; font-weight: 400; letter-spacing: 0.5px; }
+        
+        /* Empty State */
+        .empty-row td { text-align: center !important; padding: 40px; color: #94A3B8; font-size: 14px; font-style: italic; background-color: #FFFFFF !important; }
     </style>
 </head>
 <body>
@@ -213,15 +215,17 @@ html_code = """
         <div class="summary-dashboard" id="summary-dashboard">
             <div class="summary-card">
                 <div class="summary-value" style="color: #22C55E;" id="count-pass">0</div>
-                <div class="summary-label">Compliant</div>
-            </div>
-            <div class="summary-card">
-                <div class="summary-value" style="color: #F59E0B;" id="count-caution">0</div>
-                <div class="summary-label">Review (Caution)</div>
+                <div class="summary-label">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="val-pass"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Compliant
+                </div>
             </div>
             <div class="summary-card">
                 <div class="summary-value" style="color: #EF4444;" id="count-fail">0</div>
-                <div class="summary-label">Rejected</div>
+                <div class="summary-label">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="val-fail"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Non-Compliant
+                </div>
             </div>
         </div>
 
@@ -254,29 +258,12 @@ html_code = """
                     <line x1="12" y1="9" x2="12" y2="13"></line>
                     <line x1="12" y1="17" x2="12.01" y2="17"></line>
                 </svg> 
-                Non-compliant
+                Non-Compliant
             </div>
             <div class="table-container">
                 <table>
                     <thead id="thead-fail"></thead>
                     <tbody id="tbody-fail"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="table-wrapper" id="wrapper-caution">
-            <div class="table-header-title">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-                Review Required (Caution)
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead id="thead-caution"></thead>
-                    <tbody id="tbody-caution"></tbody>
                 </table>
             </div>
         </div>
@@ -308,69 +295,57 @@ html_code = """
 
     <script>
         document.getElementById('thead-fail').innerHTML = thRowHTML;
-        document.getElementById('thead-caution').innerHTML = thRowHTML;
         document.getElementById('thead-pass').innerHTML = thRowHTML;
 
         const dropzone = document.getElementById('dropzone');
         const fileInput = document.getElementById('file-input');
         
         let processedFiles = new Set();
-        let passCount = 0;
-        let cautionCount = 0;
-        let failCount = 0;
+        let compliantCount = 0;
+        let nonCompliantCount = 0;
 
-        const STANDARD_DIMENSIONS = [
-            "120x600", "160x600", "300x250", "300x600", "336x280",
-            "468x60", "728x90", "970x250", "970x90", "300x50",
-            "320x50", "320x480", "480x320", "768x1024", "1024x768"
+        // The New Master Set
+        const MASTER_DIMENSIONS = [
+            "120x600", "160x600", "250x250", "300x250", "300x50", "300x600", 
+            "320x100", "320x480", "320x50", "336x280", "468x60", "480x320", 
+            "728x90", "970x250", "970x90", "768x1024", "1024x768"
         ];
 
         const iconPass = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#22C55E" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="11"/><path d="M8 12.5L10.5 15L16 9" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-        const iconCaution = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#F59E0B" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="11"/><path d="M12 7V13M12 17H12.01" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        const iconAlert = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#F59E0B" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="11"/><path d="M12 7V13M12 17H12.01" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
         const iconFail = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#E85D04" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="11"/><path d="M15 9L9 15M9 9L15 15" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
         function updateSummary() {
-            document.getElementById('count-pass').innerText = passCount;
-            document.getElementById('count-caution').innerText = cautionCount;
-            document.getElementById('count-fail').innerText = failCount;
+            document.getElementById('count-pass').innerText = compliantCount;
+            document.getElementById('count-fail').innerText = nonCompliantCount;
             
-            let total = passCount + cautionCount + failCount;
+            let total = compliantCount + nonCompliantCount;
             
             if (total > 0) {
                 document.getElementById('summary-dashboard').style.display = "grid";
-                // Show action bar as a flex container so it flows normally
                 document.getElementById('action-bar').style.display = "flex";
                 
-                document.getElementById('wrapper-fail').style.display = failCount > 0 ? "block" : "none";
-                document.getElementById('wrapper-caution').style.display = cautionCount > 0 ? "block" : "none";
-                document.getElementById('wrapper-pass').style.display = passCount > 0 ? "block" : "none";
+                document.getElementById('wrapper-fail').style.display = nonCompliantCount > 0 ? "block" : "none";
+                document.getElementById('wrapper-pass').style.display = compliantCount > 0 ? "block" : "none";
             } else {
                 document.getElementById('summary-dashboard').style.display = "none";
                 document.getElementById('action-bar').style.display = "none";
                 document.getElementById('wrapper-fail').style.display = "none";
-                document.getElementById('wrapper-caution').style.display = "none";
                 document.getElementById('wrapper-pass').style.display = "none";
             }
         }
 
         function clearResults() {
             processedFiles.clear();
-            passCount = 0; cautionCount = 0; failCount = 0;
+            compliantCount = 0; nonCompliantCount = 0;
             document.getElementById('tbody-pass').innerHTML = "";
-            document.getElementById('tbody-caution').innerHTML = "";
             document.getElementById('tbody-fail').innerHTML = "";
             fileInput.value = ""; 
             updateSummary();
             
-            try {
-                document.getElementById('main-header').scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } catch(e) {}
-            
+            try { document.getElementById('main-header').scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch(e) {}
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-            try {
-                window.parent.scrollTo({ top: 0, behavior: 'smooth' });
-            } catch(e) {}
+            try { window.parent.scrollTo({ top: 0, behavior: 'smooth' }); } catch(e) {}
         }
 
         dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
@@ -417,7 +392,10 @@ html_code = """
         function getImageInfo(file) {
             const imgPromise = new Promise((resolve) => {
                 const img = new Image();
-                img.onload = () => resolve({ width: img.width, height: img.height, valid: true });
+                img.onload = () => {
+                    resolve({ width: img.width, height: img.height, valid: true });
+                    URL.revokeObjectURL(img.src);
+                };
                 img.onerror = () => resolve({ valid: false });
                 img.src = URL.createObjectURL(file);
             });
@@ -437,7 +415,7 @@ html_code = """
                 if (processedFiles.has(fileId)) continue; 
                 processedFiles.add(fileId);
 
-                let status = "Pass", animationHtml = "<span class='text-secondary'>Static Image</span>";
+                let status = "Pass", animationHtml = "<span class='text-secondary'>Static Image</span>", errors = [];
                 let sizeKB = file.size / 1024;
                 let sizeStr = sizeKB.toFixed(1) + " KB";
                 
@@ -447,21 +425,25 @@ html_code = """
                 
                 let dimHtml = "<span class='text-secondary'>-</span>";
                 let dimHasWarning = false;
+                let dimHasError = false;
                 
+                // Exceeds 5MB Browser Safety Limit
                 if (sizeKB > 5120) { 
                     status = "Fail";
-                    appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, sizeKB);
+                    errors.push("File exceeds 5MB hard limit");
+                    appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, sizeKB);
                     continue;
                 }
 
                 if (!allowedMimeTypes.includes(file.type) && !['JPG', 'JPEG', 'PNG', 'GIF'].includes(logicExt)) {
-                    status = "Fail"; 
+                    status = "Fail"; errors.push("Invalid format");
                 }
                 
-                if (sizeKB > 150) { status = "Fail"; }
+                if (sizeKB > 150) { 
+                    status = "Fail"; 
+                }
 
                 let imgInfo = await getImageInfo(file);
-                let dimHasError = false;
 
                 if (!imgInfo.valid) {
                     status = "Fail";
@@ -472,14 +454,16 @@ html_code = """
                     let actualH = imgInfo.height;
                     let actualDimStr = `${actualW}x${actualH}`;
 
-                    let isStandard = STANDARD_DIMENSIONS.includes(actualDimStr);
+                    let isStandard = MASTER_DIMENSIONS.includes(actualDimStr);
                     let isNearMiss = false;
+                    let closestStandard = "";
 
                     if (!isStandard) {
-                        for (let sDim of STANDARD_DIMENSIONS) {
+                        for (let sDim of MASTER_DIMENSIONS) {
                             let [sW, sH] = sDim.split('x').map(Number);
                             if (Math.abs(actualW - sW) <= 4 && Math.abs(actualH - sH) <= 4) {
                                 isNearMiss = true;
+                                closestStandard = sDim;
                                 break;
                             }
                         }
@@ -489,14 +473,36 @@ html_code = """
                     let nameMatch = file.name.match(nameRegex);
                     let nameDimStr = nameMatch ? `${nameMatch[1]}x${nameMatch[2]}` : null;
 
-                    if (nameDimStr && nameDimStr !== actualDimStr) {
-                        status = "Fail"; dimHasError = true;
-                    } else if (isStandard) {
-                        // Pass
-                    } else if (isNearMiss) {
-                        status = "Fail"; dimHasError = true;
+                    // Strictly Apply Master List Logic
+                    let handledAsAlert = false;
+
+                    if (isStandard) {
+                        if (nameDimStr && nameDimStr !== actualDimStr) {
+                            if (status === "Pass") status = "Alert"; 
+                            dimHasWarning = true;
+                            errors.push(`Mismatch: Name says ${nameDimStr} but file is ${actualDimStr}`);
+                        }
                     } else {
-                        if (status !== "Fail") status = "Caution"; dimHasWarning = true;
+                        if (nameDimStr && nameDimStr !== actualDimStr) {
+                            if (status === "Pass") status = "Alert"; 
+                            dimHasWarning = true;
+                            errors.push(`Mismatch: Name says ${nameDimStr} but file is ${actualDimStr}`);
+                            handledAsAlert = true;
+                        }
+                        
+                        if (isNearMiss) {
+                            if (status === "Pass") status = "Alert"; 
+                            dimHasWarning = true;
+                            errors.push(`Invalid size: ${actualDimStr} (Near-miss of master size ${closestStandard})`);
+                            handledAsAlert = true;
+                        }
+
+                        // If it wasn't a near-miss, and didn't trigger a mismatch, it's a completely rogue dimension
+                        if (!handledAsAlert) {
+                            status = "Fail";
+                            dimHasError = true;
+                            errors.push(`Dimension ${actualDimStr} is not in the approved master list`);
+                        }
                     }
 
                     let dimColorClass = 'text-primary';
@@ -514,11 +520,13 @@ html_code = """
                         let displayLoops = rawLoops < 0 ? 1 : rawLoops; 
 
                         if (rawLoops === 0) {
-                            animationHtml = `<span class='text-error-detail'>∞ Infinite (${cSec.toFixed(1)}s)</span>`; 
+                            // Strip the time out for infinite loops
+                            animationHtml = `<span class='text-error-detail'>Infinite</span>`; 
                             status = "Fail";
                         } else {
                             let tSec = cSec * displayLoops;
                             if (tSec > 30) { 
+                                // Show raw time in red if > 30s
                                 animationHtml = `<span class='text-error-detail'>${tSec.toFixed(1)}s</span>`;
                                 status = "Fail"; 
                             } else {
@@ -528,7 +536,7 @@ html_code = """
                     }
                 }
 
-                appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, sizeKB);
+                appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, sizeKB);
             }
 
             document.getElementById('upload-main-text').innerText = "Drag & drop your creatives here";
@@ -536,24 +544,28 @@ html_code = """
             updateSummary();
         }
 
-        function appendRow(name, displayExt, sizeStr, dimHtml, animationHtml, status, sizeKB) {
+        function appendRow(name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, sizeKB) {
             let sizeColorClass = sizeKB > 150 ? 'text-error-detail' : 'text-primary';
             let formattedSize = `<span class='${sizeColorClass}'>${sizeStr}</span>`;
+
+            let finalMessages = [];
+            errors.forEach(e => finalMessages.push(`<span class='text-error-detail' style='font-size:12px; margin-top:4px;'>• ${e}</span>`));
+            let msgHtml = finalMessages.join("<br>");
 
             let statusBlock = "";
             let targetTbody = "";
 
             if (status === "Pass") {
-                passCount++;
+                compliantCount++;
                 statusBlock = `<div class='status-container'><div class='status-main status-text-pass'>${iconPass} Pass</div></div>`;
                 targetTbody = 'tbody-pass';
-            } else if (status === "Caution") {
-                cautionCount++;
-                statusBlock = `<div class='status-container'><div class='status-main status-text-caution'>${iconCaution} Caution</div></div>`;
-                targetTbody = 'tbody-caution';
+            } else if (status === "Alert") {
+                nonCompliantCount++;
+                statusBlock = `<div class='status-container'><div class='status-main status-text-caution'>${iconAlert} Alert</div>${msgHtml}</div>`;
+                targetTbody = 'tbody-fail';
             } else {
-                failCount++;
-                statusBlock = `<div class='status-container'><div class='status-main status-text-fail'>${iconFail} Fail</div></div>`;
+                nonCompliantCount++;
+                statusBlock = `<div class='status-container'><div class='status-main status-text-fail'>${iconFail} Fail</div>${msgHtml}</div>`;
                 targetTbody = 'tbody-fail';
             }
 
