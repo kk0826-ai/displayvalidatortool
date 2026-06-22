@@ -183,8 +183,8 @@ html_code = """
         td { 
             padding: 14px 16px; 
             font-size: 13px; 
-            color: #0F172A; /* Match File Name color */
-            text-align: center; /* Center by default */
+            color: #0F172A; 
+            text-align: center; 
             border-bottom: 1px solid #E2E8F0; 
             vertical-align: middle; 
             word-wrap: break-word; 
@@ -314,7 +314,6 @@ html_code = """
         let compliantCount = 0;
         let nonCompliantCount = 0;
 
-        // The New Master Set
         const MASTER_DIMENSIONS = [
             "120x600", "160x600", "250x250", "300x250", "300x50", "300x600", 
             "320x100", "320x480", "320x50", "336x280", "468x60", "480x320", 
@@ -440,18 +439,22 @@ html_code = """
                 // Exceeds 5MB Browser Safety Limit
                 if (sizeKB > 5120) { 
                     status = "Fail";
-                    errors.push("File exceeds 5MB hard limit");
                     appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, sizeKB);
                     continue;
                 }
 
+                // Invalid Format Short-Circuit
                 if (!allowedMimeTypes.includes(file.type) && !['JPG', 'JPEG', 'PNG', 'GIF'].includes(logicExt)) {
-                    status = "Fail"; errors.push("Invalid format");
+                    status = "Fail"; 
+                    errors.push(`Invalid format: ${displayExt}`);
+                    appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, sizeKB);
+                    continue;
                 }
                 
+                // Weight Logic
                 if (sizeKB > 150) { 
                     status = "Fail"; 
-                    errors.push("File size exceeds 150 KB limit");
+                    // Explicitly NOT pushing text error because red number is sufficient
                 }
 
                 let imgInfo = await getImageInfo(file);
@@ -459,7 +462,8 @@ html_code = """
                 if (!imgInfo.valid) {
                     status = "Fail";
                     dimHasError = true;
-                    dimHtml = `<span class='text-error-detail'>Corrupted/Unreadable</span>`;
+                    dimHtml = `<span class='text-error-detail'>Unreadable</span>`;
+                    errors.push("Image file is corrupted or unreadable");
                 } else {
                     let actualW = imgInfo.width;
                     let actualH = imgInfo.height;
@@ -541,11 +545,13 @@ html_code = """
                         if (rawLoops === 0) {
                             animationHtml = `<span class='text-error-detail'>Infinite</span>`; 
                             status = "Fail";
+                            // Explicitly NOT pushing text error because red text is sufficient
                         } else {
                             let tSec = cSec * displayLoops;
                             if (tSec > 30) { 
                                 animationHtml = `<span class='text-error-detail'>${tSec.toFixed(1)}s</span>`;
                                 status = "Fail"; 
+                                // Explicitly NOT pushing text error because red text is sufficient
                             } else {
                                 animationHtml = `${tSec.toFixed(1)}s`;
                             }
