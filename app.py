@@ -271,6 +271,30 @@ html_code = """
             visibility: visible;
             opacity: 1;
         }
+        
+        /* App Footer Styling */
+        .app-footer {
+            margin-top: 5rem;
+            padding-top: 24px;
+            border-top: 1px solid #E2E8F0;
+            text-align: center;
+            font-size: 12px;
+            color: #64748B;
+            line-height: 1.6;
+            letter-spacing: 0.5px;
+        }
+        .app-footer strong {
+            color: #0F172A;
+            font-weight: 600;
+        }
+        .app-footer-team {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #94A3B8;
+            font-weight: 500;
+            margin-top: 2px;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
@@ -363,6 +387,11 @@ html_code = """
             </button>
         </div>
 
+        <footer class="app-footer">
+            <div>Made by <strong>KIRANKUMAR</strong></div>
+            <div class="app-footer-team">MiQ Ad Ops Team</div>
+        </footer>
+
     </div>
 
     <script>
@@ -376,14 +405,11 @@ html_code = """
         let compliantCount = 0;
         let nonCompliantCount = 0;
         
-        // State trackers for the dynamic legend
         let hasMismatchIssue = false;
         let hasReviewIssue = false;
 
-        // Image Preview Memory Management
         let activePreviewURLs = [];
 
-        // Buckets for grouping rows
         let passRows = [];
         let reviewRows = [];
         let alertRows = [];
@@ -413,7 +439,6 @@ html_code = """
                 document.getElementById('wrapper-fail').style.display = nonCompliantCount > 0 ? "block" : "none";
                 document.getElementById('wrapper-pass').style.display = compliantCount > 0 ? "block" : "none";
                 
-                // Show dynamic legend only if those specific issues occurred
                 if (hasMismatchIssue || hasReviewIssue) {
                     document.getElementById('legend-container').style.display = "flex";
                     document.getElementById('legend-mismatch').style.display = hasMismatchIssue ? "block" : "none";
@@ -439,7 +464,6 @@ html_code = """
             hasMismatchIssue = false;
             hasReviewIssue = false;
             
-            // Clean up memory from image previews
             activePreviewURLs.forEach(url => URL.revokeObjectURL(url));
             activePreviewURLs = [];
 
@@ -612,7 +636,6 @@ html_code = """
                             hasMismatchIssue = true;
                         }
                         
-                        // Deduplicate: Don't show near-miss if we already caught it via a naming mismatch
                         if (isNearMiss && !mismatchTriggered) {
                             if (status === "Pass") status = "Alert"; 
                             dimHasWarning = true;
