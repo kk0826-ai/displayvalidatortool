@@ -75,7 +75,7 @@ html_code = """
         .upload-subtext { color: #64748B; font-size: 13px; margin-top: 6px; font-weight: 400; }
         #file-input { display: none; }
 
-        /* Summary Dashboard (Now 2 Columns) */
+        /* Summary Dashboard */
         .summary-dashboard {
             display: none; 
             grid-template-columns: repeat(2, 1fr);
@@ -158,6 +158,7 @@ html_code = """
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         
+        /* Unified Left Alignment for Headers */
         th { 
             background-color: #2C0A38; 
             color: #FFFFFF; 
@@ -166,18 +167,25 @@ html_code = """
             font-weight: 400; 
             text-transform: uppercase; 
             letter-spacing: 0.05em; 
-            text-align: center; 
+            text-align: left; 
             border-bottom: none; 
             white-space: nowrap; 
         }
 
         .th-content { display: flex; align-items: center; gap: 8px; }
-        th:nth-child(1) { text-align: left; }
-        th:not(:nth-child(1)) .th-content { justify-content: center; }
         .th-content svg { width: 14px; height: 14px; fill: #FFFFFF; }
         
-        td { padding: 14px 16px; font-size: 13px; color: #0F172A; text-align: center; border-bottom: 1px solid #E2E8F0; vertical-align: middle; word-wrap: break-word; font-weight: 400; }
-        td:nth-child(1) { text-align: left; }
+        /* Unified Base Alignment & Text Style for All Data Cells */
+        td { 
+            padding: 14px 16px; 
+            font-size: 13px; 
+            color: #0F172A; /* This ensures every column matches the File Name color perfectly */
+            text-align: left; 
+            border-bottom: 1px solid #E2E8F0; 
+            vertical-align: middle; 
+            word-wrap: break-word; 
+            font-weight: 400; 
+        }
 
         tr:last-child td { border-bottom: none; }
         tr.data-row:hover td { background-color: #F8FAFC !important; cursor: default; }
@@ -190,21 +198,16 @@ html_code = """
         th:nth-child(6), td:nth-child(6) { width: 18%; } 
 
         .status-container { display: flex; flex-direction: column; gap: 4px; }
-        .status-main { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 400; font-size: 13px; }
+        .status-main { display: flex; align-items: center; gap: 8px; font-weight: 400; font-size: 13px; }
         
         .status-text-pass { color: #22C55E; }
         .status-text-caution { color: #F59E0B; }
         .status-text-fail { color: #E85D04; }
 
-        .text-primary { color: #0F172A; font-size: 14px; font-weight: 400; }
-        .text-secondary { color: #64748B; font-size: 12px; font-weight: 400; }
-        .text-caution-detail { color: #D97706; font-size: 13px; font-weight: 400; }
-        .text-error-detail { color: #DC2626; font-size: 13px; font-weight: 400; }
+        /* Keeping ONLY the error colors for highlights */
+        .text-caution-detail { color: #D97706; font-weight: 400; }
+        .text-error-detail { color: #DC2626; font-weight: 400; }
         
-        .format-badge { color: #475569; font-size: 13px; font-weight: 400; letter-spacing: 0.5px; }
-        
-        /* Empty State */
-        .empty-row td { text-align: center !important; padding: 40px; color: #94A3B8; font-size: 14px; font-style: italic; background-color: #FFFFFF !important; }
     </style>
 </head>
 <body>
@@ -415,7 +418,7 @@ html_code = """
                 if (processedFiles.has(fileId)) continue; 
                 processedFiles.add(fileId);
 
-                let status = "Pass", animationHtml = "<span class='text-secondary'>Static Image</span>", errors = [];
+                let status = "Pass", animationHtml = "Static Image", errors = [];
                 let sizeKB = file.size / 1024;
                 let sizeStr = sizeKB.toFixed(1) + " KB";
                 
@@ -423,7 +426,7 @@ html_code = """
                 let logicExt = rawExt.toUpperCase();
                 let displayExt = "." + rawExt.toLowerCase();
                 
-                let dimHtml = "<span class='text-secondary'>-</span>";
+                let dimHtml = "-";
                 let dimHasWarning = false;
                 let dimHasError = false;
                 
@@ -505,11 +508,14 @@ html_code = """
                         }
                     }
 
-                    let dimColorClass = 'text-primary';
-                    if (dimHasWarning) dimColorClass = 'text-caution-detail';
-                    if (status === "Fail" && dimHasError) dimColorClass = 'text-error-detail';
-                    
-                    dimHtml = `<span class='${dimColorClass}'>${actualW} × ${actualH}</span>`;
+                    // Apply standard text if passing, or wrap in color span if failing/alerting
+                    if (dimHasWarning) {
+                        dimHtml = `<span class='text-caution-detail'>${actualW} × ${actualH}</span>`;
+                    } else if (status === "Fail" && dimHasError) {
+                        dimHtml = `<span class='text-error-detail'>${actualW} × ${actualH}</span>`;
+                    } else {
+                        dimHtml = `${actualW} × ${actualH}`;
+                    }
                 }
 
                 if (logicExt === "GIF" && imgInfo.valid) { 
@@ -520,7 +526,7 @@ html_code = """
                         let displayLoops = rawLoops < 0 ? 1 : rawLoops; 
 
                         if (rawLoops === 0) {
-                            // Strip the time out for infinite loops
+                            // Infinite loop gets error color
                             animationHtml = `<span class='text-error-detail'>Infinite</span>`; 
                             status = "Fail";
                         } else {
@@ -530,7 +536,8 @@ html_code = """
                                 animationHtml = `<span class='text-error-detail'>${tSec.toFixed(1)}s</span>`;
                                 status = "Fail"; 
                             } else {
-                                animationHtml = `<span class='text-primary'>${tSec.toFixed(1)}s</span>`;
+                                // Standard text if passes
+                                animationHtml = `${tSec.toFixed(1)}s`;
                             }
                         }
                     }
@@ -545,8 +552,9 @@ html_code = """
         }
 
         function appendRow(name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, sizeKB) {
-            let sizeColorClass = sizeKB > 150 ? 'text-error-detail' : 'text-primary';
-            let formattedSize = `<span class='${sizeColorClass}'>${sizeStr}</span>`;
+            
+            // Format size based on whether it passes or fails
+            let formattedSize = sizeKB > 150 ? `<span class='text-error-detail'>${sizeStr}</span>` : sizeStr;
 
             let finalMessages = [];
             errors.forEach(e => finalMessages.push(`<span class='text-error-detail' style='font-size:12px; margin-top:4px;'>• ${e}</span>`));
@@ -569,9 +577,10 @@ html_code = """
                 targetTbody = 'tbody-fail';
             }
 
+            // Notice we removed all the span wrappers so columns inherit standard text styling
             let tr = `<tr class='data-row'>
                 <td>${name}</td>
-                <td><span class='format-badge'>${displayExt}</span></td>
+                <td>${displayExt}</td>
                 <td>${formattedSize}</td>
                 <td>${dimHtml}</td>
                 <td>${animationHtml}</td>
