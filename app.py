@@ -212,7 +212,7 @@ html_code = """
         .status-text-fail { color: #E85D04; }
 
         /* Error highlights only */
-        .text-caution-detail { color: #D97706; font-weight: 400; }
+        .text-caution-detail { color: #DC2626; font-weight: 400; }
         .text-error-detail { color: #DC2626; font-weight: 400; }
         
     </style>
