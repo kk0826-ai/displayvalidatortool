@@ -351,9 +351,9 @@ html_code = """
                     </svg> 
                     Non-Compliant
                 </div>
-                <div id="legend-container" style="display: none; font-size: 12px; color: #64748B; margin-top: 4px; gap: 24px; align-items: center; line-height: 1.4;">
-                    <span id="legend-mismatch" style="display: none;"><strong style="color: #0F172A; font-weight: 600;">Dimension Mismatch:</strong> Filename dimensions do not match the actual asset dimensions.</span>
-                    <span id="legend-review" style="display: none;"><strong style="color: #0F172A; font-weight: 600;">Review:</strong> Non-standard dimensions.</span>
+                <div id="legend-container" style="display: none; font-size: 13px; color: #0F172A; font-weight: 400; margin-top: 4px; gap: 24px; align-items: center; line-height: 1.4;">
+                    <span id="legend-mismatch" style="display: none;"><strong style="font-weight: 600;">Dimension Mismatch:</strong> Filename dimensions do not match the actual asset dimensions.</span>
+                    <span id="legend-review" style="display: none;"><strong style="font-weight: 600;">Review:</strong> Non-standard dimensions.</span>
                 </div>
             </div>
             <div class="table-container">
@@ -677,15 +677,15 @@ html_code = """
                         if (rawLoops === 0) {
                             animationHtml = `<span class='text-error-detail'>Infinite</span>`; 
                             status = "Fail";
-                            errors.push("Animates infinitely");
+                            errors.push("Animates over 30 s");
                         } else {
                             let tSec = cSec * displayLoops;
                             if (tSec > 30) { 
-                                animationHtml = `<span class='text-error-detail'>${tSec.toFixed(1)}s</span>`;
+                                animationHtml = `<span class='text-error-detail'>${tSec.toFixed(1)} s</span>`;
                                 status = "Fail"; 
-                                errors.push(`Animates more than 30s`);
+                                errors.push(`Animates over 30 s`);
                             } else {
-                                animationHtml = `${tSec.toFixed(1)}s`;
+                                animationHtml = `${tSec.toFixed(1)} s`;
                             }
                         }
                     }
