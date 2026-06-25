@@ -353,7 +353,7 @@ html_code = """
                 </div>
                 <div id="legend-container" style="display: none; font-size: 13px; color: #0F172A; font-weight: 400; margin-top: 4px; gap: 24px; align-items: center; line-height: 1.4;">
                     <span id="legend-mismatch" style="display: none;"><strong style="font-weight: 600;">Dimension Mismatch:</strong> Filename dimensions do not match the actual asset dimensions.</span>
-                    <span id="legend-review" style="display: none;"><strong style="font-weight: 600;">Review:</strong> Non-standard dimensions.</span>
+                    <span id="legend-review" style="display: none;"><strong style="font-weight: 600;">Review:</strong> Non-standard dimensions. Ensure these dimensions are correct before submitting a ticket.</span>
                 </div>
             </div>
             <div class="table-container">
