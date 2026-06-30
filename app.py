@@ -559,21 +559,26 @@ html_code = """
                 let dimHtml = "-";
                 let dimHasWarning = false;
                 let dimHasError = false;
+
+                // 1. Invalid Format Short-Circuit
+                if (!allowedMimeTypes.includes(file.type) && !['JPG', 'JPEG', 'PNG', 'GIF'].includes(logicExt)) {
+                    status = "Fail"; 
+                    errors.push(`Invalid format: ${displayExt}`);
+                    
+                    let redDisplayExt = `<span class='text-error-detail'>${displayExt}</span>`;
+                    appendRow(file.name, redDisplayExt, "-", "-", "-", status, errors, 0, null);
+                    continue;
+                }
                 
+                // 2. Exceeds 5MB Browser Safety Limit
                 if (sizeKB > 5120) { 
                     status = "Fail";
                     errors.push("File exceeds 5MB hard limit");
                     appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, sizeKB, null);
                     continue;
                 }
-
-                if (!allowedMimeTypes.includes(file.type) && !['JPG', 'JPEG', 'PNG', 'GIF'].includes(logicExt)) {
-                    status = "Fail"; 
-                    errors.push(`Invalid format: ${displayExt}`);
-                    appendRow(file.name, displayExt, sizeStr, dimHtml, animationHtml, status, errors, sizeKB, null);
-                    continue;
-                }
                 
+                // Weight Logic
                 if (sizeKB > 150) { 
                     status = "Fail"; 
                     errors.push("File size exceeds 150 KB limit");
