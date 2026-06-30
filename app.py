@@ -325,7 +325,7 @@ html_code = """
             </svg>
             <span class="upload-text" id="upload-main-text">Drag & drop your creatives here</span>
             <span class="upload-subtext" id="upload-sub-text">or click to browse files</span>
-            <input type="file" id="file-input" multiple accept=".jpg,.jpeg,.png,.gif">
+            <input type="file" id="file-input" multiple>
         </div>
 
         <script>
