@@ -298,7 +298,7 @@ html_code = """
     </style>
 </head>
 <body>
-    <header id="main-header"><h1>Display Validator Tool</h1></header>
+    <header id="main-header"><h1>Display File Validator</h1></header>
     
     <div class="container">
         
