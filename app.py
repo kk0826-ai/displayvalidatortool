@@ -616,15 +616,36 @@ html_code = """
                         }
                     }
 
-                    let nameRegex = /(?<!\d)(\d+)\s*[xX]\s*(\d+)(?!\d)/;
-                    let nameMatch = file.name.match(nameRegex);
-                    let nameDimStr = nameMatch ? `${nameMatch[1]}x${nameMatch[2]}` : null;
+                    // --- NEW INTELLIGENT FIND ALL & VERIFY LOGIC ---
+                    // Broad regex to see if they are attempting to state a dimension (e.g. 1x2, 120 pixels x 600, 300_250)
+                    let dimPatternRegex = /\d+\s*(?:pixels|px)?\s*[xX*×_]\s*(?:pixels|px)?\s*\d+/i;
+                    let filenameHasDimPattern = dimPatternRegex.test(file.name);
+                    
+                    let foundMatchInName = false;
+                    
+                    if (filenameHasDimPattern) {
+                        // Extract every single standalone number from the filename
+                        let numsInName = file.name.match(/\d+/g) || [];
+                        
+                        // Check if any adjacent pair of numbers matches our actual dimensions
+                        for (let i = 0; i < numsInName.length - 1; i++) {
+                            let n1 = parseInt(numsInName[i]);
+                            let n2 = parseInt(numsInName[i+1]);
+                            
+                            // Check both standard WxH and swapped HxW
+                            if ((n1 === actualW && n2 === actualH) || (n1 === actualH && n2 === actualW)) {
+                                foundMatchInName = true;
+                                break;
+                            }
+                        }
+                    }
 
                     let handledAsAlert = false;
                     let mismatchTriggered = false;
 
                     if (isStandard) {
-                        if (nameDimStr && nameDimStr !== actualDimStr) {
+                        // If it has a dimension pattern but NO match was found, flag mismatch
+                        if (filenameHasDimPattern && !foundMatchInName) {
                             if (status === "Pass") status = "Alert"; 
                             dimHasWarning = true;
                             errors.push(`Dimension Mismatch`);
@@ -632,7 +653,7 @@ html_code = """
                             hasMismatchIssue = true;
                         }
                     } else {
-                        if (nameDimStr && nameDimStr !== actualDimStr) {
+                        if (filenameHasDimPattern && !foundMatchInName) {
                             if (status === "Pass") status = "Alert"; 
                             dimHasWarning = true;
                             errors.push(`Dimension Mismatch`);
