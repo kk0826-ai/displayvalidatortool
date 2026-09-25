@@ -22,7 +22,7 @@ if "failed_attempts" not in st.session_state:
     st.session_state.failed_attempts = 0
 
 # ==========================================
-# ULTRA UI SPLIT-SCREEN LOGIN PAGE
+# ULTRA UI CENTERED CARD LOGIN PAGE
 # ==========================================
 if not st.session_state.logged_in:
     
@@ -31,147 +31,110 @@ if not st.session_state.logged_in:
         st.error("🚨 **Security Lockout:** Too many failed attempts. Access blocked for this session.")
         st.stop()
 
-    # CSS Injection for the High-End Split Screen UI
+    # CSS Injection for the Centered Floating Card UI
     st.markdown("""
         <style>
-            /* Force edge-to-edge layout */
-            .block-container {
-                padding: 0rem !important;
-                max-width: 100% !important;
+            /* Subtle fluid background for the whole page */
+            .stApp {
+                background: linear-gradient(135deg, #F0F4F8 0%, #E2E8F0 100%);
             }
+            
+            /* Hide header/footer */
             header { visibility: hidden; }
             footer { visibility: hidden; }
+            .block-container { max-width: 1200px !important; }
             
-            /* Columns Container to stretch 100vh */
-            [data-testid="stHorizontalBlock"] {
-                height: 100vh;
-                gap: 0rem !important; 
-                align-items: stretch !important;
-            }
-            
-            /* LEFT COLUMN: Dark Tech Image & Branding */
-            [data-testid="column"]:nth-of-type(1) {
-                background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop');
-                background-size: cover;
-                background-position: center;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                padding: 4rem 10% !important;
-                position: relative;
-            }
-            
-            /* Dark gradient overlay for the left column */
-            [data-testid="column"]:nth-of-type(1)::before {
-                content: "";
-                position: absolute;
-                top: 0; left: 0; right: 0; bottom: 0;
-                background: linear-gradient(135deg, rgba(15,23,42,0.85) 0%, rgba(15,23,42,0.3) 100%);
-            }
-            
-            /* RIGHT COLUMN: The Login Form */
+            /* Target the middle column to turn it into a premium floating card */
             [data-testid="column"]:nth-of-type(2) {
                 background-color: #FFFFFF;
+                padding: 48px 40px !important;
+                border-radius: 24px;
+                box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.8);
                 display: flex;
                 flex-direction: column;
-                justify-content: center;
-                padding: 0 8% !important;
+                align-items: center;
+                animation: floatUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             }
             
-            /* Override Streamlit Input Styling -> Square & Clean */
+            @keyframes floatUp {
+                0% { opacity: 0; transform: translateY(20px); }
+                100% { opacity: 1; transform: translateY(0); }
+            }
+            
+            /* Override Streamlit Input Styling -> Soft, pill-like, glowing focus */
             div.stTextInput > div > div > input {
-                border-radius: 0px !important;
+                border-radius: 12px !important;
                 border: 1.5px solid #E2E8F0 !important;
-                height: 54px !important;
+                background-color: #F8FAFC !important;
+                height: 52px !important;
                 padding: 0 16px !important;
                 font-size: 15px !important;
                 color: #0F172A !important;
-                transition: all 0.2s ease;
+                transition: all 0.3s ease;
             }
             div.stTextInput > div > div > input:focus {
                 border-color: #3B82F6 !important;
-                box-shadow: 0 0 0 1px #3B82F6 !important;
+                background-color: #FFFFFF !important;
+                box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15) !important;
             }
             
-            /* Override Streamlit Button -> Square, Dark, Electric Blue Hover */
+            /* Override Streamlit Button -> Fluid gradient, soft lift on hover */
             div.stButton > button {
-                border-radius: 0px !important;
-                background-color: #0F172A !important;
-                border: 2px solid #0F172A !important;
+                border-radius: 12px !important;
+                background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%) !important;
+                border: none !important;
                 color: #FFFFFF !important;
-                height: 54px !important;
+                height: 52px !important;
                 width: 100% !important;
-                font-size: 14px !important;
+                font-size: 15px !important;
                 font-weight: 600 !important;
-                text-transform: uppercase !important;
-                letter-spacing: 1.5px !important;
+                letter-spacing: 0.5px !important;
+                box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25) !important;
                 transition: all 0.3s ease !important;
                 margin-top: 8px;
             }
             div.stButton > button:hover, div.stButton > button:active, div.stButton > button:focus {
-                background-color: #3B82F6 !important; 
-                border: 2px solid #3B82F6 !important; 
+                transform: translateY(-2px) !important;
+                box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35) !important;
                 color: #FFFFFF !important;
-                box-shadow: 0 8px 24px rgba(59, 130, 246, 0.35) !important;
-                transform: translateY(-2px);
-            }
-            
-            /* Mobile responsiveness */
-            @media (max-width: 768px) {
-                [data-testid="stHorizontalBlock"] { flex-direction: column; height: auto; }
-                [data-testid="column"]:nth-of-type(1) { height: 40vh; padding: 2rem !important; }
-                [data-testid="column"]:nth-of-type(2) { height: 60vh; padding: 2rem 6% !important; }
             }
         </style>
     """, unsafe_allow_html=True)
     
-    # Render the split layout
-    col_img, col_form = st.columns([1.1, 1])
+    # Spacing to push the card to the vertical center
+    st.write("<br><br><br><br>", unsafe_allow_html=True)
     
-    # Left Side: Hero Image & Text
-    with col_img:
+    # 3-Column Layout: The middle column acts as the card
+    col1, col2, col3 = st.columns([1, 1.1, 1])
+    
+    with col2:
+        # Sleek Icon & Title
         st.markdown("""
-            <div style="position: relative; z-index: 1;">
-                <h1 style="color: #FFFFFF; font-size: clamp(2.5rem, 4vw, 4rem); line-height: 1.1; margin-bottom: 1rem; font-family: 'Century Gothic', Arial, sans-serif; font-weight: 400; letter-spacing: 1px;">
-                    Precision.<br>Verification.
-                </h1>
-                <p style="color: #94A3B8; font-size: clamp(1rem, 1.2vw, 1.25rem); max-width: 85%; font-weight: 300; line-height: 1.6;">
-                    Automated dimension, weight, and format validation protocol for MiQ Ad Ops commercial display assets.
-                </p>
-            </div>
-        """, unsafe_allow_html=True)
-
-    # Right Side: Login Form
-    with col_form:
-        st.markdown("""
-            <div style="margin-bottom: 32px;">
-                <h2 style="color: #0F172A; font-size: 1.75rem; margin-bottom: 4px; font-weight: 600;">System Access</h2>
-                <p style="color: #64748B; font-size: 15px; margin: 0;">Authenticate to continue to the validator environment.</p>
+            <div style='text-align: center; margin-bottom: 24px;'>
+                <div style='background: #EFF6FF; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;'>
+                    <svg width='28' height='28' viewBox='0 0 24 24' fill='none' stroke='#3B82F6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
+                        <rect x='3' y='11' width='18' height='11' rx='2' ry='2'></rect>
+                        <path d='M7 11V7a5 5 0 0 1 10 0v4'></path>
+                    </svg>
+                </div>
+                <h2 style='color: #0F172A; font-weight: 700; font-size: 24px; margin-bottom: 4px; font-family: "Manrope", sans-serif;'>Validator Access</h2>
             </div>
         """, unsafe_allow_html=True)
         
-        # Premium Custom Jira Context Box
+        # Soft Jira Info Pill
         st.markdown(f"""
-            <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-left: 4px solid #3B82F6; padding: 18px; margin-bottom: 28px;">
-                <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 10px;">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
-                    <strong style="color: #0F172A; font-size: 14px; letter-spacing: 0.5px; text-transform: uppercase;">MiQ Employees Only</strong>
-                </div>
-                <p style="color: #475569; font-size: 13px; margin: 0; line-height: 1.6;">
-                    To access this tool, you need the team password.<br>
-                    <a href="{JIRA_URL}" target="_blank" style="color: #3B82F6; text-decoration: none; font-weight: 600;">Click here to get it from Jira</a>
-                    <span style="color: #94A3B8;">&nbsp;(Save for future reference)</span>
-                </p>
+            <div style='background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.15); border-radius: 10px; padding: 12px 16px; margin-bottom: 24px; text-align: center;'>
+                <span style='color: #1E3A8A; font-size: 13.5px; font-weight: 500;'>
+                    MiQ Team: Get the secure password from <a href='{JIRA_URL}' target='_blank' style='color: #2563EB; font-weight: 700; text-decoration: none;'>Jira</a>
+                </span>
             </div>
         """, unsafe_allow_html=True)
         
         # Input & Button
-        password_attempt = st.text_input("Password", type="password", placeholder="Enter team password", label_visibility="collapsed")
+        password_attempt = st.text_input("Password", type="password", placeholder="Enter password", label_visibility="collapsed")
         
-        if st.button("Unlock Validator", use_container_width=True):
+        if st.button("Unlock System", use_container_width=True):
             if password_attempt == TEAM_PASSWORD:
                 st.session_state.logged_in = True
                 st.session_state.failed_attempts = 0  
@@ -179,7 +142,7 @@ if not st.session_state.logged_in:
             else:
                 st.session_state.failed_attempts += 1
                 time.sleep(st.session_state.failed_attempts * 2) # Anti-brute force delay
-                st.error("Incorrect password. Please verify via the Jira link.")
+                st.error("Incorrect password. Please verify via Jira.")
     
     # Halt app execution here if not logged in
     st.stop()
@@ -197,9 +160,10 @@ with st.sidebar:
         st.session_state.logged_in = False
         st.rerun()
 
-# Inject CSS to remove padding for the main HTML tool
+# Inject CSS to reset the background and remove padding for the main tool
 st.markdown("""
     <style>
+        .stApp { background: #FAFAFA !important; }
         .block-container { padding: 0rem !important; max-width: 100% !important; }
         header { visibility: hidden; }
         #MainMenu { visibility: hidden; }
@@ -813,22 +777,16 @@ html_code = """
                     }
 
                     // --- NEW INTELLIGENT FIND ALL & VERIFY LOGIC ---
-                    // Broad regex to see if they are attempting to state a dimension
                     let dimPatternRegex = /\d+\s*(?:pixels|px)?\s*[xX*×_]\s*(?:pixels|px)?\s*\d+/i;
                     let filenameHasDimPattern = dimPatternRegex.test(file.name);
                     
                     let foundMatchInName = false;
                     
                     if (filenameHasDimPattern) {
-                        // Extract every single standalone number from the filename
                         let numsInName = file.name.match(/\d+/g) || [];
-                        
-                        // Check if any adjacent pair of numbers matches our actual dimensions
                         for (let i = 0; i < numsInName.length - 1; i++) {
                             let n1 = parseInt(numsInName[i]);
                             let n2 = parseInt(numsInName[i+1]);
-                            
-                            // Check both standard WxH and swapped HxW
                             if ((n1 === actualW && n2 === actualH) || (n1 === actualH && n2 === actualW)) {
                                 foundMatchInName = true;
                                 break;
@@ -840,7 +798,6 @@ html_code = """
                     let mismatchTriggered = false;
 
                     if (isStandard) {
-                        // If it has a dimension pattern but NO match was found, flag mismatch
                         if (filenameHasDimPattern && !foundMatchInName) {
                             if (status === "Pass") status = "Alert"; 
                             dimHasWarning = true;
