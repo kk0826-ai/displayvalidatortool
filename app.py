@@ -12,9 +12,6 @@ except KeyError:
     st.error("Security configuration missing. Please contact Ad Ops.")
     st.stop()
 
-# Paste your actual Jira/Confluence URL here
-JIRA_URL = "https://miqdigital.atlassian.net/wiki/spaces/..."
-
 # Initialize session states
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
@@ -35,7 +32,7 @@ if not st.session_state.logged_in:
     # CSS to create the light gray background and high-contrast white block
     st.markdown("""
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@700;800&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&display=swap');
 
             /* Light gray background for contrast */
             .stApp { background-color: #E2E8F0 !important; }
@@ -50,10 +47,10 @@ if not st.session_state.logged_in:
                 box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             }
             
-            /* Contrasting Fonts: Bold headers, clean body */
+            /* Manrope Typography: Light headers, clean body */
             h2.welcome-text {
-                font-family: 'Montserrat', sans-serif !important;
-                font-weight: 800 !important;
+                font-family: 'Manrope', sans-serif !important;
+                font-weight: 500 !important; /* Lighter weight as requested */
                 color: #0F172A !important;
                 font-size: 32px !important;
                 text-align: center;
@@ -61,7 +58,7 @@ if not st.session_state.logged_in:
                 letter-spacing: -0.5px;
             }
             p.sub-text {
-                font-family: 'Inter', sans-serif !important;
+                font-family: 'Manrope', sans-serif !important;
                 color: #475569 !important;
                 font-size: 15px !important;
                 line-height: 1.6 !important;
@@ -71,7 +68,7 @@ if not st.session_state.logged_in:
             
             /* Highly Visible Password Input */
             div.stTextInput > div > div > input {
-                font-family: 'Inter', sans-serif !important;
+                font-family: 'Manrope', sans-serif !important;
                 border-radius: 0px !important;
                 border: 2px solid #0F172A !important; /* Thick dark border for maximum visibility */
                 background-color: #F8FAFC !important;
@@ -89,7 +86,7 @@ if not st.session_state.logged_in:
             
             /* Square Button */
             div.stButton > button {
-                font-family: 'Montserrat', sans-serif !important;
+                font-family: 'Manrope', sans-serif !important;
                 border-radius: 0px !important;
                 background-color: #0F172A !important; 
                 color: #FFFFFF !important;
@@ -97,7 +94,7 @@ if not st.session_state.logged_in:
                 height: 52px !important;
                 width: 100% !important;
                 font-size: 16px !important;
-                font-weight: 700 !important;
+                font-weight: 600 !important;
                 letter-spacing: 0.5px !important;
                 text-transform: uppercase !important;
                 margin-top: 16px !important;
@@ -116,12 +113,9 @@ if not st.session_state.logged_in:
     col1, col2, col3 = st.columns([1, 1.2, 1])
     
     with col2:
-        st.markdown(f"""
+        st.markdown("""
             <h2 class='welcome-text'>Welcome Back</h2>
-            <p class='sub-text'>
-                Please enter the team password to continue.<br>
-                Fetch it securely from our <a href='{JIRA_URL}' target='_blank' style='color: #0F172A; font-weight: 600; text-decoration: underline;'>Jira page</a>.
-            </p>
+            <p class='sub-text'>Please enter the team password to continue.</p>
         """, unsafe_allow_html=True)
         
         password_attempt = st.text_input("Password", type="password", placeholder="Enter Password", label_visibility="collapsed")
@@ -134,7 +128,7 @@ if not st.session_state.logged_in:
             else:
                 st.session_state.failed_attempts += 1
                 time.sleep(st.session_state.failed_attempts * 2) 
-                st.error("Incorrect password. Please verify via Jira.")
+                st.error("Incorrect password.")
     
     st.stop()
 
