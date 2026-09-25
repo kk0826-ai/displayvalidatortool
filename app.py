@@ -51,7 +51,7 @@ if not st.session_state.logged_in:
             }
             
             /* Manrope Typography: Light headers, clean body */
-            h2.welcome-text {
+            div.welcome-text {
                 font-family: 'Manrope', sans-serif !important;
                 font-weight: 500 !important; 
                 color: #0F172A !important;
@@ -116,10 +116,10 @@ if not st.session_state.logged_in:
     col1, col2, col3 = st.columns([1, 1.2, 1])
     
     with col2:
-        # Absolutely NO links next to the welcome text
+        # Absolutely NO links next to the welcome text (using div instead of h2)
         st.markdown("""
-            <h2 class='welcome-text'>Welcome Back</h2>
-            <p class='sub-text'>Please enter the team password to continue.</p>
+            <div class='welcome-text'>Welcome Back</div>
+            <p class='sub-text'>Please enter the password to login.</p>
         """, unsafe_allow_html=True)
         
         password_attempt = st.text_input("Password", type="password", placeholder="Enter Password", label_visibility="collapsed")
