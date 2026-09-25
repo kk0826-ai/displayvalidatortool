@@ -6,8 +6,13 @@ import time
 st.set_page_config(page_title="Display Validator", layout="wide")
 
 # --- JIRA-GATED ANTI-BRUTE-FORCE LOGIN ---
-# Define your team password and Jira link here
-TEAM_PASSWORD = "miq-adops-secure"
+# Pull the password securely from Streamlit Secrets (invisible to GitHub)
+try:
+    TEAM_PASSWORD = st.secrets["team_password"]
+except KeyError:
+    st.error("Security configuration missing. Please contact Ad Ops.")
+    st.stop()
+
 JIRA_URL = "https://miqdigital.atlassian.net/wiki/spaces/..."
 
 # Initialize session states for security tracking
