@@ -926,3 +926,6 @@ html_code = """
     </script>
 </body>
 </html>
+"""
+
+components.html(html_code, height=1200, scrolling=True)
