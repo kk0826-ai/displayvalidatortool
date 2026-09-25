@@ -2,11 +2,10 @@ import streamlit as st
 import streamlit.components.v1 as components
 import time
 
-# 1. Hide Streamlit's default padding
-st.set_page_config(page_title="Display Validator", layout="wide")
+# 1. Hide Streamlit's default padding & set initial config
+st.set_page_config(page_title="Display Validator", layout="wide", initial_sidebar_state="collapsed")
 
-# --- JIRA-GATED ANTI-BRUTE-FORCE LOGIN ---
-# Pull the password securely from Streamlit Secrets (invisible to GitHub)
+# --- SECURE LOGIN CONFIGURATION ---
 try:
     TEAM_PASSWORD = st.secrets["team_password"]
 except KeyError:
@@ -16,71 +15,199 @@ except KeyError:
 # Paste your actual Jira/Confluence URL here
 JIRA_URL = "https://miqdigital.atlassian.net/wiki/spaces/..."
 
-# Initialize session states for security tracking
+# Initialize session states
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "failed_attempts" not in st.session_state:
     st.session_state.failed_attempts = 0
 
+# ==========================================
+# ULTRA UI SPLIT-SCREEN LOGIN PAGE
+# ==========================================
 if not st.session_state.logged_in:
     
     # Brute-Force Defense: Hard Lockout after 5 attempts
     if st.session_state.failed_attempts >= 5:
-        st.error("🚨 **Security Lockout:** Too many failed attempts. Access blocked for this session. Please close your browser tab and try again.")
+        st.error("🚨 **Security Lockout:** Too many failed attempts. Access blocked for this session.")
         st.stop()
+
+    # CSS Injection for the High-End Split Screen UI
+    st.markdown("""
+        <style>
+            /* Force edge-to-edge layout */
+            .block-container {
+                padding: 0rem !important;
+                max-width: 100% !important;
+            }
+            header { visibility: hidden; }
+            footer { visibility: hidden; }
+            
+            /* Columns Container to stretch 100vh */
+            [data-testid="stHorizontalBlock"] {
+                height: 100vh;
+                gap: 0rem !important; 
+                align-items: stretch !important;
+            }
+            
+            /* LEFT COLUMN: Dark Tech Image & Branding */
+            [data-testid="column"]:nth-of-type(1) {
+                background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop');
+                background-size: cover;
+                background-position: center;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                padding: 4rem 10% !important;
+                position: relative;
+            }
+            
+            /* Dark gradient overlay for the left column */
+            [data-testid="column"]:nth-of-type(1)::before {
+                content: "";
+                position: absolute;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: linear-gradient(135deg, rgba(15,23,42,0.85) 0%, rgba(15,23,42,0.3) 100%);
+            }
+            
+            /* RIGHT COLUMN: The Login Form */
+            [data-testid="column"]:nth-of-type(2) {
+                background-color: #FFFFFF;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                padding: 0 8% !important;
+            }
+            
+            /* Override Streamlit Input Styling -> Square & Clean */
+            div.stTextInput > div > div > input {
+                border-radius: 0px !important;
+                border: 1.5px solid #E2E8F0 !important;
+                height: 54px !important;
+                padding: 0 16px !important;
+                font-size: 15px !important;
+                color: #0F172A !important;
+                transition: all 0.2s ease;
+            }
+            div.stTextInput > div > div > input:focus {
+                border-color: #3B82F6 !important;
+                box-shadow: 0 0 0 1px #3B82F6 !important;
+            }
+            
+            /* Override Streamlit Button -> Square, Dark, Electric Blue Hover */
+            div.stButton > button {
+                border-radius: 0px !important;
+                background-color: #0F172A !important;
+                border: 2px solid #0F172A !important;
+                color: #FFFFFF !important;
+                height: 54px !important;
+                width: 100% !important;
+                font-size: 14px !important;
+                font-weight: 600 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 1.5px !important;
+                transition: all 0.3s ease !important;
+                margin-top: 8px;
+            }
+            div.stButton > button:hover, div.stButton > button:active, div.stButton > button:focus {
+                background-color: #3B82F6 !important; 
+                border: 2px solid #3B82F6 !important; 
+                color: #FFFFFF !important;
+                box-shadow: 0 8px 24px rgba(59, 130, 246, 0.35) !important;
+                transform: translateY(-2px);
+            }
+            
+            /* Mobile responsiveness */
+            @media (max-width: 768px) {
+                [data-testid="stHorizontalBlock"] { flex-direction: column; height: auto; }
+                [data-testid="column"]:nth-of-type(1) { height: 40vh; padding: 2rem !important; }
+                [data-testid="column"]:nth-of-type(2) { height: 60vh; padding: 2rem 6% !important; }
+            }
+        </style>
+    """, unsafe_allow_html=True)
     
-    # Create a clean, minimalist login card
-    st.write("<br><br><br>", unsafe_allow_html=True) # Push the box down slightly
-    col1, col2, col3 = st.columns([1.2, 1, 1.2])
-    with col2:
-        # Sleek lock icon header
+    # Render the split layout
+    col_img, col_form = st.columns([1.1, 1])
+    
+    # Left Side: Hero Image & Text
+    with col_img:
         st.markdown("""
-            <div style='text-align: center; margin-bottom: 24px;'>
-                <svg width='46' height='46' viewBox='0 0 24 24' fill='none' stroke='#0F172A' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'>
-                    <rect x='3' y='11' width='18' height='11' rx='2' ry='2'></rect>
-                    <path d='M7 11V7a5 5 0 0 1 10 0v4'></path>
-                </svg>
+            <div style="position: relative; z-index: 1;">
+                <h1 style="color: #FFFFFF; font-size: clamp(2.5rem, 4vw, 4rem); line-height: 1.1; margin-bottom: 1rem; font-family: 'Century Gothic', Arial, sans-serif; font-weight: 400; letter-spacing: 1px;">
+                    Precision.<br>Verification.
+                </h1>
+                <p style="color: #94A3B8; font-size: clamp(1rem, 1.2vw, 1.25rem); max-width: 85%; font-weight: 300; line-height: 1.6;">
+                    Automated dimension, weight, and format validation protocol for MiQ Ad Ops commercial display assets.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+
+    # Right Side: Login Form
+    with col_form:
+        st.markdown("""
+            <div style="margin-bottom: 32px;">
+                <h2 style="color: #0F172A; font-size: 1.75rem; margin-bottom: 4px; font-weight: 600;">System Access</h2>
+                <p style="color: #64748B; font-size: 15px; margin: 0;">Authenticate to continue to the validator environment.</p>
             </div>
         """, unsafe_allow_html=True)
         
-        # Password input with hidden label for a cleaner look
+        # Premium Custom Jira Context Box
+        st.markdown(f"""
+            <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-left: 4px solid #3B82F6; padding: 18px; margin-bottom: 28px;">
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 10px;">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    <strong style="color: #0F172A; font-size: 14px; letter-spacing: 0.5px; text-transform: uppercase;">MiQ Employees Only</strong>
+                </div>
+                <p style="color: #475569; font-size: 13px; margin: 0; line-height: 1.6;">
+                    To access this tool, you need the team password.<br>
+                    <a href="{JIRA_URL}" target="_blank" style="color: #3B82F6; text-decoration: none; font-weight: 600;">Click here to get it from Jira</a>
+                    <span style="color: #94A3B8;">&nbsp;(Save for future reference)</span>
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # Input & Button
         password_attempt = st.text_input("Password", type="password", placeholder="Enter team password", label_visibility="collapsed")
         
-        # Subtle Jira link attached directly under the password field
-        st.markdown(f"<div style='text-align: right; margin-top: -12px; margin-bottom: 16px;'><a href='{JIRA_URL}' target='_blank' style='font-size: 13px; color: #64748B; text-decoration: none; font-family: sans-serif;'>Need the password?</a></div>", unsafe_allow_html=True)
-        
-        # Full-width unlock button
-        if st.button("Unlock", use_container_width=True):
+        if st.button("Unlock Validator", use_container_width=True):
             if password_attempt == TEAM_PASSWORD:
                 st.session_state.logged_in = True
                 st.session_state.failed_attempts = 0  
                 st.rerun()  
             else:
                 st.session_state.failed_attempts += 1
-                time.sleep(st.session_state.failed_attempts * 2)
-                st.error("Incorrect password. Please try again.")
+                time.sleep(st.session_state.failed_attempts * 2) # Anti-brute force delay
+                st.error("Incorrect password. Please verify via the Jira link.")
     
-    # Stop the rest of the app from loading until unlocked
+    # Halt app execution here if not logged in
     st.stop()
 
-# --- IF LOGGED IN, SHOW A SIDEBAR LOGOUT BUTTON ---
+
+# ==========================================
+# MAIN VALIDATOR TOOL (Post-Login)
+# ==========================================
+
+# Show a sidebar logout button for authenticated users
 with st.sidebar:
     st.success("✅ MiQ Access Verified")
-    if st.button("Lock Tool"):
+    st.write("---")
+    if st.button("Lock System", use_container_width=True):
         st.session_state.logged_in = False
         st.rerun()
-# ---------------------------------
 
+# Inject CSS to remove padding for the main HTML tool
 st.markdown("""
     <style>
-        .block-container { padding: 0rem !important; }
+        .block-container { padding: 0rem !important; max-width: 100% !important; }
         header { visibility: hidden; }
         #MainMenu { visibility: hidden; }
         footer { visibility: hidden; }
     </style>
 """, unsafe_allow_html=True)
 
-# 2. The Robust, Commercial-Grade HTML/JS Code
+# The Robust HTML/JS Code (Untouched Logic)
 html_code = """
 <!DOCTYPE html>
 <html lang="en">
@@ -686,7 +813,7 @@ html_code = """
                     }
 
                     // --- NEW INTELLIGENT FIND ALL & VERIFY LOGIC ---
-                    // Broad regex to see if they are attempting to state a dimension (e.g. 1x2, 120 pixels x 600, 300_250)
+                    // Broad regex to see if they are attempting to state a dimension
                     let dimPatternRegex = /\d+\s*(?:pixels|px)?\s*[xX*×_]\s*(?:pixels|px)?\s*\d+/i;
                     let filenameHasDimPattern = dimPatternRegex.test(file.name);
                     
