@@ -115,7 +115,10 @@ if not st.session_state.logged_in:
     with col2:
         st.markdown("""
             <h2 class='welcome-text'>Welcome Back</h2>
-            <p class='sub-text'>Please enter the team password to continue.</p>
+            <p class='sub-text'>
+                Please enter the team password to continue.<br>
+                (You can find it securely on our internal Jira page).
+            </p>
         """, unsafe_allow_html=True)
         
         password_attempt = st.text_input("Password", type="password", placeholder="Enter Password", label_visibility="collapsed")
@@ -923,6 +926,3 @@ html_code = """
     </script>
 </body>
 </html>
-"""
-
-components.html(html_code, height=1200, scrolling=True)
