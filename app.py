@@ -116,8 +116,8 @@ if not st.session_state.logged_in:
         st.markdown("""
             <h2 class='welcome-text'>Welcome Back</h2>
             <p class='sub-text'>
-                Please enter the team password to continue.<br>
-                (You can find it securely on our internal Jira page).
+                Please enter the password to continue.<br>
+                (Find the password here - https://mediaiq.atlassian.net/wiki/x/QIC1QgE).
             </p>
         """, unsafe_allow_html=True)
         
