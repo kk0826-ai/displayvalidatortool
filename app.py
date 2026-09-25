@@ -2,10 +2,11 @@ import streamlit as st
 import streamlit.components.v1 as components
 import time
 
-# 1. Hide Streamlit's default padding & set initial config
-st.set_page_config(page_title="Display Validator", layout="wide", initial_sidebar_state="collapsed")
+# 1. Hide Streamlit's default padding
+st.set_page_config(page_title="Display Validator", layout="wide")
 
-# --- SECURE LOGIN CONFIGURATION ---
+# --- JIRA-GATED ANTI-BRUTE-FORCE LOGIN ---
+# Pull the password securely from Streamlit Secrets (invisible to GitHub)
 try:
     TEAM_PASSWORD = st.secrets["team_password"]
 except KeyError:
@@ -15,48 +16,40 @@ except KeyError:
 # Paste your actual Jira/Confluence URL here
 JIRA_URL = "https://miqdigital.atlassian.net/wiki/spaces/..."
 
-# Initialize session states
+# Initialize session states for security tracking
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "failed_attempts" not in st.session_state:
     st.session_state.failed_attempts = 0
 
-
-# ==========================================
-# PURE, SIMPLE CENTERED LOGIN
-# ==========================================
 if not st.session_state.logged_in:
     
     # Brute-Force Defense: Hard Lockout after 5 attempts
     if st.session_state.failed_attempts >= 5:
-        st.error("🚨 **Security Lockout:** Too many failed attempts. Access blocked for this session.")
+        st.error("🚨 **Security Lockout:** Too many failed attempts. Access blocked for this session. Please close your browser tab and try again.")
         st.stop()
-
-    # Hide header and footer for a clean slate
-    st.markdown("""
-        <style>
-            header { visibility: hidden; }
-            footer { visibility: hidden; }
-        </style>
-    """, unsafe_allow_html=True)
     
-    # Push the login box down to the vertical center
-    st.write("<br><br><br><br><br>", unsafe_allow_html=True)
-    
-    # Perfect horizontal centering using columns
+    # Create a clean, minimalist login card
+    st.write("<br><br><br>", unsafe_allow_html=True) # Push the box down slightly
     col1, col2, col3 = st.columns([1.2, 1, 1.2])
-    
     with col2:
-        # Minimalist Header
+        # Sleek lock icon header
         st.markdown("""
-            <h2 style='text-align: center; color: #0F172A; margin-bottom: 0px;'>Display Validator</h2>
-            <p style='text-align: center; color: #64748B; margin-bottom: 20px; font-size: 14px;'>Authorized MiQ personnel only.</p>
+            <div style='text-align: center; margin-bottom: 24px;'>
+                <svg width='46' height='46' viewBox='0 0 24 24' fill='none' stroke='#0F172A' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'>
+                    <rect x='3' y='11' width='18' height='11' rx='2' ry='2'></rect>
+                    <path d='M7 11V7a5 5 0 0 1 10 0v4'></path>
+                </svg>
+            </div>
         """, unsafe_allow_html=True)
         
-        # Native, clean input
+        # Password input with hidden label for a cleaner look
         password_attempt = st.text_input("Password", type="password", placeholder="Enter team password", label_visibility="collapsed")
         
-        # Native full-width button
+        # Subtle Jira link attached directly under the password field
+        st.markdown(f"<div style='text-align: right; margin-top: -12px; margin-bottom: 16px;'><a href='{JIRA_URL}' target='_blank' style='font-size: 13px; color: #64748B; text-decoration: none; font-family: sans-serif;'>Need the password?</a></div>", unsafe_allow_html=True)
+        
+        # Full-width unlock button
         if st.button("Unlock", use_container_width=True):
             if password_attempt == TEAM_PASSWORD:
                 st.session_state.logged_in = True
@@ -64,43 +57,30 @@ if not st.session_state.logged_in:
                 st.rerun()  
             else:
                 st.session_state.failed_attempts += 1
-                time.sleep(st.session_state.failed_attempts * 2) # Anti-brute force delay
-                st.error("Incorrect password.")
-        
-        # Simple, subtle Jira link at the bottom
-        st.markdown(f"""
-            <p style='text-align: center; margin-top: 15px; font-size: 13px;'>
-                <a href='{JIRA_URL}' target='_blank' style='color: #3B82F6; text-decoration: none;'>Need the password? Get it from Jira.</a>
-            </p>
-        """, unsafe_allow_html=True)
+                time.sleep(st.session_state.failed_attempts * 2)
+                st.error("Incorrect password. Please try again.")
     
-    # Halt app execution here if not logged in
+    # Stop the rest of the app from loading until unlocked
     st.stop()
 
-
-# ==========================================
-# MAIN VALIDATOR TOOL (Post-Login)
-# ==========================================
-
-# Show a sidebar logout button for authenticated users
+# --- IF LOGGED IN, SHOW A SIDEBAR LOGOUT BUTTON ---
 with st.sidebar:
     st.success("✅ MiQ Access Verified")
-    st.write("---")
-    if st.button("Lock System", use_container_width=True):
+    if st.button("Lock Tool"):
         st.session_state.logged_in = False
         st.rerun()
+# ---------------------------------
 
-# Remove padding for the main HTML tool
 st.markdown("""
     <style>
-        .block-container { padding: 0rem !important; max-width: 100% !important; }
+        .block-container { padding: 0rem !important; }
         header { visibility: hidden; }
         #MainMenu { visibility: hidden; }
         footer { visibility: hidden; }
     </style>
 """, unsafe_allow_html=True)
 
-# The Robust HTML/JS Code (Untouched Logic)
+# 2. The Robust, Commercial-Grade HTML/JS Code
 html_code = """
 <!DOCTYPE html>
 <html lang="en">
@@ -706,16 +686,22 @@ html_code = """
                     }
 
                     // --- NEW INTELLIGENT FIND ALL & VERIFY LOGIC ---
+                    // Broad regex to see if they are attempting to state a dimension (e.g. 1x2, 120 pixels x 600, 300_250)
                     let dimPatternRegex = /\d+\s*(?:pixels|px)?\s*[xX*×_]\s*(?:pixels|px)?\s*\d+/i;
                     let filenameHasDimPattern = dimPatternRegex.test(file.name);
                     
                     let foundMatchInName = false;
                     
                     if (filenameHasDimPattern) {
+                        // Extract every single standalone number from the filename
                         let numsInName = file.name.match(/\d+/g) || [];
+                        
+                        // Check if any adjacent pair of numbers matches our actual dimensions
                         for (let i = 0; i < numsInName.length - 1; i++) {
                             let n1 = parseInt(numsInName[i]);
                             let n2 = parseInt(numsInName[i+1]);
+                            
+                            // Check both standard WxH and swapped HxW
                             if ((n1 === actualW && n2 === actualH) || (n1 === actualH && n2 === actualW)) {
                                 foundMatchInName = true;
                                 break;
@@ -727,6 +713,7 @@ html_code = """
                     let mismatchTriggered = false;
 
                     if (isStandard) {
+                        // If it has a dimension pattern but NO match was found, flag mismatch
                         if (filenameHasDimPattern && !foundMatchInName) {
                             if (status === "Pass") status = "Alert"; 
                             dimHasWarning = true;
