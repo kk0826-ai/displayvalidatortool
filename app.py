@@ -13,7 +13,7 @@ except KeyError:
     st.error("Security configuration missing. Please contact Ad Ops.")
     st.stop()
 
-JIRA_URL = "https://miqdigital.atlassian.net/wiki/spaces/..."
+JIRA_URL = "https://mediaiq.atlassian.net/wiki/x/QIC1QgE"
 
 # Initialize session states for security tracking
 if "logged_in" not in st.session_state:
