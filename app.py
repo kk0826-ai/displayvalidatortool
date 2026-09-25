@@ -12,6 +12,9 @@ except KeyError:
     st.error("Security configuration missing. Please contact Ad Ops.")
     st.stop()
 
+# Your internal Jira URL
+JIRA_URL = "https://mediaiq.atlassian.net/wiki/x/QIC1QgE"
+
 # Initialize session states
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
@@ -54,7 +57,7 @@ if not st.session_state.logged_in:
                 color: #0F172A !important;
                 font-size: 32px !important;
                 text-align: center;
-                margin-bottom: 12px !important;
+                margin-bottom: 8px !important;
                 letter-spacing: -0.5px;
             }
             p.sub-text {
@@ -113,12 +116,10 @@ if not st.session_state.logged_in:
     col1, col2, col3 = st.columns([1, 1.2, 1])
     
     with col2:
+        # Absolutely NO links next to the welcome text
         st.markdown("""
             <h2 class='welcome-text'>Welcome Back</h2>
-            <p class='sub-text'>
-                Please enter the password to continue.<br>
-                (Find the password here - https://mediaiq.atlassian.net/wiki/x/QIC1QgE).
-            </p>
+            <p class='sub-text'>Please enter the team password to continue.</p>
         """, unsafe_allow_html=True)
         
         password_attempt = st.text_input("Password", type="password", placeholder="Enter Password", label_visibility="collapsed")
@@ -132,6 +133,15 @@ if not st.session_state.logged_in:
                 st.session_state.failed_attempts += 1
                 time.sleep(st.session_state.failed_attempts * 2) 
                 st.error("Incorrect password.")
+
+        # Clean link separated entirely from the header
+        st.markdown(f"""
+            <div style='text-align: center; margin-top: 20px;'>
+                <span style='color: #64748B; font-family: "Manrope", sans-serif; font-size: 14px;'>
+                    Find the password <a href='{JIRA_URL}' target='_blank' style='color: #EA00AD; font-weight: 600; text-decoration: none;'>here</a>.
+                </span>
+            </div>
+        """, unsafe_allow_html=True)
     
     st.stop()
 
