@@ -23,7 +23,7 @@ if "failed_attempts" not in st.session_state:
 
 
 # ==========================================
-# MIQ BRANDED STANDOUT BLOCK LOGIN
+# CLEAN HIGH-CONTRAST BLOCK LOGIN
 # ==========================================
 if not st.session_state.logged_in:
     
@@ -32,32 +32,33 @@ if not st.session_state.logged_in:
         st.error("🚨 **Security Lockout:** Too many failed attempts. Access blocked for this session.")
         st.stop()
 
-    # CSS to create the Midnight Blue background and striking white block
+    # CSS to create the light gray background and high-contrast white block
     st.markdown("""
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Outfit:wght@700&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@700;800&display=swap');
 
-            /* MiQ Midnight Blue Background */
-            .stApp { background-color: #2B0030 !important; }
+            /* Light gray background for contrast */
+            .stApp { background-color: #E2E8F0 !important; }
             header { visibility: hidden; }
             footer { visibility: hidden; }
             
-            /* Target the middle column to act as the standout white block */
+            /* The distinct white login block */
             [data-testid="column"]:nth-of-type(2) {
                 background-color: #FFFFFF;
-                padding: 48px !important;
-                border-radius: 0px !important;
-                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+                padding: 50px !important;
+                border: 1px solid #CBD5E1;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             }
             
-            /* High Contrast Typography */
+            /* Contrasting Fonts: Bold headers, clean body */
             h2.welcome-text {
-                font-family: 'Outfit', sans-serif !important;
-                font-weight: 700 !important;
+                font-family: 'Montserrat', sans-serif !important;
+                font-weight: 800 !important;
                 color: #0F172A !important;
-                font-size: 36px !important;
-                margin-bottom: 8px !important;
+                font-size: 32px !important;
                 text-align: center;
+                margin-bottom: 12px !important;
+                letter-spacing: -0.5px;
             }
             p.sub-text {
                 font-family: 'Inter', sans-serif !important;
@@ -65,15 +66,15 @@ if not st.session_state.logged_in:
                 font-size: 15px !important;
                 line-height: 1.6 !important;
                 text-align: center;
-                margin-bottom: 28px !important;
+                margin-bottom: 30px !important;
             }
             
-            /* Highly Visible Square Input */
+            /* Highly Visible Password Input */
             div.stTextInput > div > div > input {
                 font-family: 'Inter', sans-serif !important;
                 border-radius: 0px !important;
-                border: 2px solid #94A3B8 !important; /* Darker, thicker border for visibility */
-                background-color: #F8FAFC !important; /* Slight contrast from white card */
+                border: 2px solid #0F172A !important; /* Thick dark border for maximum visibility */
+                background-color: #F8FAFC !important;
                 height: 52px !important;
                 padding: 0 16px !important;
                 font-size: 16px !important;
@@ -81,16 +82,16 @@ if not st.session_state.logged_in:
                 transition: all 0.2s ease;
             }
             div.stTextInput > div > div > input:focus {
-                border-color: #EA00AD !important; /* MiQ Cerise focus */
+                border-color: #EA00AD !important; /* Focus switches to MiQ Cerise */
                 background-color: #FFFFFF !important;
                 box-shadow: 0 0 0 1px #EA00AD !important;
             }
             
-            /* Square Button - MiQ Cerise */
+            /* Square Button */
             div.stButton > button {
-                font-family: 'Outfit', sans-serif !important;
+                font-family: 'Montserrat', sans-serif !important;
                 border-radius: 0px !important;
-                background-color: #EA00AD !important; 
+                background-color: #0F172A !important; 
                 color: #FFFFFF !important;
                 border: none !important;
                 height: 52px !important;
@@ -100,35 +101,29 @@ if not st.session_state.logged_in:
                 letter-spacing: 0.5px !important;
                 text-transform: uppercase !important;
                 margin-top: 16px !important;
-                transition: background-color 0.2s ease, transform 0.1s;
+                transition: background-color 0.2s ease;
             }
             div.stButton > button:hover {
-                background-color: #C2008E !important; /* Darker Cerise on hover */
+                background-color: #EA00AD !important; /* Hover switches to MiQ Cerise */
                 color: #FFFFFF !important;
-            }
-            div.stButton > button:active {
-                transform: scale(0.98);
             }
         </style>
     """, unsafe_allow_html=True)
     
-    # Small gap to push it slightly down from the absolute top
     st.write("<br><br><br>", unsafe_allow_html=True)
     
     # Center the block using columns
-    col1, col2, col3 = st.columns([1, 1, 1])
+    col1, col2, col3 = st.columns([1, 1.2, 1])
     
     with col2:
-        # Welcome Text and Jira Context using the new typography classes
         st.markdown(f"""
             <h2 class='welcome-text'>Welcome Back</h2>
             <p class='sub-text'>
                 Please enter the team password to continue.<br>
-                Fetch it securely from our <a href='{JIRA_URL}' target='_blank' style='color: #EA00AD; font-weight: 600; text-decoration: none;'>Jira page</a>.
+                Fetch it securely from our <a href='{JIRA_URL}' target='_blank' style='color: #0F172A; font-weight: 600; text-decoration: underline;'>Jira page</a>.
             </p>
         """, unsafe_allow_html=True)
         
-        # Input & Button
         password_attempt = st.text_input("Password", type="password", placeholder="Enter Password", label_visibility="collapsed")
         
         if st.button("Log In", use_container_width=True):
@@ -141,7 +136,6 @@ if not st.session_state.logged_in:
                 time.sleep(st.session_state.failed_attempts * 2) 
                 st.error("Incorrect password. Please verify via Jira.")
     
-    # Halt app execution here if not logged in
     st.stop()
 
 
@@ -157,7 +151,7 @@ with st.sidebar:
         st.session_state.logged_in = False
         st.rerun()
 
-# Reset CSS for the main validator tool back to its original clean state
+# Reset CSS for the main validator tool
 st.markdown("""
     <style>
         .stApp { background-color: #FAFAFA !important; }
