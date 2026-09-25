@@ -13,7 +13,8 @@ except KeyError:
     st.error("Security configuration missing. Please contact Ad Ops.")
     st.stop()
 
-JIRA_URL = "https://mediaiq.atlassian.net/wiki/x/QIC1QgE"
+# Paste your actual Jira/Confluence URL here
+JIRA_URL = "https://miqdigital.atlassian.net/wiki/spaces/..."
 
 # Initialize session states for security tracking
 if "logged_in" not in st.session_state:
@@ -22,30 +23,42 @@ if "failed_attempts" not in st.session_state:
     st.session_state.failed_attempts = 0
 
 if not st.session_state.logged_in:
-    st.markdown("<h2 style='text-align: center; margin-top: 50px;'>Display Validator Tool</h2>", unsafe_allow_html=True)
     
     # Brute-Force Defense: Hard Lockout after 5 attempts
     if st.session_state.failed_attempts >= 5:
         st.error("🚨 **Security Lockout:** Too many failed attempts. Access blocked for this session. Please close your browser tab and try again.")
         st.stop()
     
-    # Create a clean, centered login box
-    col1, col2, col3 = st.columns([1, 1.5, 1])
+    # Create a clean, minimalist login card
+    st.write("<br><br><br>", unsafe_allow_html=True) # Push the box down slightly
+    col1, col2, col3 = st.columns([1.2, 1, 1.2])
     with col2:
-        st.info(f"🔒 **MiQ Employees Only:** To access this tool, you need the team password. \n\n[**Click here to get the password from Jira**]({JIRA_URL}) *(Note: Save it for future reference!)*")
+        # Sleek lock icon header
+        st.markdown("""
+            <div style='text-align: center; margin-bottom: 24px;'>
+                <svg width='46' height='46' viewBox='0 0 24 24' fill='none' stroke='#0F172A' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'>
+                    <rect x='3' y='11' width='18' height='11' rx='2' ry='2'></rect>
+                    <path d='M7 11V7a5 5 0 0 1 10 0v4'></path>
+                </svg>
+            </div>
+        """, unsafe_allow_html=True)
         
-        password_attempt = st.text_input("Enter Password", type="password")
+        # Password input with hidden label for a cleaner look
+        password_attempt = st.text_input("Password", type="password", placeholder="Enter team password", label_visibility="collapsed")
         
-        if st.button("Unlock Tool"):
+        # Subtle Jira link attached directly under the password field
+        st.markdown(f"<div style='text-align: right; margin-top: -12px; margin-bottom: 16px;'><a href='{JIRA_URL}' target='_blank' style='font-size: 13px; color: #64748B; text-decoration: none; font-family: sans-serif;'>Need the password?</a></div>", unsafe_allow_html=True)
+        
+        # Full-width unlock button
+        if st.button("Unlock", use_container_width=True):
             if password_attempt == TEAM_PASSWORD:
                 st.session_state.logged_in = True
-                st.session_state.failed_attempts = 0  # Reset on success
+                st.session_state.failed_attempts = 0  
                 st.rerun()  
             else:
                 st.session_state.failed_attempts += 1
-                # Brute-Force Defense: Progressive Time Penalty (2s, 4s, 6s...)
                 time.sleep(st.session_state.failed_attempts * 2)
-                st.error(f"Incorrect password. Attempt {st.session_state.failed_attempts}/5. Please check the Jira link.")
+                st.error("Incorrect password. Please try again.")
     
     # Stop the rest of the app from loading until unlocked
     st.stop()
@@ -67,7 +80,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 2. The Robust, Commercial-Grade HTML/JS Code (With Smart Mismatch Logic)
+# 2. The Robust, Commercial-Grade HTML/JS Code
 html_code = """
 <!DOCTYPE html>
 <html lang="en">
