@@ -50,7 +50,7 @@ if not st.session_state.logged_in:
             /* Manrope Typography: Light headers, clean body */
             h2.welcome-text {
                 font-family: 'Manrope', sans-serif !important;
-                font-weight: 500 !important; /* Lighter weight as requested */
+                font-weight: 500 !important; 
                 color: #0F172A !important;
                 font-size: 32px !important;
                 text-align: center;
@@ -70,7 +70,7 @@ if not st.session_state.logged_in:
             div.stTextInput > div > div > input {
                 font-family: 'Manrope', sans-serif !important;
                 border-radius: 0px !important;
-                border: 2px solid #0F172A !important; /* Thick dark border for maximum visibility */
+                border: 2px solid #0F172A !important; 
                 background-color: #F8FAFC !important;
                 height: 52px !important;
                 padding: 0 16px !important;
@@ -79,7 +79,7 @@ if not st.session_state.logged_in:
                 transition: all 0.2s ease;
             }
             div.stTextInput > div > div > input:focus {
-                border-color: #EA00AD !important; /* Focus switches to MiQ Cerise */
+                border-color: #EA00AD !important; 
                 background-color: #FFFFFF !important;
                 box-shadow: 0 0 0 1px #EA00AD !important;
             }
@@ -101,7 +101,7 @@ if not st.session_state.logged_in:
                 transition: background-color 0.2s ease;
             }
             div.stButton > button:hover {
-                background-color: #EA00AD !important; /* Hover switches to MiQ Cerise */
+                background-color: #EA00AD !important; 
                 color: #FFFFFF !important;
             }
         </style>
