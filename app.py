@@ -1,8 +1,58 @@
 import streamlit as st
 import streamlit.components.v1 as components
+import time
 
 # 1. Hide Streamlit's default padding
 st.set_page_config(page_title="Display Validator", layout="wide")
+
+# --- JIRA-GATED ANTI-BRUTE-FORCE LOGIN ---
+# Define your team password and Jira link here
+TEAM_PASSWORD = "miq-adops-secure"
+JIRA_URL = "https://miqdigital.atlassian.net/wiki/spaces/..."
+
+# Initialize session states for security tracking
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+if "failed_attempts" not in st.session_state:
+    st.session_state.failed_attempts = 0
+
+if not st.session_state.logged_in:
+    st.markdown("<h2 style='text-align: center; margin-top: 50px;'>Display Validator Tool</h2>", unsafe_allow_html=True)
+    
+    # Brute-Force Defense: Hard Lockout after 5 attempts
+    if st.session_state.failed_attempts >= 5:
+        st.error("🚨 **Security Lockout:** Too many failed attempts. Access blocked for this session. Please close your browser tab and try again.")
+        st.stop()
+    
+    # Create a clean, centered login box
+    col1, col2, col3 = st.columns([1, 1.5, 1])
+    with col2:
+        st.info(f"🔒 **MiQ Employees Only:** To access this tool, you need the team password. \n\n[**Click here to get the password from Jira**]({JIRA_URL}) *(Note: Save it for future reference!)*")
+        
+        password_attempt = st.text_input("Enter Password", type="password")
+        
+        if st.button("Unlock Tool"):
+            if password_attempt == TEAM_PASSWORD:
+                st.session_state.logged_in = True
+                st.session_state.failed_attempts = 0  # Reset on success
+                st.rerun()  
+            else:
+                st.session_state.failed_attempts += 1
+                # Brute-Force Defense: Progressive Time Penalty (2s, 4s, 6s...)
+                time.sleep(st.session_state.failed_attempts * 2)
+                st.error(f"Incorrect password. Attempt {st.session_state.failed_attempts}/5. Please check the Jira link.")
+    
+    # Stop the rest of the app from loading until unlocked
+    st.stop()
+
+# --- IF LOGGED IN, SHOW A SIDEBAR LOGOUT BUTTON ---
+with st.sidebar:
+    st.success("✅ MiQ Access Verified")
+    if st.button("Lock Tool"):
+        st.session_state.logged_in = False
+        st.rerun()
+# ---------------------------------
+
 st.markdown("""
     <style>
         .block-container { padding: 0rem !important; }
@@ -12,7 +62,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 2. The Robust, Commercial-Grade HTML/JS Code
+# 2. The Robust, Commercial-Grade HTML/JS Code (With Smart Mismatch Logic)
 html_code = """
 <!DOCTYPE html>
 <html lang="en">
@@ -341,6 +391,7 @@ html_code = """
             `;
         </script>
 
+        <!-- Only 2 Tables -->
         <div class="table-wrapper" id="wrapper-fail">
             <div style="padding: 0 0 12px 0;">
                 <div class="table-header-title" style="padding-bottom: 4px;">
