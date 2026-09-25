@@ -12,14 +12,18 @@ except KeyError:
     st.error("Security configuration missing. Please contact Ad Ops.")
     st.stop()
 
+# Paste your actual Jira/Confluence URL here
+JIRA_URL = "https://miqdigital.atlassian.net/wiki/spaces/..."
+
 # Initialize session states
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "failed_attempts" not in st.session_state:
     st.session_state.failed_attempts = 0
 
+
 # ==========================================
-# UNIFIED CARD SPLIT-SCREEN LOGIN
+# SIMPLE, STANDOUT BLOCK LOGIN PAGE
 # ==========================================
 if not st.session_state.logged_in:
     
@@ -28,111 +32,73 @@ if not st.session_state.logged_in:
         st.error("🚨 **Security Lockout:** Too many failed attempts. Access blocked for this session.")
         st.stop()
 
-    # Deep CSS Injection for the Floating Block UI
+    # CSS to create a sharp, distinct block at the top center
     st.markdown("""
         <style>
-            /* Dark blurred background for the page behind the card */
-            .stApp {
-                background: linear-gradient(135deg, #334155 0%, #0F172A 100%) !important;
-            }
+            /* Make the background slightly gray so the white block pops */
+            .stApp { background-color: #F1F5F9 !important; }
             header { visibility: hidden; }
             footer { visibility: hidden; }
             
-            /* Center the block vertically and horizontally */
-            .block-container {
-                padding: 0rem !important;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                min-height: 100vh;
-                max-width: 1000px !important;
-            }
-
-            /* The Floating Card Block */
-            [data-testid="stHorizontalBlock"] {
-                background-color: #FFFFFF;
-                border-radius: 24px;
-                overflow: hidden;
-                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.1);
-                margin: 2rem;
-                gap: 0px !important;
-                min-height: 550px;
-            }
-
-            /* LEFT SIDE: Custom Image */
-            [data-testid="column"]:nth-of-type(1) {
-                background-image: url('https://drive.google.com/uc?export=view&id=1k5jVGsUz3fh6GRBzziJSIK3LY6Hkakj3');
-                background-size: cover;
-                background-position: center;
-                width: 50% !important;
-                flex: 1 1 50% !important;
-            }
-
-            /* RIGHT SIDE: White Form Panel */
+            /* Target the middle column to act as the standout white block */
             [data-testid="column"]:nth-of-type(2) {
                 background-color: #FFFFFF;
-                padding: 60px 50px !important;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                width: 50% !important;
-                flex: 1 1 50% !important;
+                padding: 40px !important;
+                border: 1px solid #E2E8F0;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
             }
-
-            /* Clean Form Inputs */
+            
+            /* Square Inputs */
             div.stTextInput > div > div > input {
-                border-radius: 8px !important;
-                border: 1.5px solid #E2E8F0 !important;
+                border-radius: 0px !important;
+                border: 1px solid #CBD5E1 !important;
                 height: 48px !important;
                 padding: 0 16px !important;
                 font-size: 15px !important;
-                color: #0F172A !important;
             }
             div.stTextInput > div > div > input:focus {
                 border-color: #0F172A !important;
                 box-shadow: none !important;
             }
-
-            /* Solid Black Button */
+            
+            /* Square Button */
             div.stButton > button {
-                border-radius: 8px !important;
+                border-radius: 0px !important;
                 background-color: #0F172A !important;
                 color: #FFFFFF !important;
                 border: none !important;
                 height: 48px !important;
                 width: 100% !important;
                 font-size: 15px !important;
-                font-weight: 500 !important;
-                margin-top: 12px;
-                transition: opacity 0.2s;
+                font-weight: 600 !important;
+                margin-top: 16px !important;
+                transition: background-color 0.2s ease;
             }
             div.stButton > button:hover {
-                opacity: 0.9 !important;
+                background-color: #334155 !important;
                 color: #FFFFFF !important;
-            }
-            
-            /* Responsive break for smaller screens */
-            @media (max-width: 768px) {
-                [data-testid="stHorizontalBlock"] { flex-direction: column; }
-                [data-testid="column"]:nth-of-type(1) { min-height: 300px; width: 100% !important; }
-                [data-testid="column"]:nth-of-type(2) { width: 100% !important; padding: 40px 20px !important; }
             }
         </style>
     """, unsafe_allow_html=True)
     
-    # Render the split layout
-    col_img, col_form = st.columns([1, 1])
+    # Small gap to push it slightly down from the absolute top
+    st.write("<br><br>", unsafe_allow_html=True)
     
-    with col_img:
-        # The background image handles this column visually.
-        st.empty() 
-
-    with col_form:
-        st.markdown("""
-            <h1 style='color: #0F172A; font-size: 32px; font-weight: 700; margin-bottom: 24px; font-family: sans-serif;'>Welcome Back</h1>
+    # Center the block using columns
+    col1, col2, col3 = st.columns([1, 1, 1])
+    
+    with col2:
+        # Welcome Text and Jira Context
+        st.markdown(f"""
+            <h2 style='text-align: center; color: #0F172A; margin-bottom: 8px; font-weight: 700; font-family: sans-serif;'>Welcome Back</h2>
+            <p style='text-align: center; color: #64748B; font-size: 14.5px; margin-bottom: 24px; line-height: 1.5;'>
+                Please enter the team password to continue.<br>
+                Need access? Fetch it securely from our <a href='{JIRA_URL}' target='_blank' style='color: #0F172A; font-weight: 600;'>Jira page</a>.
+            </p>
         """, unsafe_allow_html=True)
         
-        password_attempt = st.text_input("Password", type="password", placeholder="Enter team password", label_visibility="collapsed")
+        # Input & Button
+        password_attempt = st.text_input("Password", type="password", placeholder="Password", label_visibility="collapsed")
         
         if st.button("Log In", use_container_width=True):
             if password_attempt == TEAM_PASSWORD:
@@ -142,8 +108,9 @@ if not st.session_state.logged_in:
             else:
                 st.session_state.failed_attempts += 1
                 time.sleep(st.session_state.failed_attempts * 2) 
-                st.error("Incorrect password.")
+                st.error("Incorrect password. Please verify via Jira.")
     
+    # Halt app execution here if not logged in
     st.stop()
 
 
@@ -151,6 +118,7 @@ if not st.session_state.logged_in:
 # MAIN VALIDATOR TOOL (Post-Login)
 # ==========================================
 
+# Sidebar logout
 with st.sidebar:
     st.success("✅ MiQ Access Verified")
     st.write("---")
@@ -158,11 +126,11 @@ with st.sidebar:
         st.session_state.logged_in = False
         st.rerun()
 
-# Reset the background and padding for the main tool
+# Reset CSS for the main validator tool
 st.markdown("""
     <style>
-        .stApp { background: #FAFAFA !important; }
-        .block-container { padding: 0rem !important; max-width: 100% !important; justify-content: start; min-height: auto; }
+        .stApp { background-color: #FAFAFA !important; }
+        .block-container { padding: 0rem !important; max-width: 100% !important; }
         header { visibility: hidden; }
         #MainMenu { visibility: hidden; }
         footer { visibility: hidden; }
